@@ -1,0 +1,198 @@
+﻿@model WebOptimus.Models.ViewModel.EditCandidateViewModel
+
+@{
+    ViewData["Title"] = "Edit Candidate";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Edit Candidate</h1>
+                <p>Update the candidate's information and save changes.</p>
+            </div>
+            <div class="col-sm-6">
+                <a class="btn btn-xs btn-outline-primary float-md-right" style="width:100px; float:right; text-align: center;" href="@Url.Action("Index", "Candidate")"><i class="fas fa-arrow-left"></i> Back</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container-fluid">
+        <form asp-controller="Candidate" asp-action="EditCandidate" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+
+            <!-- Validation Summary to display errors -->
+             <input hidden asp-for="CandidateId" />
+             <input type="hidden" asp-for="ExistingImagePath" />
+<input type="hidden" asp-for="ExistingVideoPath" />
+            <div class="row">
+                <!-- Candidate Information -->
+                <div class="col-md-6">
+                    <div class="card card-info">
+                        <div class="card-header">
+                            <h3 class="card-title">Candidate Information</h3>
+                        </div>
+                        <div class="card-body">
+                            <!-- Dropdown for selecting Candidate -->
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Select Candidate: </label>
+                                <div class="col-sm-8">
+                                    <select asp-for="UserId" asp-items="Model.EditUsers" id="candidateSelect" class="form-control">
+                                        <option value="">Select Candidate</option>
+                                    </select>
+                                    <span asp-validation-for="UserId" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <!-- RegNumber Field (Read-only) -->
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">RegNumber: </label>
+                                <div class="col-sm-8">
+                                    <input asp-for="RegNumber" class="form-control" id="regNumber" readonly />
+                                </div>
+                            </div>
+
+                            <!-- Year of Birth Field (Read-only) -->
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Year of Birth: </label>
+                                <div class="col-sm-8">
+                                    <input asp-for="YearOfBirth" class="form-control" id="age" readonly />
+                                </div>
+                            </div>
+
+                            <!-- Election Dropdown -->
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Election: </label>
+                                <div class="col-sm-8">
+                                    <select asp-for="ElectionId" asp-items="Model.Elections" class="form-control">
+                                        <option value="">Select Election</option>
+                                    </select>
+                                    <span asp-validation-for="ElectionId" class="text-danger"></span>
+                                </div>
+                            </div>
+                    
+                            <!-- Candidate Description -->
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Candidate Description: </label>
+                                <div class="col-sm-12">
+                                 <textarea asp-for="CandidateDescription" class="textarea" placeholder="Place some text here"
+                                      style="width: 100%; height: 300px; font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;">
+                                   @Html.Raw(Model.CandidateDescription)
+                                  </textarea>
+                          
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Media Uploads (Image and Video) -->
+                <div class="col-md-6">
+                    <div class="card card-success">
+                        <div class="card-header">
+                            <h3 class="card-title">Media Upload</h3>
+                        </div>
+                        <div class="card-body">
+                            <!-- Existing Image Preview -->
+                            @if (!string.IsNullOrEmpty(Model.ExistingImagePath))
+                            {
+                                <div class="form-group">
+                                    <label>Current Image:</label>
+                                    <div>
+                                        <img src="@Url.Content("~/"+Model.ExistingImagePath)" alt="Current Image" class="img-fluid" style="max-width: 200px;" />
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Image Upload -->
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Upload New Picture: </label>
+                                <div class="col-sm-8">
+                                    <input type="file" name="ImageFile" class="form-control" accept="image/*" />
+                                    <span asp-validation-for="ImageFile" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <!-- Existing Video Preview -->
+                            @if (!string.IsNullOrEmpty(Model.ExistingVideoPath))
+                            {
+                                <div class="form-group">
+                                    <label>Current Video:</label>
+                                    <div>
+                                        <video controls style="max-width: 200px;">
+                                            <source src="@Url.Content("~/"+Model.ExistingVideoPath)" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Video Upload -->
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Upload New Video: </label>
+                                <div class="col-sm-8">
+                                    <input type="file" name="VideoFile" class="form-control" accept="video/*" />
+                                    <span asp-validation-for="VideoFile" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submission -->
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+       // Fetch user details based on selected candidate
+    $(document).ready(function() {
+    // Fetch user details based on selected candidate
+    $('#candidateSelect').on('change', function () {
+        var userId = this.value;
+
+        // Update the hidden UserId field
+        $('#hiddenUserId').val(userId);
+
+        if (userId) {
+            console.log("Fetching details for user ID:", userId); // Debugging log
+
+            // Make an AJAX call to fetch user details
+            $.ajax({
+                url: '/Candidate/GetUserDetails',
+                type: 'GET',
+                data: { userId: userId },
+                success: function (data) {
+                    console.log("User details received:", data); // Debugging log
+
+                    if (data) {
+                        // Update fields with fetched data
+                        $('#regNumber').val(data.regNumber || '');
+                        $('#age').val(data.yearofbirth || '');
+                    }
+                },
+                error: function (error) {
+                    console.error('Error fetching user details:', error);
+                }
+            });
+        } else {
+            // Clear fields if no user is selected
+            $('#regNumber').val('');
+            $('#age').val('');
+            $('#hiddenUserId').val('');
+        }
+    });
+});
+
+    </script>
+}

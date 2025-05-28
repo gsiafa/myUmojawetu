@@ -1,0 +1,450 @@
+﻿@model WebOptimus.Models.ViewModel.ReportedDeathDetailsViewModel
+@using Microsoft.AspNetCore.Identity
+@using WebOptimus.Extensions
+@using WebOptimus.StaticVariables
+
+@{
+    ViewData["Title"] = "Death Details";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row col-sm-12">
+            <div class="col-sm-6">
+                <h1>Deceased Information for <strong>@Model.PersonName</strong></h1>
+                <p>@Model.PersonName, has been reported dead by your local admin. Please find the details below:</p>
+            </div>
+
+            <div class="col-sm-12">
+                <a class="btn btn-outline-success float-md-right" asp-action="ReportedDeaths" asp-controller="Family" asp-route-id="@Model.Id">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card card-info">
+                    <div class="card-header">
+                        <h3 class="card-title">About The Deceased</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Deceased Photo: </label>
+                            <div class="col-sm-8">
+                                @if (!string.IsNullOrEmpty(Model.DeceasedPhotoPath))
+                                {
+                                    <img src="@Url.Content($"~/{Model.DeceasedPhotoPath}")" alt="Deceased Photo" class="img-thumbnail" style="max-width: 200px;" />
+                                }
+                                else
+                                {
+                                    <p>No photo available</p>
+                                }
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Name of Deceased: </label>
+                            <div class="col-sm-8">
+                                <input type="text" disabled name="PersonName" asp-for="PersonName" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Registration Number: </label>
+                            <div class="col-sm-8">
+                                <input type="text" disabled name="RegisterNumber" asp-for="RegisterNumber" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Year Of Birth:</label>
+                            <div class="col-sm-8">
+                                <input type="text" disabled name="YearOfBirth" asp-for="YearOfBirth" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Date Joined:</label>
+                            <div class="col-sm-8">
+                                <input type="text" disabled name="DateJoined" asp-for="DateJoined" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- left column -->
+            <div class="col-md-6">
+                <!-- general form elements -->
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">About Their Family</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /.card-header -->
+                    <!-- form start -->
+                    @if (!Model.isDependant)
+                    {
+                        <div class="form-group row">
+                            <label class="col-sm-12 col-form-label text-center">No other family member registered.</label>
+                        </div>
+                    }
+                    else
+                    {
+                        <table class="table m-0" id="myTable" style="width: 100%">
+                            <thead>
+                                <tr class="text-center">
+                                    <th>Family Name</th>
+                                    <th>Year Of Birth</th>
+                                    <th>Registration #</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var i in Model.DepsList)
+                                {
+                                    <tr class="text-center @(i.Id == Model.DependentId && Model.IsAccountHolder ? "bg-danger text-white" : "")">
+                                        <td>@i.PersonName</td>
+                                        <td>@i.PersonYearOfBirth</td>
+                                        <td>@i.PersonRegNumber</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+                <!-- /.card -->
+            </div>
+            <!--/.col (left) -->
+            @if (ViewBag.role == RoleList.GeneralAdmin)
+            {
+                <div class="col-md-6">
+                    <!-- general form elements -->
+                    <div class="card card-dark">
+                        <div class="card-header">
+                            <h3 class="card-title">Successor Details</h3> 
+                           
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body">
+                            @if (Model.IsAccountHolder && Model.Successor != null)
+                            {
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Successor Name:</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" disabled class="form-control" value="@Model.Successor.Name" />
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Relationship:</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" disabled class="form-control" value="@Model.Successor.Relationship" />
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Successor Email:</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" disabled class="form-control" value="@Model.Successor.Email" />
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Successor Mobile:</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" disabled class="form-control" value="@Model.Successor.SuccessorTel" />
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-4 col-form-label">Status:</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" disabled class="form-control" value="@Model.Successor.Status" />
+                                    </div>
+                                </div>
+                            }
+                           @*  else
+                            {
+                                <div class="form-group row">
+                                    <label class="col-sm-12 col-form-label text-center">This is an account holder that has been reported death but has no successor information available.</label>
+                                </div>
+                            } *@
+                        </div>
+                    <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+            </div>
+            }
+            <div class="col-md-12">
+                <div class="card card-danger">
+                    <div class="card-header">
+                        <h3 class="card-title">Death Information</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Date of Death: </label>
+                            <div class="col-sm-8">
+                                <input name="DateOfDeath" disabled type="text" class="form-control" asp-for="DateOfDeath" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Death Location: </label>
+                            <div class="col-sm-8">
+                                <textarea name="DeathLocation" disabled class="form-control" rows="3" asp-for="DeathLocation"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Place Of Burial: </label>
+                            <div class="col-sm-8">
+                                <input name="PlaceOfBurial" disabled type="text" class="form-control" asp-for="PlaceOfBurial" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Other Relevant Information: </label>
+                            <div class="col-sm-8">
+                                <p>@Html.Raw(Model.OtherRelevantInformation)</p>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Reported By: </label>
+                            <div class="col-sm-8">
+                                <input type="text" disabled name="ReportedBy" class="form-control" asp-for="ReportedBy" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Relationship to Deceased: </label>
+                            <div class="col-sm-8">
+                                <input name="RelationShipToDeceased" disabled type="text" class="form-control" asp-for="RelationShipToDeceased" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Reporter Contact Number</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="ReporterContactNumber" disabled class="form-control" asp-for="ReporterContactNumber" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Date Reported: </label>
+                            <div class="col-sm-8">
+                                <input type="text" name="ReportedOn" disabled class="form-control datepicker" asp-for="ReportedOn" placeholder="Please select Date" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Admin Who recorded death: </label>
+                            <div class="col-sm-8">
+                                <input type="text" name="CreatedBy" disabled class="form-control datepicker" asp-for="CreatedBy" placeholder="Please select Date" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Date of Entry: </label>
+                            <div class="col-sm-8">
+                                <input type="text" name="DateCreated" disabled class="form-control datepicker" asp-for="DateCreated" placeholder="Please select Date" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+           
+            
+            <div class="col-md-12">
+                <div class="card card-warning">
+                    <div class="card-header">
+                        <h3 class="card-title">Deceased Next of Kin</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Next Of Kin Name </label>
+                            <div class="col-sm-8">
+                                <input name="DeceasedNextOfKinName" disabled type="text" class="form-control" asp-for="DeceasedNextOfKinName" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Relationship to Deceased </label>
+                            <div class="col-sm-8">
+                                <input type="text" name="DeceasedNextOfKinRelationship" disabled class="form-control" asp-for="DeceasedNextOfKinRelationship" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Next of Kin Mobile: </label>
+                            <div class="col-sm-8">
+                                <input type="text" name="DeceasedNextOfKinPhoneNumber" disabled class="form-control" asp-for="DeceasedNextOfKinPhoneNumber" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Next of Kin Email: </label>
+                            <div class="col-sm-8">
+                                <input type="text" name="DeceasedNextOfKinEmail" disabled class="form-control" asp-for="DeceasedNextOfKinEmail" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @if (ViewBag.role == RoleList.LocalAdmin &&
+                ((!Model.IsApprovedByRegionalAdmin.HasValue || !Model.IsApprovedByRegionalAdmin.Value) ||
+                (!Model.IsApprovedByGeneralAdmin.HasValue || !Model.IsApprovedByGeneralAdmin.Value)))
+                {
+                    <div class="col-sm-12">
+                        <a class="btn btn-outline-success float-md-right" asp-action="EditDeath" asp-controller="Family" asp-route-id="@Model.Id">
+                            <i class="fas fa-pencil"></i> Edit
+                        </a>
+                    </div>
+                }
+                else if (@ViewBag.role == RoleList.RegionalAdmin && Model.Status == "Pending Regional Approval")
+              
+                {
+                    <div class="col-sm-12">
+                        <a class="btn btn-outline-success float-md-right" asp-action="EditDeath" asp-controller="Family" asp-route-id="@Model.Id">
+                            <i class="fas fa-pencil"></i> Edit
+                        </a>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#approveModal">
+                            <i class="fas fa-check"></i> Approve
+                        </button>
+                    </div>
+                }
+
+
+                else if (@ViewBag.role == RoleList.GeneralAdmin && Model.Status == "Pending General Approval")
+                {
+                    <div class="col-sm-12">
+                        <a class="btn btn-outline-success float-md-right" asp-action="EditDeath" asp-controller="Family" asp-route-id="@Model.Id">
+                            <i class="fas fa-pencil"></i> Edit
+                        </a>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#approveModal">
+                            <i class="fas fa-check"></i> Approve
+                        </button>
+                    </div>
+                }
+            </div>
+
+            @if (ViewBag.role == RoleList.GeneralAdmin && Model.IsApprovedByGeneralAdmin)
+            {
+                <div class="col-md-12">
+                    <div class="card card-dark">
+                        <div class="card-header">
+                            <h3 class="card-title">Regional Admin Approval's Details</h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Admin Note: </label>
+                                <div class="col-sm-8">
+                                    <textarea name="RegionalAdminApprovalNote" disabled class="form-control" rows="3" asp-for="RegionalAdminApprovalNote"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Approved By Regional Admin: </label>
+                                <div class="col-sm-8">
+                                    <input name="ApprovedByRegionalAdmin" disabled type="text" class="form-control" asp-for="ApprovedByRegionalAdmin" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Date Approved: </label>
+                                <div class="col-sm-8">
+                                    <input name="RegionalAdminApprovalDate" disabled type="text" class="form-control" asp-for="RegionalAdminApprovalDate" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="card card-dark">
+                        <div class="card-header">
+                            <h3 class="card-title">General Admin Approval's note</h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Admin Note: </label>
+                                <div class="col-sm-8">
+                                    <textarea name="GeneralAdminApprovalNote" disabled class="form-control" rows="3" asp-for="GeneralAdminApprovalNote"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Approved By General Admin: </label>
+                                <div class="col-sm-8">
+                                    <input name="ApprovedByGeneralAdmin" disabled type="text" class="form-control" asp-for="ApprovedByGeneralAdmin" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Date Approved: </label>
+                                <div class="col-sm-8">
+                                    <input name="GeneralAdminApprovalDate" disabled type="text" class="form-control" asp-for="GeneralAdminApprovalDate" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Approve Modal -->
+<div class="modal fade" id="approveModal" tabindex="-1" role="dialog" aria-labelledby="approveModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="approveModalLabel">Approval Reason</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="ApproveSubmission" asp-controller="Family" method="post">
+                <div class="modal-body">
+                    <div class="form-group">
+                        @if (ViewBag.role == RoleList.RegionalAdmin)
+                        {
+                            <label for="approvalNote">Please enter a reason for Regional Approval:</label>
+                            <textarea class="form-control" id="approvalNote" name="approvalNote" required></textarea>
+                        }
+                        else if (ViewBag.role == RoleList.GeneralAdmin)
+                        {
+                            <label for="approvalNote">Please enter a reason for General Approval:</label>
+                            <textarea class="form-control" id="approvalNote" name="approvalNote" required></textarea>
+                        }
+                    </div>
+                    <input type="hidden" name="Id" value="@Model.Id" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Approve</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+}

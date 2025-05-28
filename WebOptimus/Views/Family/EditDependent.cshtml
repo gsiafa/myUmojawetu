@@ -1,0 +1,103 @@
+﻿@model WebOptimus.Models.ViewModel.EditDependentViewModel
+
+@{
+    ViewData["Title"] = "Edit Dependent";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Edit Dependent</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <form asp-action="EditDependent" method="post">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" asp-for="Dependent.DependentId" />
+                <input type="hidden" asp-for="Dependent.HasAccount" />
+
+                <div class="form-group">
+                    <label asp-for="Dependent.PersonName"></label>
+                    <input asp-for="Dependent.PersonName" class="form-control" />
+                    <span asp-validation-for="Dependent.PersonName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Dependent.Email"></label>
+                    <input asp-for="Dependent.Email" class="form-control" />
+                    <span asp-validation-for="Dependent.Email" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Dependent.PhoneNumber"></label>
+                    <input asp-for="Dependent.PhoneNumber" class="form-control" />
+                    <span asp-validation-for="Dependent.PhoneNumber" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Dependent.YearOfBirth"></label>
+                    <input asp-for="Dependent.YearOfBirth" class="form-control" />
+                    <span asp-validation-for="Dependent.YearOfBirth" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Dependent.RegNumber"></label>
+                    <input asp-for="Dependent.RegNumber" class="form-control" />
+                    <span asp-validation-for="Dependent.RegNumber" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a asp-action="ManageDependents" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+
+        <div class="col-md-4">
+            <h4>Related Family Members</h4>
+            @if (Model.RelatedFamilyMembers != null && Model.RelatedFamilyMembers.Any())
+            {
+                <table class="table table-bordered" id="relatedFamilyTable" style="width: 100%">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Year of Birth</th>
+                            <th>Reg#</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var member in Model.RelatedFamilyMembers)
+                        {
+                            <tr>
+                                <td>@member.PersonName</td>
+                                <td>@member.YearOfBirth</td>
+                                <td>@member.RegNumber</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p>No related family members found.</p>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#relatedFamilyTable').DataTable();
+        });
+    </script>
+}

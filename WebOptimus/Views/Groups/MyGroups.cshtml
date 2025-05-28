@@ -1,0 +1,248 @@
+﻿@model IEnumerable<WebOptimus.Models.PaymentGroup>
+
+@{
+    ViewData["Title"] = "My Groups";
+    Layout = "~/Views/Shared/_cLayout.cshtml";
+}
+
+<!-- Content Header -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-md-6 col-sm-12">
+                <h1 class="m-0">My Groups</h1>
+            </div>
+            <div class="col-md-6 col-sm-12 d-flex justify-content-md-end justify-content-sm-center">
+                <!-- Buttons -->
+                <div class="btn-group mt-2 mt-md-0" role="group" aria-label="Group Actions">
+                    <button type="button" class="btn btn-primary custom-gap" data-toggle="modal" data-target="#joinGroupModal">
+                        <i class="fas fa-users"></i> Join Existing Group
+                    </button>
+                    <button class="btn btn-success custom-gap" data-toggle="modal" data-target="#createGroupModal">
+                        <i class="fas fa-users"></i> Create New Group
+                    </button>
+                </div>
+            </div>
+        </div>
+        <p>Groups allow you to:</p>
+        <ul>
+            <li>Invite other members who are not in your family</li>
+            <li>Make payments on behalf of someone else as long as you're in the same group</li>
+            <li>Streamline your family or community contributions</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Pending Requests Section -->
+@if (Model.Any(m => m.PendingRequests > 0))
+{
+    <div class="alert alert-warning mb-4">
+        <h5 class="alert-heading">
+            <i class="fas fa-user-clock"></i> Pending Requests
+        </h5>
+        <p>
+            You have <strong>@Model.Sum(m => m.PendingRequests)</strong> pending member requests.
+        </p>
+        <a asp-action="PendingRequests" class="btn btn-warning btn-sm">
+            <i class="fas fa-eye"></i> View Pending Requests
+        </a>
+    </div>
+}
+
+<!-- Groups Table -->
+<div class="row">
+    <div class="col-12">
+        @if (Model.Any())
+        {
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title text-center"><strong>Your Groups</strong></h3>
+                </div>
+                <div class="card-body p-0">
+                    <div class="card-body" style="width: 100%; overflow-x: auto;">
+                        <table class="table m-0 myTable" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th>Group Name</th>
+                                    <th>Total Members</th>
+                                    <th>Pending Requests</th>
+                                    <th>Created By</th>
+                                    <th>Date Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var group in Model.OrderByDescending(g => g.DateCreated))
+                                {
+                                    <tr>
+                                        <td>
+                                            @group.GroupName
+                                            <button class="btn btn-sm btn-outline-secondary ml-2" data-toggle="modal" data-target="#editGroupModal" data-groupid="@group.Id" data-groupname="@group.GroupName">
+                                                <i class="fas fa-pencil-alt"></i>
+                                            </button>
+                                        </td>
+                                        <td>@group.TotalMembers</td>
+                                        <td>@group.PendingRequests</td>
+                                        <td>@group.CreatedBy</td>
+                                        <td>@group.DateCreated.ToString("dd/MM/yyyy")</td>
+                                        <td>
+                                            <a asp-action="GroupMembers" asp-route-groupId="@group.Id" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-eye"></i> View Members
+                                            </a>
+                                            <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#inviteMemberModal" data-groupid="@group.Id">
+                                                <i class="fas fa-envelope"></i> Invite Member
+                                            </button>
+                                            <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteGroupModal" data-groupid="@group.Id" data-groupname="@group.GroupName">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="card-body">
+                <p>No groups available. Create or join a group to get started!</p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Create Group Modal -->
+<div class="modal fade" id="createGroupModal" tabindex="-1" role="dialog" aria-labelledby="createGroupModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createGroupModalLabel">Create New Group</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" asp-action="CreateGroup">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="groupName">Group Name</label>
+                        <input type="text" id="groupName" name="groupName" class="form-control" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Join Group Modal -->
+<div class="modal fade" id="joinGroupModal" tabindex="-1" role="dialog" aria-labelledby="joinGroupModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="joinGroupModalLabel">Join Existing Group</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" asp-action="RequestToJoinGroup">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="groupName">Group Name</label>
+                        <input type="text" id="groupName" name="groupName" class="form-control" placeholder="Enter group name" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Send Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Group Modal -->
+<div class="modal fade" id="editGroupModal" tabindex="-1" role="dialog" aria-labelledby="editGroupModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editGroupModalLabel">Edit Group Name</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" asp-action="EditGroupName">
+                <div class="modal-body">
+                    <input type="hidden" id="editGroupId" name="groupId" />
+                    <div class="form-group">
+                        <label for="editGroupName">Group Name</label>
+                        <input type="text" id="editGroupName" name="groupName" class="form-control" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Group Modal -->
+<div class="modal fade" id="deleteGroupModal" tabindex="-1" role="dialog" aria-labelledby="deleteGroupModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteGroupModalLabel">Delete Group</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" asp-action="DeleteGroup">
+                <div class="modal-body">
+                    <p>Are you sure you want to delete the group <strong id="deleteGroupName"></strong> and all its members?</p>
+                    <input type="hidden" id="deleteGroupId" name="groupId" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .custom-gap + .custom-gap {
+        margin-left: 5px;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        // Populate modals dynamically
+        $('#editGroupModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var groupId = button.data('groupid');
+            var groupName = button.data('groupname');
+            $('#editGroupId').val(groupId);
+            $('#editGroupName').val(groupName);
+        });
+        $('#inviteMemberModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var groupId = button.data('groupid');
+            $('#groupId').val(groupId);
+        });
+        $('#deleteGroupModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var groupId = button.data('groupid');
+            var groupName = button.data('groupname');
+            $('#deleteGroupId').val(groupId);
+            $('#deleteGroupName').text(groupName);
+        });
+    </script>
+}

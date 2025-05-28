@@ -1,0 +1,235 @@
+﻿    @using WebOptimus.StaticVariables
+    @model WebOptimus.Models.ViewModel.IndexViewModel
+    @{
+        ViewData["Title"] = "Dashboard";
+        Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    }
+
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Total Members -->
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-success">
+                        <div class="inner">
+                            <h3>@ViewBag.totalusers</h3>
+                            <p>Total Members</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    <a asp-action="Members" asp-controller="Admin" asp-route-filter="all" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+            
+                <!-- Members Under 25 -->
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-purple">
+                        <div class="inner">
+                            <h3>@ViewBag.UnderAge</h3>
+                        <p>Members Under @ViewBag.minimumAge </p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-user-alt"></i>
+                        </div>
+                    <a asp-action="Members" asp-controller="Admin" asp-route-filter="under18" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+                <!-- Members Per Region -->
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-info">
+                        <div class="inner">
+                            <h3>@ViewBag.OverAge</h3>
+                            <p>Members @ViewBag.minimumAge & above</p>
+                        </div>
+                        <div class="icon">
+                        <i class="fas fa-user-alt"></i>
+                        </div>
+                    <a asp-action="Members" asp-controller="Admin" asp-route-filter="over18" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+                <!-- Reported Deaths -->
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-danger">
+                        <div class="inner">
+                        <h3>@ViewBag.confirmedDeath</h3>
+                            <p>Reported Dead</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-user-times"></i>
+                        </div>
+                    <a asp-action="ReportedDeaths" asp-controller="Family" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Left Section: Charts -->
+            <div class="row">
+                <section class="col-lg-6 connectedSortable">
+                    <!-- Age Distribution Chart -->
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fas fa-chart-pie"></i> Age Distribution</h3>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="ageDistributionChart" height="300"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Members Per Region Chart -->
+                 
+
+                </section>
+
+                <!-- Right Section: Visitors -->
+                <section class="col-lg-6 connectedSortable">
+                    <div class="card">
+                        <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-chart-bar"></i> Members Per Region</h3>
+                        <div class="card-tools">
+                            <!-- Buttons for toggling the chart -->
+                            <button id="showAll" class="btn btn-info btn-sm">All</button>
+                            <button id="showunder18" class="btn btn-primary btn-sm">Under @ViewBag.minimumAge</button>
+                            <button id="showover18" class="btn btn-secondary btn-sm">Over @ViewBag.minimumAge</button>
+                        </div>
+                        </div>
+                        <div class="card-body">
+                        <canvas id="regionMembersChart" height="290"></canvas>
+
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </section>
+
+@* @if (@ViewBag.userRole == "General Admin")
+{
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-user-check"></i> Members currently logged-in</h3>
+            </div>
+            <div class="card-body">
+                <table class="table m-0" id="myTable">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center !important;">Email</th>
+                            <th style="text-align: center !important;">Region Name</th>
+                            <th style="text-align: center !important;">Login Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.LoggedInUsers != null && ViewBag.LoggedInUsers.Count > 0)
+                        {
+                            @foreach (var user in ViewBag.LoggedInUsers)
+                            {
+                                <tr>
+                                    <td style="text-align: center !important;">@user.Email</td>
+                                    <td style="text-align: center !important;">@user.RegionName</td>
+                                    <td style="text-align: center !important;">@user.LoginDate?.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="3" style="text-align: center;">No logged-in users found</td>
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+} *@
+
+    @section Scripts {
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="~/admin/js/table.js" asp-append-version="true"></script>
+    <script>
+        const age = @ViewBag.minimumAge ?? 18; // Injected directly as number
+
+        // Age Distribution Chart
+        var ageCtx = document.getElementById('ageDistributionChart').getContext('2d');
+        new Chart(ageCtx, {
+            type: 'pie',
+            data: {
+                labels: [`Under ${age}`, `${age} and Over`],
+                datasets: [{
+                    data: [@ViewBag.UnderAge, @ViewBag.OverAge],
+                    backgroundColor: ['#36A2EB', '#FF6384']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+
+        // Regional Distribution Chart
+        let regionCtx = document.getElementById('regionMembersChart').getContext('2d');
+
+        // Parsed Razor JSON safely
+        let allData = @Html.Raw(ViewBag.RegionCountsAll);
+        let under18Data = @Html.Raw(ViewBag.RegionCountsUnder18);
+        let over18Data = @Html.Raw(ViewBag.RegionCountsOver18);
+        let regionLabels = @Html.Raw(ViewBag.RegionNames);
+
+        let regionChart = new Chart(regionCtx, {
+            type: 'bar',
+            data: {
+                labels: regionLabels,
+                datasets: [{
+                    label: 'All Members',
+                    data: allData,
+                    backgroundColor: '#FFCE56'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: { display: true }
+                }
+            }
+        });
+
+        // Toggle buttons for region data
+        document.getElementById('showAll').addEventListener('click', function () {
+            regionChart.data.datasets[0].label = 'All Members';
+            regionChart.data.datasets[0].data = allData;
+            regionChart.update();
+        });
+
+        document.getElementById('showunder18').addEventListener('click', function () {
+            regionChart.data.datasets[0].label = `Members Under ${age}`;
+            regionChart.data.datasets[0].data = under18Data;
+            regionChart.update();
+        });
+
+        document.getElementById('showover18').addEventListener('click', function () {
+            regionChart.data.datasets[0].label = `Members Over ${age}`;
+            regionChart.data.datasets[0].data = over18Data;
+            regionChart.update();
+        });
+
+        // DataTables Initialization
+        $(document).ready(function () {
+            $('#currentVisitorsTable').DataTable();
+        });
+    </script>
+
+    }

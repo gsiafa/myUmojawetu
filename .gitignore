@@ -1,0 +1,59 @@
+bin/
+# Ignore Visual Studio temporary files, build results, and other generated files
+obj/
+bin/
+*.user
+*.suo
+*.pdb
+*.cache
+*.log
+.vs/
+.vscode/
+ modified:   WebOptimus/obj/Debug/net8.0/WebOptimus.AssemblyInfo.cs
+ modified:   WebOptimus/obj/Debug/net8.0/WebOptimus.AssemblyInfoInputs.cache
+
+
+# Ignore .NET Core build results and temporary files
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Ignore build output from publishing
+WebOptimus/obj/Release/
+
+# Ignore npm, yarn, and frontend build files
+node_modules/
+wwwroot/dist/
+wwwroot/lib/
+wwwroot/Admin/css/
+wwwroot/Admin/dist/js/
+wwwroot/Admin/plugins/
+# Ignore files in obj/ and bin/ directories
+WebOptimus/obj/
+WebOptimus/bin/
+
+# Ignore specific files in obj/Debug/net8.0
+WebOptimus/obj/Debug/net8.0/WebOptimus.AssemblyInfo.cs
+WebOptimus/obj/Debug/net8.0/WebOptimus.AssemblyInfoInputs.cache
+
+# Ignore IDE settings and system files
+.idea/
+.DS_Store
+
+# Ignore log files
+*.log
+
+# Ignore lock files
+*.lock
+
+# Ignore compiled JavaScript and CSS map files
+*.js.map
+*.js
+*.css.map
+
+# Ignore other build artifacts
+*.LICENSE.txt
+
+# Ignore anything not related to source
+!src/
+

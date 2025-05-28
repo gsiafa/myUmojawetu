@@ -1,0 +1,46 @@
+﻿@model WebOptimus.Models.ViewModel.BannerViewModel
+
+@{
+    ViewData["Title"] = "Edit Banner";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h4>New Banner</h4>
+<hr />
+<form method="post" asp-action="EditBanner" asp-controller="Banner" id="myForm">
+    <div class="row">
+        <input hidden asp-for="Id" />
+        <div class="col-md-12">
+            <div class="form-group">
+                <label asp-for="Title" class="control-label">Brief Title (of Banners) <span class="text-danger">*</span></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+           
+       
+            <div class="form-group">
+                <input asp-for="IsActive" name="IsActive" type="checkbox" />
+                <strong> Broadcast News to all the public as banner.</strong>
+               
+            </div>
+            
+
+            <div class="ml-auto mt-4">
+                <small class="btn btn-dark signInText" style="float:right;">
+                    <a class="signInText" style="cursor: pointer; color:#fff !important; text-decoration: none; float:right;" asp-action="Index" asp-controller="Banner">Back</a>
+                </small>
+                <small>
+                    <button type="submit" class="btn btn-success justify-content-end signInText" style="cursor: pointer; color:#fff !important; text-decoration: none;">Submit</button>
+                </small>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+

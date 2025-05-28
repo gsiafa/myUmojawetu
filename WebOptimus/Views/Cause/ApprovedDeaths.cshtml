@@ -1,0 +1,149 @@
+﻿@model IEnumerable<WebOptimus.Models.ViewModel.ReportedDeathViewModel>
+@using WebOptimus.StaticVariables
+
+@{
+    ViewData["Title"] = "Approved Deaths";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Approved Deaths</h1>
+            </div>
+            <div class="col-sm-6">
+                <a class="btn btn-outline-success float-md-right" asp-action="AddDeath" asp-controller="Family">
+                    <i class="fas fa-plus"></i> Report New Death
+                </a>
+            </div>
+     @*        <div class="col-sm-6">
+                <a class="btn btn-outline-success float-md-right" asp-action="AddCause" asp-controller="Cause">
+                    <i class="fas fa-plus"></i> Create New Campaign
+                </a>
+            </div> *@
+        </div>
+    
+            <div class="row">
+                <div class="col-6 col-md-auto mb-2">
+                    <a class="btn btn-danger w-100" asp-action="ApprovedDeaths" asp-controller="Cause" asp-route-donationStatus="@DonationStatus.DonationEnded">
+                        Show Ended Donations
+                    </a>
+                </div>
+
+                <div class="col-6 col-md-auto mb-2">
+                    <a class="btn btn-secondary w-100" asp-action="ApprovedDeaths" asp-controller="Cause" asp-route-donationStatus="@DonationStatus.PendingNewDonation">
+                        Show Pending Donations
+                    </a>
+                </div>
+
+                <div class="col-6 col-md-auto mb-2">
+                    <a class="btn btn-success w-100" asp-action="ApprovedDeaths" asp-controller="Cause" asp-route-donationStatus="@DonationStatus.OngoingDonation">
+                        Show Ongoing Donations
+                    </a>
+                </div>
+
+                <div class="col-6 col-md-auto mb-2">
+                    <a class="btn btn-info w-100" asp-action="ApprovedDeaths" asp-controller="Cause" asp-route-donationStatus="">
+                        Show All
+                    </a>
+                </div>
+            </div>
+
+
+    </div>
+</div>
+<partial name="_notify" />
+<div class="container-fluid">
+    <h2>Death-Related Causes</h2>
+    @if (ViewBag.DeathRelatedCauses.Count > 0)
+    {
+        <table class="table m-0 myTable" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th class="text-center">Deceased Name</th>
+                    <th class="text-center">Date Of Death</th>
+                    <th class="text-center">Region</th>
+                    <th class="text-center">City</th>
+                    <th class="text-center">Status</th>
+                    <th class="text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var cause in ViewBag.DeathRelatedCauses)
+                {
+                    <tr>
+                        <td class="text-center">@cause.DependentName</td>
+                        <td class="text-center">@cause.DateOfDeath.ToString("dd/MM/yyyy")</td>
+                        <td class="text-center">@cause.RegionName</td>
+                        <td class="text-center">@cause.CityName</td>
+                        <td class="text-center">
+                            @if (@cause.DonationStatus == DonationStatus.NotLive)
+                            {
+                                <span class="badge badge-danger">Not Live</span>
+                            }
+                            else if (@cause.DonationStatus == DonationStatus.DonationEnded)
+                            {
+                                <span class="badge badge-danger">Donation Ended</span>
+                            }
+                            else if (@cause.DonationStatus == DonationStatus.Live)
+                            {
+                                <span class="badge badge-success">Live</span>
+                            }
+                            else if (@cause.DonationStatus == DonationStatus.pendingGeneralAdminApproval || @cause.DonationStatus == DonationStatus.pendingGeneralAdminApproval)
+                            {
+                                <span class="badge badge-warning">Pending General Admin Approval</span>
+                            }
+                            else
+                            {
+                                @cause.DonationStatus
+                            }
+                        </td>
+
+                        <td class="text-center">
+                            @if (cause.DonationStatus == DonationStatus.PendingNewDonation )
+                            {
+                                <a asp-action="AddCause" asp-controller="Cause" asp-route-id="@cause.Id" class=" text-primary " title="Create Donation" data-toggle="tooltip" style="cursor:pointer; margin-left: 10px;">
+                                    <i class="fas fa-hand-holding-usd"></i>
+                                </a>
+                            }
+                            else if (cause.DonationStatus == DonationStatus.DonationEnded)
+                            {
+                                <a asp-action="Redo" asp-controller="Cause" asp-route-id="@cause.Id" onclick="return confirm('Are you sure you want to re-Open this donation?');" class="text-danger" title="Re Open Donation" data-toggle="tooltip" style="cursor:pointer; margin-left: 10px;">
+                                    <i class="fas fa-redo-alt"></i>
+                                </a>
+                                <a asp-action="EditCause" asp-controller="Cause" asp-route-id="@cause.Id" class="text-primary" title="Create Donation" data-toggle="tooltip" style="cursor:pointer; margin-left: 10px;">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+
+                            }
+                            else if (cause.DonationStatus == DonationStatus.OngoingDonation || cause.DonationStatus == DonationStatus.ReOpened || cause.DonationStatus == DonationStatus.NotLive || cause.DonationStatus == DonationStatus.Live)
+                            {
+                                <a asp-action="EndCause" asp-controller="Cause" asp-route-id="@cause.Id" onclick="return confirm('Are you sure you want to end this donation?');" class="text-danger" title="End Donation" data-toggle="tooltip" style="cursor:pointer; margin-left: 10px;">
+                                    <i class="fas fa-window-close"></i>
+                                </a>
+
+                                <a asp-action="EditCause" asp-controller="Cause" asp-route-id="@cause.Id" class="text-primary" title="Create Donation" data-toggle="tooltip" style="cursor:pointer; margin-left: 10px;">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No death-related causes found.</p>
+    }
+
+</div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="~/admin/js/table.js" asp-append-version="true"> </script>
+
+
+ 
+}

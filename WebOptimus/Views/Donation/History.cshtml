@@ -1,0 +1,93 @@
+﻿@model IEnumerable<WebOptimus.Models.ViewModel.PaymentViewModel>
+@{
+    ViewData["Title"] = "Payment History";
+    Layout = "~/Views/Shared/_cLayout.cshtml";
+}
+
+
+@* <div class="slider-section"
+     style="background-image: url('/assets/img/Flag-of-Tanzania.png'); background-repeat: no-repeat; background-position: center; background-size: cover; width: 100%; height: 400px; margin: 0; padding: 0; position: relative;">
+    <div class="slider-container" style="width: 100%; height: 100%;">
+        <div class="slider-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0;">
+            <h2 class="animated-text" style="color: #fff!important">Payment History</h2>
+        </div>
+    </div>
+</div> *@
+
+
+<section class="testimonial-carousel-wrapper section-padding">
+    <div class="container">
+
+
+
+        <div class="col-12 col-xl-8 offset-xl-2 text-center">
+            <div class="section-title">
+
+                <h2>Payment History  </h2>
+
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="appeal">
+
+               
+                   
+                       
+                        @if (!Model.Any())
+                        {
+                    <h2 style="text-align: center !important;">You have not made any contribution yet.</h2>
+                         
+                        }
+                        else
+                        {
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Reference</th>
+                                        <th>Amount (£)</th>
+                                        <th>Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var payment in Model)
+                                    {
+                                        <tr>
+                                            <td>@payment.DateRaised</td>
+                                            <td>@payment.CauseCampaignpRef</td>
+                                            <td>@payment.Amount.ToString("F2")</td>
+                                            <td>@payment.Notes</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            <div class="text-right">
+                                <strong>Total Amount Paid: £@ViewBag.Total.ToString("F2")</strong>
+                            </div>
+                        }
+                 
+
+
+              
+            </div>
+
+
+        </div>
+
+
+
+    </div>
+</section>
+
+
+
+
+@section scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js "></script>
+    <script src="~/admin/js/table.js" asp-append-version="true"></script>
+
+
+}

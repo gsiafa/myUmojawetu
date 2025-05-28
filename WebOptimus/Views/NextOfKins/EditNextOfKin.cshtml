@@ -1,0 +1,111 @@
+﻿@using WebOptimus.StaticVariables
+@model WebOptimus.Models.ViewModel.AddNextOfKinViewModel
+
+@{
+    ViewData["Title"] = "Edit Next of Kin";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Edit Next of Kin</h1>
+            </div>
+            <div class="col-sm-6">
+                <a class="btn btn-xs btn-outline-primary float-md-right" style="width:100px; float:right; text-align: center;" href="@Url.Action("Index", "NextOfKins")"><i class="fas fa-arrow-left"></i> Back </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container">
+        @if (TempData[SD.Error] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData[SD.Error]
+            </div>
+        }
+
+        @if (TempData[SD.Success] != null)
+        {
+            <div class="alert alert-success">
+                @TempData[SD.Success]
+            </div>
+        }
+
+        <form asp-action="EditNextOfKin" asp-controller="NextOfKins" method="post">
+            <div class="card card-info">
+                <div class="card-header">
+                    <h3 class="card-title">Next of Kin Details </h3>
+                    <p class="card-title"> - Please use this section to update next of Kin details.</p>
+                </div>
+                <div class="card-body">
+                    <input asp-for="Id" type="hidden" />
+                    <input asp-for="UserId" type="hidden" />
+                    <input asp-for="PersonRegNumber" type="hidden" />
+                    <div class="form-group">
+                        <label asp-for="DependentName">Member Name</label>
+                        <input asp-for="DependentName" class="form-control" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="DependentRegNumber">Registration Number</label>
+                        <input asp-for="DependentRegNumber" class="form-control" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="NextOfKinName">Next of Kin Name</label>
+                        <input asp-for="NextOfKinName" class="form-control" />
+                        <span asp-validation-for="NextOfKinName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Relationship">Relationship</label>
+                        <input asp-for="Relationship" class="form-control" />
+                        <span asp-validation-for="Relationship" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="NextOfKinTel">Next of Tel</label>
+                        <input asp-for="NextOfKinTel" class="form-control" />
+                        <span asp-validation-for="NextOfKinTel" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="NextOfKinEmail">Next of kin Email</label>
+                        <input asp-for="NextOfKinEmail" class="form-control" />
+                     
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="NextOfKinAddress">Next of Kin Address</label>
+                        <textarea asp-for="NextOfKinAddress" class="form-control"></textarea>
+                        <span asp-validation-for="NextOfKinAddress" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="col-12 mt-4">
+                        <input type="submit" id="submit" name="submit" class="submitBnt btn btn-success float-left" value="Submit">
+                        <a asp-action="Index" asp-controller="NextOfKins" class="btn btn-default float-right"><i class="fas fa-arrow-alt-circle-left"></i> Back</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            $('#DependentId').change(function () {
+                var dependentId = $(this).val();
+                if (dependentId) {
+                    $.ajax({
+                        url: '@Url.Action("GetDependentRegNumber", "NextOfKins")',
+                        data: { id: dependentId },
+                        success: function (data) {
+                            $('#DependentRegNumber').val(data);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}

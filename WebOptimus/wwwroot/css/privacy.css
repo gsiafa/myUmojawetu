@@ -1,0 +1,78 @@
+.pdf-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    position: relative;
+    flex-direction: row;
+}
+
+.pdf-controls {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.pdf-viewer {
+    border: 1px solid #ddd;
+    padding: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+canvas {
+    max-width: 100%;
+    height: auto;
+}
+
+.btn {
+    background-color: #007bff;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+    .btn:hover {
+        background-color: #0056b3;
+    }
+
+    .btn:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    }
+
+    .btn:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+    }
+
+.prev-btn {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.next-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+@media (max-width: 768px) {
+    .pdf-container {
+        flex-direction: column;
+    }
+
+    .prev-btn, .next-btn {
+        position: static;
+        transform: none;
+    }
+}

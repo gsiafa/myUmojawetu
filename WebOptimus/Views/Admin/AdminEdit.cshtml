@@ -1,0 +1,641 @@
+﻿@model WebOptimus.Models.ViewModel.RegisterViewModel
+@using WebOptimus.StaticVariables
+@using WebOptimus.Extensions
+@{
+    ViewData["Title"] = "Post New Jobs";
+    ViewData["PageTitle"] = "Post job on behalf of a company";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+            </div><!-- /.col -->
+            <div class="col-sm-6">
+                <a class="btn btn-xs btn-outline-primary float-md-right" style="width:100px;float:right; text-align: center;" onclick="@("window.location.href='" + @Url.Action("Admin", "Account") + "'");"><i class="fas fa-arrow-left"></i>  Back </a>
+
+            </div><!-- /.col -->
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+<!-- /.content-header -->
+<!-- Main content -->
+<!-- MultiStep Form -->
+<!-- CREATE RESUME START -->
+<section class="section">
+
+    <div class="container">
+        <form asp-action="AdminEdit" asp-controller="Admin" method="post" autocomplete="false" id="theForm">
+            <input type="hidden" asp-for="OldEmail" />
+            <div class="row">
+                <div class="col-lg-12">
+                    <h5 class="text-dark"> <strong> ABOUT THE PERSON</strong></h5>
+                </div>
+
+                <div class="col-12 mt-3">
+                    <div class="custom-form p-4 border rounded">
+
+                        <div class="row mt-4">
+
+                            <div class="col-md-6">
+                                <div class="form-group app-label">
+                                    <label class="text-muted">Title<span class="text-danger">*</span></label>
+
+                                    <select class="intro form-control form-select form-select-lg mb-3" asp-for="GetUserInfo.Title" title=" " id="titlId" asp-items="@(new SelectList(@ViewBag.Ttile, "Id", "Name"))">
+                                        <option selected disabled="disabled">Please Select Title</option>
+                                    </select>
+                                    <span asp-validation-for="GetUserInfo.Title" class="text-danger"></span>
+
+                                </div>
+
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group app-label">
+                                    <label class="text-muted">First Name<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control " id="firstName2" name="GetUserInfo.FirstName" asp-for="GetUserInfo.FirstName" placeholder="Forname(s)">
+                                    <span asp-validation-for="GetUserInfo.FirstName" class="text-danger"></span>
+                                </div>
+
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group app-label">
+                                    <label class="text-muted">Last Name<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control " id="surname" name="GetUserInfo.Surname" asp-for="GetUserInfo.Surname" placeholder="Last Name">
+                                    <span asp-validation-for="GetUserInfo.Surname" class="text-danger"></span>
+                                </div>
+
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group app-label">
+                                    <label class="text-muted">Year of Birth<span class="text-danger">*</span></label>
+
+                                    <input type="text" class="form-control " id="y1" name="Deps.PersonYearOfBirth" asp-for="Deps.PersonYearOfBirth" placeholder="Year of Birth">
+                                    <span asp-validation-for="Deps.PersonYearOfBirth" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group app-label">
+                                    <label class="text-muted">Region<span class="text-danger">*</span></label>
+
+
+                                    <select class="intro form-control form-select form-select-lg mb-3" asp-for="GetUserInfo.RegionId" onchange="GetmCity(this.value)" title="Region " id="region2Id" asp-items="@(new SelectList(@ViewBag.RegionId, "Id", "Name"))">
+                                        <option selected disabled="disabled">Please select Region</option>
+                                    </select>
+                                    <span asp-validation-for="GetUserInfo.RegionId" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group app-label">
+                                    <label class="text-muted">City<span class="text-danger">*</span></label>
+
+
+                                    <select asp-for="GetUserInfo.CityId" id="famcity" class="city intro form-control form-select form-select-lg mb-3" asp-items="@(new SelectList(@ViewBag.CityId, "Id", "Name"))">
+
+                                        <option selected disabled="disabled">Please select City</option>
+                                    </select>
+                                    <span asp-validation-for="GetUserInfo.CityId" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group app-label">
+                                    <label class="text-muted">Outward Postcode<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control " id="p1" name="GetUserInfo.OutwardPostcode" asp-for="GetUserInfo.OutwardPostcode" placeholder="Outward Postcode">
+
+                                    <span asp-validation-for="GetUserInfo.OutwardPostcode" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group app-label">
+                                    <label class="text-muted">Phone Number<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control " id="mobile" name="GetUserInfo.PhoneNumber" asp-for="GetUserInfo.PhoneNumber" placeholder="Mobile Number">
+
+                                    <span asp-validation-for="GetUserInfo.PhoneNumber" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+         
+            <div class="row">
+
+                <div class="col-12 mt-4">
+                    <input type="submit" id="submit" name="send" class="submitBnt btn btn-success float-left" value="Submit">
+
+                    <a asp-action="Users" asp-controller="Admin" class="btn btn-default float-right"><i class="fas fa-arrow-alt-circle-left"></i> Back</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+</section>
+<!-- CREATE RESUME END -->
+@section scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <style>
+
+        /* title-tip down */
+        .title-tip[title]:hover {
+            position: relative;
+        }
+
+            .title-tip[title]:hover:before {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                z-index: 99999;
+                content: attr(title);
+                margin-top: 0.5em;
+                padding: 0.5em;
+                width: 300px; /* change it */
+                overflow: hidden;
+                word-wrap: break-word;
+                font-size: inherit;
+                color: #FFF;
+                text-align: center;
+                background-color: #222;
+                box-sizing: border-box;
+                box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
+            }
+
+            .title-tip[title]:hover:after {
+                position: absolute;
+                top: 100%;
+                left: 50%;
+                z-index: 99999;
+                content: '';
+                margin-left: -0.125em;
+                width: 0;
+                height: 0;
+                border: 0.25em dashed transparent;
+                border-bottom: 0.25em solid #222;
+                font-size: inherit;
+            }
+
+        /* title-tip-up */
+        .title-tip-up[title]:hover:before {
+            top: auto;
+            bottom: 100%;
+            margin-top: 0;
+            margin-bottom: 0.5em;
+        }
+
+        .title-tip-up[title]:hover:after {
+            top: auto;
+            bottom: 100%;
+            border: 0.25em dashed transparent;
+            border-top: 0.25em solid #222;
+        }
+
+    </style>
+
+
+
+    <script>
+
+
+        function validateForm() {
+            var theForm = document.getElementById('theForm');
+
+            var numOfPersons = document.getElementById("numberOfPersons");
+            var selectedValue = numOfPersons.options[numOfPersons.selectedIndex].value;
+            alert("is selected", selectedValue)
+            let Person2 = document.forms["theForm"]["Deps.Person2"].value;
+            let Person3 = document.forms["theForm"]["Deps.Person3"].value;
+            let Person4 = document.forms["theForm"]["Deps.Person4"].value;
+            let Person5 = document.forms["theForm"]["Deps.Person5"].value;
+            let Person6 = document.forms["theForm"]["Deps.Person6"].value;
+            let Person7 = document.forms["theForm"]["Deps.Person7"].value;
+            let Person8 = document.forms["theForm"]["Deps.Person8"].value;
+            let Person9 = document.forms["theForm"]["Deps.Person9"].value;
+            let Person10 = document.forms["theForm"]["Deps.Person10"].value;
+
+
+            let dob2 = document.forms["theForm"]["Deps.Person2YearOfBirth"].value;
+            let dob3 = document.forms["theForm"]["Deps.Person3YearOfBirth"].value;
+            let dob4 = document.forms["theForm"]["Deps.Person4YearOfBirth"].value;
+            let dob5 = document.forms["theForm"]["Deps.Person5YearOfBirth"].value;
+            let dob6 = document.forms["theForm"]["Deps.Person6YearOfBirth"].value;
+            let dob7 = document.forms["theForm"]["Deps.Person7YearOfBirth"].value;
+            let dob8 = document.forms["theForm"]["Deps.Person8YearOfBirth"].value;
+            let dob9 = document.forms["theForm"]["Deps.Person9YearOfBirth"].value;
+            let dob10 = document.forms["theForm"]["Deps.Person10YearOfBirth"].value;
+
+            var insertNow = document.getElementById("numberOfPersons").value;
+
+
+
+            if (selectedValue == "Select Group Size *") {
+                $("#numberOfPersons").css("border", "1px solid #ff5555");
+
+
+            }
+
+
+            else if (insertNow == 2 && Person2 == "") {
+                $("#Person2").css("border", "1px solid #ff5555");
+
+            }
+            else if (insertNow == 2 && dob2 == "") {
+                $("#yr2").css("border", "1px solid #ff5555");
+
+            }
+            else if (insertNow == 3 && Person3 == "") {
+                $("#Person2").css("border", "1px solid #ff5555");
+                $("#Person3").css("border", "1px solid #ff5555");
+                document.getElementById('loader').style.display = 'none';
+
+            }
+            else if (insertNow == 3 && dob3 == "") {
+                $("#yr2").css("border", "1px solid #ff5555");
+                $("#yr3").css("border", "1px solid #ff5555");
+
+
+            }
+            else if (insertNow == 4 && Person4 == "") {
+                $("#Person2").css("border", "1px solid #ff5555");
+                $("#Person3").css("border", "1px solid #ff5555");
+                $("#Person4").css("border", "1px solid #ff5555");
+                document.getElementById('loader').style.display = 'none';
+
+            }
+            else if (insertNow == 4 && dob4 == "") {
+                $("#yr2").css("border", "1px solid #ff5555");
+                $("#yr3").css("border", "1px solid #ff5555");
+                $("#yr4").css("border", "1px solid #ff5555");
+
+
+            }
+
+            else if (insertNow == 5 && Person5 == "") {
+                $("#Person2").css("border", "1px solid #ff5555");
+                $("#Person3").css("border", "1px solid #ff5555");
+                $("#Person4").css("border", "1px solid #ff5555");
+                $("#Person5").css("border", "1px solid #ff5555");
+                document.getElementById('loader').style.display = 'none';
+
+            }
+            else if (insertNow == 5 && dob5 == "") {
+                $("#yr2").css("border", "1px solid #ff5555");
+                $("#yr3").css("border", "1px solid #ff5555");
+                $("#yr4").css("border", "1px solid #ff5555");
+                $("#yr5").css("border", "1px solid #ff5555");
+            }
+            else if (insertNow == 6 && Person6 == "") {
+                $("#Person2").css("border", "1px solid #ff5555");
+                $("#Person3").css("border", "1px solid #ff5555");
+                $("#Person4").css("border", "1px solid #ff5555");
+                $("#Person5").css("border", "1px solid #ff5555");
+                $("#Person6").css("border", "1px solid #ff5555");
+                document.getElementById('loader').style.display = 'none';
+
+            }
+
+            else if (insertNow == 6 && dob6 == "") {
+                $("#yr2").css("border", "1px solid #ff5555");
+                $("#yr3").css("border", "1px solid #ff5555");
+                $("#yr4").css("border", "1px solid #ff5555");
+                $("#yr5").css("border", "1px solid #ff5555");
+
+                $("#yr6").css("border", "1px solid #ff5555");
+            }
+            else if (insertNow == 7 && Person7 == "") {
+                $("#Person2").css("border", "1px solid #ff5555");
+                $("#Person3").css("border", "1px solid #ff5555");
+                $("#Person4").css("border", "1px solid #ff5555");
+                $("#Person5").css("border", "1px solid #ff5555");
+                $("#Person6").css("border", "1px solid #ff5555");
+                $("#Person7").css("border", "1px solid #ff5555");
+                document.getElementById('loader').style.display = 'none';
+
+            }
+
+            else if (insertNow == 7 && dob7 == "") {
+                $("#yr2").css("border", "1px solid #ff5555");
+                $("#yr3").css("border", "1px solid #ff5555");
+                $("#yr4").css("border", "1px solid #ff5555");
+                $("#yr5").css("border", "1px solid #ff5555");
+
+                $("#yr6").css("border", "1px solid #ff5555");
+
+                $("#yr7").css("border", "1px solid #ff5555");
+            }
+            else if (insertNow == 8 && Person8 == "") {
+                $("#Person2").css("border", "1px solid #ff5555");
+                $("#Person3").css("border", "1px solid #ff5555");
+                $("#Person4").css("border", "1px solid #ff5555");
+                $("#Person5").css("border", "1px solid #ff5555");
+                $("#Person6").css("border", "1px solid #ff5555");
+                $("#Person7").css("border", "1px solid #ff5555");
+                $("#Person8").css("border", "1px solid #ff5555");
+
+                document.getElementById('loader').style.display = 'none';
+
+            }
+
+            else if (insertNow == 8 && dob8 == "") {
+                $("#yr2").css("border", "1px solid #ff5555");
+                $("#yr3").css("border", "1px solid #ff5555");
+                $("#yr4").css("border", "1px solid #ff5555");
+                $("#yr5").css("border", "1px solid #ff5555");
+
+                $("#yr6").css("border", "1px solid #ff5555");
+
+                $("#yr7").css("border", "1px solid #ff5555");
+
+                $("#yr8").css("border", "1px solid #ff5555");
+            }
+            else if (insertNow == 9 && Person10 == "") {
+                $("#Person2").css("border", "1px solid #ff5555");
+                $("#Person3").css("border", "1px solid #ff5555");
+                $("#Person4").css("border", "1px solid #ff5555");
+                $("#Person5").css("border", "1px solid #ff5555");
+                $("#Person6").css("border", "1px solid #ff5555");
+                $("#Person7").css("border", "1px solid #ff5555");
+                $("#Person8").css("border", "1px solid #ff5555");
+                $("#Person9").css("border", "1px solid #ff5555");
+                document.getElementById('loader').style.display = 'none';
+
+            }
+
+            else if (insertNow == 9 && dob9 == "") {
+                $("#yr2").css("border", "1px solid #ff5555");
+                $("#yr3").css("border", "1px solid #ff5555");
+                $("#yr4").css("border", "1px solid #ff5555");
+                $("#yr5").css("border", "1px solid #ff5555");
+
+                $("#yr6").css("border", "1px solid #ff5555");
+
+                $("#yr7").css("border", "1px solid #ff5555");
+
+                $("#yr8").css("border", "1px solid #ff5555");
+
+                $("#yr9").css("border", "1px solid #ff5555");
+            }
+            else if (insertNow == 10 && Person10 == "") {
+                $("#Person2").css("border", "1px solid #ff5555");
+                $("#Person3").css("border", "1px solid #ff5555");
+                $("#Person4").css("border", "1px solid #ff5555");
+                $("#Person5").css("border", "1px solid #ff5555");
+                $("#Person6").css("border", "1px solid #ff5555");
+                $("#Person7").css("border", "1px solid #ff5555");
+                $("#Person8").css("border", "1px solid #ff5555");
+                $("#Person9").css("border", "1px solid #ff5555");
+                $("#Person10").css("border", "1px solid #ff5555");
+                document.getElementById('loader').style.display = 'none';
+
+            }
+
+            else if (insertNow == 10 && dob10 == "") {
+                $("#yr2").css("border", "1px solid #ff5555");
+                $("#yr3").css("border", "1px solid #ff5555");
+                $("#yr4").css("border", "1px solid #ff5555");
+                $("#yr5").css("border", "1px solid #ff5555");
+
+                $("#yr6").css("border", "1px solid #ff5555");
+
+                $("#yr7").css("border", "1px solid #ff5555");
+
+                $("#yr8").css("border", "1px solid #ff5555");
+
+                $("#yr9").css("border", "1px solid #ff5555");
+
+                $("#yr10").css("border", "1px solid #ff5555");
+            }
+            else {
+                $("#Person2").css("border", "");
+                $("#Person3").css("border", "");
+                $("#Person4").css("border", "");
+                $("#Person5").css("border", "");
+                $("#Person6").css("border", "");
+                $("#Person7").css("border", "");
+                $("#Person8").css("border", "");
+                $("#Person9").css("border", "");
+                $("#Person10").css("border", "");
+
+                // var r = $('<i class="fa fa-spinner fa-spin"></i>');
+                // $("#contactus-submit").html(r);
+                // $("#contactus-submit").append(" Please wait...");
+                // $("#contactus-submit").attr("disabled", true);
+
+            }
+        }
+
+
+
+
+    </script>
+
+
+    <script>
+
+        $(document).ready(function () {
+
+
+
+            document.getElementById('secondName').style.display = 'none';
+            document.getElementById('third').style.display = 'none';
+
+            document.getElementById('fourth').style.display = 'none';
+
+            document.getElementById('fifth').style.display = 'none';
+
+            document.getElementById('sixth').style.display = 'none';
+
+            document.getElementById('seventh').style.display = 'none';
+
+            document.getElementById('eighth').style.display = 'none';
+
+            document.getElementById('nineth').style.display = 'none';
+
+            document.getElementById('tenth').style.display = 'none';
+
+
+            $('.numberofPeople').on('keyup change', function () {
+
+
+                var numOfPersons = document.getElementById("numberOfPersons");
+                var insertNow = numOfPersons.options[numOfPersons.selectedIndex].value;
+
+
+
+                document.getElementById('secondName').style.display = 'none';
+                document.getElementById('third').style.display = 'none';
+
+                document.getElementById('fourth').style.display = 'none';
+
+                document.getElementById('fifth').style.display = 'none';
+
+                document.getElementById('sixth').style.display = 'none';
+
+                document.getElementById('seventh').style.display = 'none';
+
+                document.getElementById('eighth').style.display = 'none';
+
+                document.getElementById('nineth').style.display = 'none';
+
+                document.getElementById('tenth').style.display = 'none';
+
+                if (insertNow == 2) {
+
+                    document.getElementById('secondName').style.display = 'block';
+
+                }
+                if (insertNow == 3) {
+                    document.getElementById('secondName').style.display = 'block';
+                    document.getElementById('third').style.display = 'block';
+                }
+                if (insertNow == 4) {
+                    document.getElementById('secondName').style.display = 'block';
+                    document.getElementById('third').style.display = 'block';
+                    document.getElementById('fourth').style.display = 'block';
+
+
+                }
+                if (insertNow == 5) {
+                    document.getElementById('secondName').style.display = 'block';
+                    document.getElementById('third').style.display = 'block';
+                    document.getElementById('fourth').style.display = 'block';
+                    document.getElementById('fifth').style.display = 'block';
+
+
+                }
+                if (insertNow == 6) {
+                    document.getElementById('secondName').style.display = 'block';
+                    document.getElementById('third').style.display = 'block';
+                    document.getElementById('fourth').style.display = 'block';
+                    document.getElementById('fifth').style.display = 'block';
+                    document.getElementById('sixth').style.display = 'block';
+
+
+                }
+                if (insertNow == 7) {
+                    document.getElementById('secondName').style.display = 'block';
+                    document.getElementById('third').style.display = 'block';
+                    document.getElementById('fourth').style.display = 'block';
+                    document.getElementById('fifth').style.display = 'block';
+                    document.getElementById('sixth').style.display = 'block';
+                    document.getElementById('seventh').style.display = 'block';
+
+
+                }
+                if (insertNow == 8) {
+                    document.getElementById('secondName').style.display = 'block';
+                    document.getElementById('third').style.display = 'block';
+                    document.getElementById('fourth').style.display = 'block';
+                    document.getElementById('fifth').style.display = 'block';
+                    document.getElementById('sixth').style.display = 'block';
+                    document.getElementById('seventh').style.display = 'block';
+                    document.getElementById('eighth').style.display = 'block';
+
+
+                }
+                if (insertNow == 9) {
+                    document.getElementById('secondName').style.display = 'block';
+                    document.getElementById('third').style.display = 'block';
+                    document.getElementById('fourth').style.display = 'block';
+                    document.getElementById('fifth').style.display = 'block';
+                    document.getElementById('sixth').style.display = 'block';
+                    document.getElementById('seventh').style.display = 'block';
+                    document.getElementById('eighth').style.display = 'block';
+                    document.getElementById('nineth').style.display = 'block';
+
+
+                }
+                if (insertNow == 10) {
+                    document.getElementById('secondName').style.display = 'block';
+                    document.getElementById('third').style.display = 'block';
+                    document.getElementById('fourth').style.display = 'block';
+                    document.getElementById('fifth').style.display = 'block';
+                    document.getElementById('sixth').style.display = 'block';
+                    document.getElementById('seventh').style.display = 'block';
+                    document.getElementById('eighth').style.display = 'block';
+                    document.getElementById('nineth').style.display = 'block';
+                    document.getElementById('tenth').style.display = 'block';
+                }
+
+
+            });
+
+        });
+
+    </script>
+
+    <script>
+
+
+        function GetCity(id) {
+
+
+            var getcity = "<option value= '0'>please wait...</option>";
+
+            $("#cityId").html(getcity).show();
+            var url = '@Url.Action("GetCityByRegion", "Account")';
+
+            $.ajax({
+                url: url,
+                data: { Id: id },
+                cache: false,
+                type: "GET",
+
+                success: function (data) {
+                    var markup = "<option value= '0'>Please select City</option>";
+                    $(".city").css("border", "");
+                    for (var x = 0; x < data.length; x++) {
+                        markup += '<option value="' + data[x].value + '">' + data[x].text + '</option>';
+                    }
+                    $("#cityId").html(markup).show();
+                },
+                error: function (response) {
+                    alert("error" + response);
+                }
+
+            });
+        }
+
+    </script>
+
+
+
+    <script>
+
+
+        function GetmCity(id) {
+
+            var city = "<option value= '0'>please wait...</option>";
+
+            $("#famcity").html(city).show();
+            var url = '@Url.Action("GetCityByRegion", "Account")';
+
+            $.ajax({
+                url: url,
+                data: { Id: id },
+                cache: false,
+                type: "GET",
+
+                success: function (data) {
+                    var markup = "<option value= '0'>Please select City</option>";
+                    $(".city").css("border", "");
+                    for (var x = 0; x < data.length; x++) {
+                        markup += '<option value="' + data[x].value + '">' + data[x].text + '</option>';
+                    }
+                    $("#famcity").html(markup).show();
+                },
+                error: function (response) {
+                    alert("error" + response);
+                }
+
+            });
+        }
+
+    </script>
+
+}

@@ -1,0 +1,193 @@
+﻿@using WebOptimus.Models.ViewModel
+@model WebOptimus.Models.ViewModel.PaymentHistoryDetailsViewModel
+
+@{
+    Layout = null;
+    var totalReceived = Model.PaymentSessions.Sum(ps => ps.TotalAmount) - Model.PaymentSessions.Sum(ps => ps.TransactionFees);
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Payment Invoice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .invoice {
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+            .invoice h4 {
+                font-size: 1.5rem;
+                margin-bottom: 10px;
+            }
+
+        .invoice-info strong {
+            display: block;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+            .table th,
+            .table td {
+                border: 1px solid #ddd;
+                padding: 10px;
+                text-align: left;
+            }
+
+            .table th {
+                background: #f4f4f4;
+            }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .summary-section {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: #f9f9f9;
+        }
+
+        .invoice-footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .bordered-box {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice">
+        <!-- Header -->
+        <div class="row">
+            <div class="col-12">
+                <h4>
+                    <span class="logo">Umojawetu</span> Payment Invoice
+                    <small class="float-right">
+                        Date:
+                        @Model.PaymentSessions.FirstOrDefault()?.DateCreated.ToString("dd/MM/yyyy")
+                    </small>
+                </h4>
+                <hr />
+            </div>
+        </div>
+
+        <!-- Payment Sessions -->
+        <div class="row invoice-info">
+            <div class="col-sm-6 bordered-box">
+                <h5>Payment Record:</h5>
+                @foreach (var session in Model.PaymentSessions)
+                {
+                    <p>
+                        <strong>Reference:</strong> @session.OurRef<br />
+                        <strong>Campaign Ref:</strong> @session.CauseCampaignpRef<br />
+                        <strong>Your Note/Comment: </strong> @(string.IsNullOrEmpty(@session.Reason) ? "N/A" : @session.Reason)<br />
+                        <strong>Payment Date:</strong> @session.DateCreated.ToString("dd/MM/yyyy HH:mm:ss")
+                    </p>
+                }
+            </div>
+        </div>
+
+        <!-- Payment Breakdown Table -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <h5>Payment Breakdown:</h5>
+                <table class="table text-center">
+                    <thead class="text-center">
+                        <tr class="text-center">
+                            <th class="text-center">Name</th>
+                            <th class="text-center">Contribution</th>
+                            @if (ViewBag.HasDeathRelatedPayments)
+                            {
+                                <th class="text-center">Goodwill</th>
+                            }
+                           
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.HasDeathRelatedPayments)
+                        {
+                            @foreach (var item in Model.PaymentItems)
+                            {
+                                var matchingPayment = Model.Payments.FirstOrDefault(p => p.personRegNumber == item.PersonRegNumber)?.GoodwillAmount ?? 0.00m;
+                                <tr class="text-center">
+                                    <td class="text-center">@item.Name</td>
+                                    <td class="text-center">@item.Price.ToString("C")</td>
+                                    <td class="text-center">@matchingPayment.ToString("C")</td>                                  
+                                </tr>
+                            }
+                        }
+                        else if (ViewBag.HasNonDeathPayments)
+                        {
+                            @foreach (var donation in Model.OtherDonationPayments)
+                            {
+                                <tr class="text-center">
+                                    <td class="text-center">@donation.CreatedBy</td>
+                                    <td class="text-center">@donation.Amount.ToString("C")</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Financial Summary Section -->
+        <div class="summary-section">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th class="text-right">Late Payment Fees:</th>
+                        <td>@ViewBag.LatePaymentFees.ToString("C")</td>
+                    </tr>
+                    <tr>
+                        <th class="text-right">Transaction Fees:</th>
+                        <td>@Model.PaymentSessions.Sum(ps => ps.TransactionFees).ToString("C")</td>
+                    </tr>
+                    <tr>
+                        <th class="text-right">Total Amount Paid:</th>
+                        <td>@Model.PaymentSessions.Sum(ps => ps.TotalAmount).ToString("C")</td>
+                    </tr>                 
+                    <tr>
+                        <th class="text-right">Total Amount Received:</th>
+                        <td>@totalReceived.ToString("C")</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Footer -->
+        <div class="invoice-footer">
+            Thank you for your contribution! If you have any questions, please contact our support team.
+        </div>
+    </div>
+</body>
+</html>

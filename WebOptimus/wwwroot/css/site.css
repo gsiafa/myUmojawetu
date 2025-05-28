@@ -1,0 +1,19 @@
+
+
+
+#choose1 {
+    background-image: url("~/assets/img/choose1.jpg") !important;
+}
+.d-flex {
+    display: flex;
+    gap: 10px; /* Adds space between buttons */
+    flex-wrap: wrap; /* Ensures responsiveness */
+}
+
+@media (max-width: 576px) {
+    .d-flex {
+        flex-direction: column; /* Stacks buttons vertically on small screens */
+        gap: 5px;
+    }
+}
+

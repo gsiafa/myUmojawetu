@@ -1,0 +1,89 @@
+﻿@model WebOptimus.Models.ViewModel.LoginViewModel
+@using WebOptimus.StaticVariables
+@{
+    ViewData["Title"] = "Login";
+}
+
+
+
+<div class="page-banner-wrap text-center bg-cover" >
+    <div class="container">
+        <div class="page-heading text-white">
+            <h1>Welcome to Umoja Wetu</h1>
+        </div>
+
+    </div>
+</div>
+
+<!-- Login 3 - Bootstrap Brain Component -->
+<section class="p-3 p-md-4 p-xl-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-6 bsb-tpl-bg-platinum">
+                <h2 class="contact-title">Sign In</h2>
+                <p>Please sign in using your registered email address. <br />If you are not a member and wishes to join, please register. </p>
+
+            </div>
+            <div class="col-12 col-md-6 bsb-tpl-bg-lotion">
+                <div class="p-3 p-md-4 p-xl-5">
+                    @if (TempData[SD.Error] != null)
+                    {
+                        <div class="alert alert-danger">
+                            @TempData[SD.Error]
+                        </div>
+                    }
+
+                    @if (TempData[SD.Success] != null)
+                    {
+                        <div class="alert alert-success">
+                            @TempData[SD.Success]
+                        </div>
+                    }
+                    <form asp-action="Login" asp-controller="Account" method="post" autocomplete="false" id="signup-form">
+
+
+
+                   
+                        <div class="form-group">
+                            <input type="email" class="form-control " id="email" name="Email" asp-for="Email" placeholder="Email">
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" class="form-control " id="password" name="Password" asp-for="Password" placeholder="Password">
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>                    
+
+                      
+                        <div class="form-group" style="margin-top: 20px !important;">
+                            <button type="submit" class="theme-btn3 btn btn-custom">Submit</button>
+                        </div> 
+                        <div class="ml-auto mt-4 ">
+                            <small class="signInText" style="float:right;"><a class="signInText" style="cursor: pointer; color:#212529 !important;  text-decoration: underline;  float:right;" asp-action="ForgetPassword" asp-controller="Account">Forgot Password</a></small>
+                            <small>Not a member?  <a class="justify-content-end signInText" style="cursor: pointer; color:#212529 !important;  text-decoration: underline;" asp-action="Register" asp-controller="Account"> Register</a></small>
+                        </div>
+                    </form>
+
+                
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<br /><br />
+
+@section scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <style>
+        .signInText {
+            color: #262b30 !important;
+        }
+        .signInText:hover {
+            text-decoration: underline;
+        }
+
+        small{
+            color: #262b30 !important;
+        }
+    </style>
+}

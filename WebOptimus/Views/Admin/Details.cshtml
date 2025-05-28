@@ -1,0 +1,1208 @@
+﻿@model WebOptimus.Models.ViewModel.Admin.DependentDetailsViewModel
+@{
+    ViewData["Title"] = "Registration Details";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- Content Header -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Details of <strong>@Model.Dependant.PersonName</strong></h1>
+                <p><small>Unique Registration #: <strong>@Model.Dependant.PersonRegNumber</strong></small></p>
+            </div>
+            <div class="col-sm-6 text-right">
+                <a asp-action="Members" asp-controller="Admin" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+<partial name="_notify" />
+<!-- Main Content -->
+<section class="content">
+    <div class="container-fluid">
+        <!-- At a Glance Section -->
+        <div class="row">
+            <div class="col-md-4 text-center">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h4>Age</h4>
+                        <div class="circle bg-primary text-white mx-auto d-flex justify-content-center align-items-center">
+                            <h5>
+                                @(int.TryParse(Model.DOB, out int dob) && dob > 0 ? (DateTime.UtcNow.Year - dob).ToString() : "N/A")
+                            </h5>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h4>Region</h4>
+                        <div class="circle bg-success text-white mx-auto d-flex justify-content-center align-items-center">
+                            <h5>@Model.Region</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h4>Date Joined</h4>
+                        <div class="circle bg-info text-white mx-auto d-flex justify-content-center align-items-center">
+                            <h6>@Model.Dependant.DateCreated.ToString("dd/MM/yyyy")</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Personal Profile Section -->
+        <div class="card mt-4">
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <h2 class="mb-2 mb-md-0">Personal Profile</h2>
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editProfileModal">
+                        <i class="fas fa-pencil-alt"></i> Edit
+                    </button>
+                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addNoteModal">
+                        <i class="fas fa-plus"></i> Add Note
+                    </button>
+                    @if (Model.NextOfKins == null)
+                    {
+                        <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#addNextOfKinModal">
+                            <i class="fas fa-user-plus"></i> Add Next of Kin
+                        </button>
+                    }
+                    <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#addCustomPaymentModal">
+                        <i class="fas fa-money-check"></i> Custom Payment
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-md-4">Full Name:</dt>
+                    <dd class="col-md-8">@Model.Dependant.PersonName</dd>
+
+                    <dt class="col-md-4">Email:</dt>
+                    <dd class="col-md-8">@Model.Dependant.Email</dd>
+
+                    <dt class="col-md-4">Phone Number:</dt>
+                    <dd class="col-md-8">@Model.Dependant.Telephone</dd>
+
+                    <dt class="col-md-4">Region:</dt>
+                    <dd class="col-md-8">@Model.Region</dd>
+
+                    <dt class="col-md-4">County:</dt>
+                    <dd class="col-md-8">@Model.City</dd>
+
+                    <dt class="col-md-4">Outward Postcode:</dt>
+                    <dd class="col-md-8">@Model.Dependant.OutwardPostcode</dd>
+
+                    <dt class="col-md-4">Year of Birth:</dt>
+                    <dd class="col-md-8">@Model.DOB</dd>
+
+                    <dt class="col-md-4">Registration Number:</dt>
+                    <dd class="col-md-8">@Model.Dependant.PersonRegNumber</dd>
+
+                    <dt class="col-md-4">Date Joined:</dt>
+                    <dd class="col-md-8">@Model.Dependant.DateCreated.ToString("dd/MM/yyyy")</dd>
+
+                    <dt class="col-md-4">Created By:</dt>
+                    <dd class="col-md-8">@Model.Dependant.CreatedBy</dd>
+                </dl>
+            </div>
+        
+        </div>
+        <!-- Modal for Editing Personal Profile -->
+        <div class="modal fade" id="editProfileModal" tabindex="-1" role="dialog" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="editProfileModalLabel">Edit Personal Profile</h5>
+                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form asp-action="EditProfile" asp-controller="Admin" method="post">
+                        <div class="modal-body">
+                            <input type="hidden" name="PersonRegNumber" value="@Model.PersonRegNumber"/>
+                            <div class="form-group">
+                                <label for="fullName">Full Name<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="fullName" name="PersonName" value="@Model.Dependant.PersonName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" class="form-control" id="email" name="Email" value="@Model.Dependant.Email">
+                            </div>
+                            <div class="form-group">
+                                <label for="telephone">Phone Number</label>
+                                <input type="text" class="form-control" id="telephone" name="Telephone" value="@Model.Dependant.Telephone">
+                            </div>
+                            <div class="form-group">
+                                <label for="region">Region<span class="text-danger">*</span></label>
+                                <select class="form-control" id="region" name="RegionId">
+                                    <option value="">-- Select Region --</option>
+                                    @foreach (var region in Model.Regions)
+                                    {
+                                        if (region.Name == Model.Region)
+                                        {
+                                            <option value="@region.Id" selected>@region.Name</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@region.Id">@region.Name</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="city">County<span class="text-danger">*</span></label>
+                                <select class="form-control" id="city" name="CityId">
+                                    <option value="">-- Select County --</option>
+                                    @foreach (var city in Model.Cities)
+                                    {
+                                        if (city.Name == Model.City)
+                                        {
+                                            <option value="@city.Id" selected>@city.Name</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@city.Id">@city.Name</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="postcode">Outward Postcode<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="postcode" name="OutwardPostcode" value="@Model.Dependant.OutwardPostcode" required>
+                            </div>
+                        
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label fw-bold">Year of Birth: <span class="text-danger">*</span></label>
+                                <div class="col-sm-12">
+                                    <select class="form-control" id="yearOfBirth" name="PersonYearOfBirth" asp-for="@Model.DOB">
+                                        <option value="" selected disabled>Please Select Year</option>
+                                    </select>
+                                   
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-success">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Family Members Section -->
+            <div class="card mt-4 col-md-6 col-12">
+                <div class="card-header bg-info text-white">
+                    <h2>Family Members <span class="badge badge-info">(@Model.DepsList?.Count())</span></h2>
+                </div>
+                <div class="card-body" style="width: 100%; overflow-x: auto;">
+                    @if (Model.DepsList != null && Model.DepsList.Any())
+                    {
+                        <table class="table m-0 myTable" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Year of Birth</th>
+                                    <th>Registration #</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var dep in Model.DepsList)
+                                {
+                                    <tr>
+                                        <td>@dep.PersonName</td>
+                                        <td>@dep.PersonYearOfBirth</td>
+                                        <td>@dep.PersonRegNumber</td>
+                                        <td>
+                                            <a asp-action="Details" asp-controller="Admin" asp-route-personRegNumber="@dep.PersonRegNumber" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p>No family members registered.</p>
+                    }
+                </div>
+            </div>
+            <div class="card mt-4 col-md-6 col-12">
+            @if (Model.NextOfKins != null)
+            {
+                <div class="card">
+                    <div class="card-header bg-warning text-white">
+                        <h2>Next of Kin</h2>
+                    </div>
+                    <div class="card-body">
+                        <dl class="row">
+                            <dt class="col-md-4">Member Name:</dt>
+                            <dd class="col-md-8">@Model.NextOfKins.MemberName</dd>
+
+                            <dt class="col-md-4">Next of Kin Name:</dt>
+                            <dd class="col-md-8">@Model.NextOfKins.NextOfKinName</dd>
+
+                            <dt class="col-md-4">Relationship:</dt>
+                            <dd class="col-md-8">@Model.NextOfKins.Relationship</dd>
+
+                            <dt class="col-md-4">Phone Number:</dt>
+                            <dd class="col-md-8">@Model.NextOfKins.PhoneNumber</dd>
+
+                            <dt class="col-md-4">Email:</dt>
+                            <dd class="col-md-8">@Model.NextOfKins.Email</dd>
+
+                                <dt class="col-md-4">Address:</dt>
+                                <dd class="col-md-8">@Model.NextOfKins.Address</dd>
+                        </dl>
+
+                            <div class="d-flex justify-content-between">
+                                <!-- Edit Button -->
+                                <button class="btn btn-warning btn-sm edit-kin"
+                                        data-id="@Model.NextOfKins.Id"
+                                        data-personregnumber="@Model.NextOfKins.PersonRegNumber"
+                                        data-member="@Model.NextOfKins.MemberName"
+                                        data-kin="@Model.NextOfKins.NextOfKinName"
+                                        data-phone="@Model.NextOfKins.PhoneNumber"
+                                        data-email="@Model.NextOfKins.Email"
+                                        data-address="@Model.NextOfKins.Address"
+                                        data-relationship="@Model.NextOfKins.Relationship">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+
+                                <!-- Delete Button (Uses a Form to Submit) -->
+                                <form id="deleteKinForm-@Model.NextOfKins.Id" method="post" asp-action="DeleteNextOfKin" asp-controller="Admin" onclick="return confirm('Are you sure you want to delete this?')">
+                                    <input type="hidden" name="id" value="@Model.NextOfKins.Id" />
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash-alt"></i> Delete
+                                    </button>
+                                </form>
+                            </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted text-center">No Next of Kin found.</p>
+            }
+            </div>
+        </div>
+
+      
+     
+
+        @if (Model.DeceasedFamilyMembers != null && Model.DeceasedFamilyMembers.Any())
+        {
+            <div class="card mt-4">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="card-title">Deceased Family Member(s)</h3>
+                </div>
+                <div class="card-body" style="width: 100%; overflow-x: auto;">
+                    <table class="table m-0 myTable" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th>Full Name</th>
+                                <th>Year of Birth</th>
+                                <th>Registration #</th>
+                                <th>Date of Death</th>
+                                <th>Reported By</th>
+                                <th>Relationship to Deceased</th>
+                                <th>Reporter Contact</th>
+                                <th>Reporter On</th>
+                                <th>Regional Admin Approved</th>
+                                <th>Regional Admin Note</th>
+                                <th>Regional Admin Date</th>
+                         
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var deceased in Model.DeceasedFamilyMembers)
+                            {
+                                var deathReport = Model.ReportedDeaths.FirstOrDefault(rd => rd.UserId == deceased.UserId);
+                                <tr>
+                                    <td>@deceased.PersonName</td>
+                                    <td>
+                                        @deathReport.DeceasedYearOfBirth
+                                    </td>
+                                    <td>@deceased.PersonRegNumber</td>
+                                    <td>
+                                        @deathReport?.DateOfDeath.ToString("dd/MM/yyyy") 
+                                    </td>
+                                    <td>
+                                        @deathReport?.ReportedBy 
+                                    </td>
+                                    <td>
+                                        @deathReport?.RelationShipToDeceased
+                                    </td>
+                                    <td>
+                                        @deathReport?.ReporterContactNumber 
+                                    </td>
+                                    <td>
+                                        @deathReport?.DateCreated.ToString("dd/MM/yyyy") 
+                                    </td>
+                                    <td>
+                                        @deathReport?.ApprovedByRegionalAdmin
+                                    </td>
+                                    <td>
+                                        @deathReport?.RegionalAdminNote
+                                    </td>
+                                    <td>
+                                        @deathReport?.RegionalAdminApprovalDate.ToString("dd/MM/yyyy")
+                                    </td>
+                                
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        }
+              
+        <!-- Edit Custom Payment Modal -->
+        @if (Model.CustomPayments != null && Model.CustomPayments.Any())
+        {
+            <div class="card mt-4">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="card-title">Custom Payment Reductions</h3>
+                </div>
+                <div class="card-body">
+                    <table class="table m-0 myTable" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th>Cause Reference</th>
+                                <th>Amount Reduced (£)</th>                               
+                                <th>Reason</th>
+                                <th>Created By</th>
+                                <th>Date Created</th>
+                                <th>Actions</th> <!--  Added an Actions Column -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var payment in Model.CustomPayments)
+                            {
+                                <tr>
+                                    <td>@payment.CauseCampaignpRef</td>
+                                    <td>@payment.ReduceFees</td>                                 
+                                    <td>@payment.Reason</td>
+                                    <td>@payment.CreatedByName</td>
+                                    <td>@payment.DateCreated.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <!--  Flexbox to align buttons -->
+                                            <!-- Edit Button -->
+                                            <button type="button" class="btn btn-warning btn-sm edit-custom-payment"
+                                                    data-id="@payment.Id"
+                                                    data-reducefees="@payment.ReduceFees"                                                   
+                                                    data-reason="@payment.Reason"
+                                                    data-causecampaignpref="@payment.CauseCampaignpRef">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+
+
+                                            <!-- Delete Button -->
+                                            <form method="post" asp-action="DeleteCustomPayment" asp-controller="Admin"
+                                                  onsubmit="return confirm('Are you sure you want to delete this custom payment?');">
+                                                <input type="hidden" name="id" value="@payment.Id" />
+                                                <input type="hidden" name="personRegNumber" value="@Model.PersonRegNumber" />
+                                                <button type="submit" class="btn btn-danger btn-sm">
+                                                    <i class="fas fa-trash-alt"></i> Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header bg-dark text-white">
+            <h2>Note History</h2>
+        </div>
+        <div class="card-body">
+            <ul class="timeline" id="noteHistory">
+                @if (Model.NoteHistory != null && Model.NoteHistory.Any())
+                {
+                    int counter = 0;
+                    foreach (var note in Model.NoteHistory)
+                    {
+                        <li class="timeline-item @(counter % 2 == 0 ? "left" : "right")">
+                            <div class="timeline-badge"><i class="fas fa-sticky-note"></i></div>
+                            <div class="timeline-panel shadow-sm">
+                                <div class="timeline-heading d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h4 class="timeline-title font-weight-bold text-primary">@note.NoteTypeName</h4>
+
+                                        <!-- Show Author and Date Created -->
+                                        <p class="m-0"><strong>Author:</strong> <small class="text-muted"><i class="fas fa-user"></i> @note.CreatedByName</small></p>
+                                        <p class="m-0"><strong>Date:</strong> <small class="text-muted"><i class="fas fa-clock"></i> @note.DateCreated.ToString("dd/MM/yyyy HH:mm")</small></p>
+
+                                        <!-- Show Updated Information if UpdatedBy has a value -->
+                                        @if (!string.IsNullOrEmpty(note.UpdatedBy))
+                                        {
+                                            <div class="alert alert-warning p-2 mt-2">
+                                                <i class="fas fa-exclamation-circle"></i> <strong>Note has been updated</strong><br />
+                                                <small>Updated By: <i class="fas fa-user-edit"></i> @note.UpdatedBy</small><br />
+                                                <small>Updated On: <i class="fas fa-clock"></i> @note.UpdatedOn</small>
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <!-- Three-Dots Dropdown Menu -->
+                                    <div class="dropdown">
+                                        <button class="btn btn-light btn-sm rounded-circle p-2 dropdown-toggle" type="button"
+                                                id="noteActionsDropdown-@note.Id" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-right shadow-lg" aria-labelledby="noteActionsDropdown-@note.Id">
+                                            <!-- Edit Button -->
+                                            <button class="dropdown-item edit-note"
+                                                    data-id="@note.Id"
+                                                    data-personregnumber="@note.PersonRegNumber"
+                                                    data-description="@note.Description"
+                                                    data-notetypeid="@note.NoteTypeId">
+                                                <i class="fas fa-edit text-primary"></i> Edit
+                                            </button>
+
+                                            <!-- Delete Button -->
+                                            <form method="post" asp-action="DeleteNote" asp-controller="Admin"
+                                                  onsubmit="return confirm('Are you sure you want to delete this note?');">
+                                                <input type="hidden" name="id" value="@note.Id" />
+                                                <input type="hidden" name="personRegNumber" value="@note.PersonRegNumber" />
+                                                <button type="submit" class="dropdown-item text-danger">
+                                                    <i class="fas fa-trash-alt"></i> Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <!-- End of Dropdown -->
+                                </div>
+
+                                <!-- Note Content -->
+                                <div class="timeline-body bg-light p-3 mt-2 rounded border">
+                                    @note.Description
+                                </div>
+                            </div>
+                        </li>
+                        counter++;
+                    }
+                }
+                else
+                {
+                    <p class="text-muted no-notes-message text-center">No notes available.</p>
+                }
+            </ul>
+        </div>
+
+    </div>
+
+
+
+</section>
+<!-- Add Note Modal -->
+<div class="modal fade" id="addNoteModal" tabindex="-1" aria-labelledby="addNoteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="addNoteModalLabel"><i class="fas fa-sticky-note"></i> Add Note</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="AddNote" asp-controller="Admin" method="post">
+                <div class="modal-body">
+                    <!-- Hidden Fields -->
+                    <input type="hidden" name="PersonRegNumber" value="@Model.PersonRegNumber" />
+
+                    <!-- Note Type Selection -->
+                    <div class="form-group">
+                        <label>Note Type</label>
+                        <select class="form-control" name="NoteTypeId" required>
+                            @foreach (var noteType in Model.NoteTypes)
+                            {
+                                <option value="@noteType.Id">@noteType.TypeName</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Note Description -->
+                    <div class="form-group">
+                        <label>Note Description</label>
+                        <textarea class="form-control" id="addNoteDescription" name="Description" required></textarea>
+
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Save Note</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<!-- Add Next of Kin Modal -->
+<div class="modal fade" id="addNextOfKinModal" tabindex="-1" aria-labelledby="addNextOfKinModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="addNextOfKinModalLabel"><i class="fas fa-user-plus"></i> Add Next of Kin</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="AddNextOfKin" asp-controller="Admin" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="PersonRegNumber" value="@Model.PersonRegNumber" />
+
+                    <div class="form-group">
+                        <label>Member Name</label>
+                        <input type="text" class="form-control" id="editKinMember" name="MemberName" value="@Model.Dependant.PersonName" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Next of Kin Name</label>
+                        <input type="text" class="form-control" name="NextOfKinName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Relationship</label>
+                        <input type="text" class="form-control" name="Relationship" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" class="form-control" id="addKinPhone" name="PhoneNumber">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" class="form-control" name="NextOfKinEmail">
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <textarea class="form-control" id="editKinAddress" name="Address"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Save Next of Kin</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editKinModal" tabindex="-1" aria-labelledby="editKinModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="editKinModalLabel"><i class="fas fa-user-edit"></i> Edit Next of Kin</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="EditNextOfKin" asp-controller="Admin" method="post">
+                <div class="modal-body">
+                    <input type="hidden" id="editKinId" name="Id" />
+                    <input type="hidden" id="editKinReg" name="PersonRegNumber" asp-for="PersonRegNumber" value="@Model.PersonRegNumber" />
+
+                    <div class="form-group">
+                        <label>Member Name</label>
+                        <input type="text" class="form-control" id="editKinMember" name="MemberName" value="@Model.Dependant.PersonName" readonly>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label>Next of Kin Name</label>
+                        <input type="text" class="form-control" id="editKinName" name="NextOfKinName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Relationship</label>
+                        <input type="text" class="form-control" id="editKinRelationship" name="Relationship">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" class="form-control" id="editKinPhone" name="PhoneNumber">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" class="form-control" id="editKinEmail" name="Email">
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <textarea class="form-control" id="editKinAddress" name="Address">@(Model.NextOfKins?.Address ?? "")</textarea>
+
+                    </div>
+
+                </div>
+                <div class="modal-footer">        
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editNoteModal" tabindex="-1" aria-labelledby="editNoteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="editNoteModalLabel"><i class="fas fa-edit"></i> Edit Note</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="EditNote" asp-controller="Admin" method="post">
+                <div class="modal-body">
+                    <input type="hidden" id="editNoteId" name="Id" />
+                    <input type="hidden" id="editNoteReg" name="PersonRegNumber" />
+
+                    <div class="form-group">
+                        <label>Note Type</label>
+                        <select class="form-control" id="editNoteType" name="NoteTypeId" required>
+                            @foreach (var noteType in Model.NoteTypes)
+                            {
+                                <option value="@noteType.Id">@noteType.TypeName</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Note Description</label>
+                        <textarea class="form-control" id="editNoteDescription" name="Description" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addCustomPaymentModal" tabindex="-1" aria-labelledby="customPaymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="fas fa-money-bill"></i> Customise Payment</h5> 
+               
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="AddCustomPayment" asp-controller="Account" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="PersonRegNumber" value="@Model.PersonRegNumber" />
+                    <p>Use this form to reduce or waive missed payment charges for this member - set the fee to 0 if they're to pay zero or reduce the amount accordingly.</p>
+
+                    <div class="form-group">
+                        <label>Select Cause Reference</label>
+                        <select class="form-control" name="CauseRef" id="causeRefSelect" required>
+                            @foreach (var death in Model.AllReportedDeaths)
+                            {
+                                <option value="@death.Id" data-deathid="@death.Id">
+                                    @death.DeceasedName (Reported: @death.DateCreated.ToString("dd/MM/yyyy"))
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Hidden field to store the selected CauseCampaignpRef -->
+                    <input type="hidden" name="CauseCampaignpRef" id="causeCampaignpRef" />
+
+
+                    <div class="form-group">
+                        <label>Reduce Fees (£)</label>
+                        <input type="number" class="form-control" name="ReduceFees" step="0.01" />
+                    </div>                 
+
+                    <div class="form-group">
+                        <label>Reason</label>
+                        <textarea class="form-control" name="Reason" required></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Apply</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Edit Custom Payment Modal -->
+<div class="modal fade" id="editCustomPaymentModal" tabindex="-1" aria-labelledby="editCustomPaymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-white">
+                <h5 class="modal-title"><i class="fas fa-edit"></i> Edit Custom Payment</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="EditCustomPayment" asp-controller="Admin" method="post">
+                <div class="modal-body">
+                    <input type="hidden" id="editPaymentId" name="Id" />
+                    <input type="hidden" name="PersonRegNumber" value="@Model.PersonRegNumber" />
+
+                    <div class="form-group">
+                        <label>Cause Reference</label>
+                        <input type="text" class="form-control" id="editCauseRef" name="CauseCampaignpRef" readonly />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Reduce Fees (£)</label>
+                        <input type="number" class="form-control" id="editReduceFees" name="ReduceFees" step="0.01" required />
+                    </div>                
+
+
+                    <div class="form-group">
+                        <label>Reason</label>
+                        <textarea class="form-control" id="editReason" name="Reason" required></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+@section Scripts{
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="~/admin/js/table.js" asp-append-version="true"> </script>
+
+
+    <style>
+        .container-fluid {
+            padding: 20px;
+        }
+
+        .card {
+            margin-bottom: 20px;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        /* Improve alignment of Personal Profile Details */
+        dl.row dt {
+            font-weight: bold;
+            color: #333;
+        }
+
+        dl.row dd {
+            margin-bottom: 10px;
+        }
+
+        /* Center content inside Age, Region, and Date Joined Cards */
+        .circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            text-align: center;
+            margin: auto;
+        }
+
+        /* General Styles */
+        .timeline {
+            list-style: none;
+            padding: 0;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+            .timeline:before {
+                content: '';
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 50%;
+                width: 5px;
+                background-color: #dee2e6;
+                margin-left: -2.5px;
+            }
+
+        /* Timeline Items */
+        .timeline-item {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .timeline-panel {
+            width: 45%;
+            padding: 20px;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        /* Timeline Badge */
+        .timeline-badge {
+            width: 50px;
+            height: 50px;
+            line-height: 50px;
+            font-size: 18px;
+            text-align: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-left: -25px;
+            margin-top: -25px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 50%;
+            z-index: 1000;
+        }
+
+        /* Left and Right Alignment */
+        .timeline-item.left .timeline-panel {
+            text-align: left;
+            margin-right: auto;
+        }
+
+        .timeline-item.right .timeline-panel {
+            text-align: right;
+            margin-left: auto;
+        }
+
+        /* Dropdown Menu */
+        .dropdown-toggle::after {
+            display: none;
+        }
+
+        .dropdown-menu {
+            border-radius: 6px;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Buttons */
+        .btn-secondary {
+            background-color: #6c757d;
+            border: none;
+        }
+
+            .btn-secondary:hover {
+                background-color: #5a6268;
+            }
+
+        .btn-danger {
+            background-color: #dc3545;
+            border: none;
+        }
+
+            .btn-danger:hover {
+                background-color: #c82333;
+            }
+
+        /* Improved Text Styles */
+        .timeline-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .text-muted {
+            font-weight: 600;
+        }
+
+
+
+        .text-muted {
+            color: #6c757d !important; /* Ensure proper contrast */
+            font-weight: 600; /* Make it slightly bolder */
+        }
+
+        .no-notes-message {
+            font-size: 16px; /* Adjust font size */
+            padding: 10px 0; /* Add spacing */
+            display: block; /* Ensure proper alignment */
+        }
+
+        .d-flex.gap-2 {
+            display: flex;
+            gap: 8px; /* Adds spacing between buttons */
+            align-items: center; /* Aligns items vertically */
+        }
+
+    </style>
+
+<script>
+    $(document).ready(function () {
+        $('#editProfileModal').on('hidden.bs.modal', function () {
+            $(this).find('form').trigger('reset');
+        });
+
+         $('#region').change(function () {
+            const regionId = $(this).val();
+            $.ajax({
+                url: '/Admin/GetCitiesByRegion',
+                method: 'GET',
+                data: { regionId },
+                success: function (data) {
+                    $('#city').empty();
+                    data.forEach(city => {
+                        $('#city').append(`<option value="${city.id}">${city.name}</option>`);
+                    });
+                }
+            });
+        });
+    });
+
+       document.addEventListener("DOMContentLoaded", function () {
+        var birthYearSelect = document.getElementById('yearOfBirth');
+        var currentYear = new Date().getFullYear();
+        var earliestYear = 1900;
+
+        // Get the default Year of Birth from the model
+        var defaultYear = parseInt("@Model.DOB") || null;
+
+        // Generate the year options dynamically
+        for (var year = currentYear; year >= earliestYear; year--) {
+            var option = document.createElement('option');
+            option.value = year;
+            option.text = year;
+
+            // Set the default Year of Birth as selected
+            if (defaultYear === year) {
+                option.selected = true;
+            }
+
+            birthYearSelect.appendChild(option);
+        }
+    });
+    // thanks - I want us to do the same Edit pop up for the Next of Kin(s) edit button but member Name should show dropdown of all the dependents UserId from the dependent table to be able to change Member name on edit
+
+</script>
+
+<script>
+    $(document).ready(function () {
+        loadNoteHistory();
+       
+    });
+
+          function loadNoteHistory() {
+        let personRegNumber = $("input[name='PersonRegNumber']").val();
+
+        console.log("Fetching notes for:", personRegNumber);
+
+        $.get("/Admin/GetNotes", { personRegNumber: personRegNumber })
+            .done(function (notes) {
+                console.log("Notes fetched:", notes);
+
+                let noteList = $("#noteHistory");
+                noteList.empty();
+
+                if (!notes || notes.length === 0) {
+                    <p class="text-muted no-notes-message text-center">No notes available.</p>
+                } else {
+                    let counter = 0;
+                    notes.forEach(note => {
+                        let noteType = note.noteTypeName || "Unknown";
+                        let description = note.description || "No description provided";
+                        let createdBy = note.createdBy || "Unknown";
+                        let formattedDate = note.dateCreated && note.dateCreated !== "N/A"
+                            ? new Date(note.dateCreated).toLocaleString()
+                            : "N/A";
+
+                        let positionClass = counter % 2 === 0 ? "left" : "right";
+
+                          let noteItem = `<li class="timeline-item ${positionClass}">
+        <div class="timeline-badge"><i class="fas fa-sticky-note"></i></div>
+        <div class="timeline-panel">
+            <div class="timeline-heading">
+                <h4 class="timeline-title">${noteType}</h4>
+                <p><small class="text-muted"><i class="fas fa-clock"></i> ${formattedDate}</small></p>
+            </div>
+            <div class="timeline-body">${description}</div>
+            <div class="timeline-footer">
+                <button class="btn btn-warning btn-sm edit-note mx-1" data-id="${note.id}"><i class="fas fa-edit"></i> Edit</button>
+                <button class="btn btn-danger btn-sm delete-note mx-1" data-id="${note.id}"><i class="fas fa-trash"></i> Delete</button>
+            </div>
+        </div>
+    </li>`;
+
+                        noteList.append(noteItem);
+                        counter++;
+                    });
+                }
+            })
+            .fail(function () {
+                $("#noteHistory").html('<li class="text-danger text-center">Error loading notes.</li>');
+            });
+    }
+      
+
+
+</script>
+
+<script>
+        $(document).ready(function () {
+        $(".edit-kin").click(function () {
+            let kinId = $(this).data("id");
+            let kinReg = $(this).data("personregnumber");
+            let memberName = $(this).data("member");
+            let kinName = $(this).data("kin");
+            let phone = $(this).data("phone");
+            let email = $(this).data("email");
+             let address = $(this).data("address");
+            let relationship = $(this).data("relationship");
+            console.log("DEBUG: Editing Kin - PersonRegNumber:", kinReg);
+             console.log("DEBUG: Address Value ->", address);
+            // Populate the modal fields
+            $("#editKinId").val(kinId);
+              $("#editKinReg").val(kinReg);
+            $("#editKinMember").val(memberName);
+            $("#editKinName").val(kinName);
+            $("#editKinPhone").val(phone);
+            $("#editKinEmail").val(email);
+             $("#editKinAddress").val(address);
+            $("#editKinRelationship").val(relationship);
+
+            // Show the modal
+            $("#editKinModal").modal("show");
+             $("#editKinAddress").val(address); //  Populate the textarea
+             $("form").submit(function () {
+        console.log("DEBUG: Submitting Form - PersonRegNumber:", $("#editKinReg").val());
+    });
+        });
+    });
+
+
+
+</script>
+
+<script>
+             $(document).ready(function () {
+        $(".edit-note").click(function () {
+            let noteId = $(this).data("id");
+            let personRegNumber = $(this).data("personregnumber");
+            let description = $(this).data("description"); // Fetching the description correctly
+            let noteTypeId = $(this).data("notetypeid");            
+
+            //  Assign values to modal fields
+            $("#editNoteId").val(noteId);
+            $("#editNoteReg").val(personRegNumber);
+            $("#editNoteDescription").val(description); // Ensure this is setting properly
+            $("#editNoteType").val(noteTypeId);
+
+
+            $("#editNoteDescription").text(description);
+            //  Show the modal
+            $("#editNoteModal").modal("show");
+
+        });
+    });
+
+
+
+</script>
+
+<script>
+    document.getElementById("causeRefSelect").addEventListener("change", async function () {
+        var selectedDeathId = this.value;
+
+        try {
+            // Fetch the corresponding CauseCampaignpRef from the server
+            let response = await fetch(`/Account/GetCauseCampaignRef?deathId=${selectedDeathId}`);
+            let data = await response.json();
+
+            // Update hidden input field
+            document.getElementById("causeCampaignpRef").value = data.causeCampaignpRef ?? "";
+        } catch (error) {
+            console.error("Error fetching CauseCampaignpRef:", error);
+        }
+    });
+
+    // Ensure the hidden input is set correctly when the page loads
+    document.addEventListener("DOMContentLoaded", async function () {
+        var selectElement = document.getElementById("causeRefSelect");
+        var selectedDeathId = selectElement.value;
+
+        try {
+            let response = await fetch(`/Account/GetCauseCampaignRef?deathId=${selectedDeathId}`);
+            let data = await response.json();
+            document.getElementById("causeCampaignpRef").value = data.causeCampaignpRef ?? "";
+        } catch (error) {
+            console.error("Error fetching CauseCampaignpRef:", error);
+        }
+    });
+</script>
+
+    <script>
+                   $(document).ready(function () {
+            $(".edit-custom-payment").click(function () {
+                let id = $(this).data("id");
+                let reduceFees = $(this).data("reducefees");          
+                let reason = $(this).data("reason");
+                let causeRef = $(this).data("causecampaignpref");
+
+             
+                //  Populate modal fields
+                $("#editPaymentId").val(id);
+                $("#editReduceFees").val(reduceFees);
+                $("#editReason").val(reason);
+                $("#editCauseRef").val(causeRef);
+              
+                //  Show the modal
+                $("#editCustomPaymentModal").modal("show");
+            });
+        });
+    
+
+    </script>
+
+
+
+}

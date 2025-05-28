@@ -1,0 +1,66 @@
+﻿@model WebOptimus.Models.ViewModel.UserDependentsViewModel
+
+@{
+    ViewData["Title"] = "Edit User and Dependents";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>Edit User and Dependents</h2>
+
+<form asp-action="Edit" asp-controller="Family" method="post">
+    <input type="hidden" asp-for="UserId" />
+    <div class="form-group">
+        <label asp-for="FirstName"></label>
+        <input asp-for="FirstName" class="form-control" />
+        <span asp-validation-for="FirstName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="LastName"></label>
+        <input asp-for="LastName" class="form-control" />
+        <span asp-validation-for="LastName" class="text-danger"></span>
+    </div>
+
+    <h4>Dependents</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Dependent Name</th>
+                <th>Year of Birth</th>
+                <th>Reg#</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Dependents.Count; i++)
+            {
+                <tr>
+                    <td>
+                        <input asp-for="Dependents[i].PersonName" class="form-control" />
+                        <span asp-validation-for="Dependents[i].PersonName" class="text-danger"></span>
+                    </td>
+                    <td>
+                        <input asp-for="Dependents[i].PersonYearOfBirth" class="form-control" />
+                        <span asp-validation-for="Dependents[i].PersonYearOfBirth" class="text-danger"></span>
+                    </td>
+                    <td>
+                        <input asp-for="Dependents[i].PersonRegNumber" class="form-control" />
+                        <span asp-validation-for="Dependents[i].PersonRegNumber" class="text-danger"></span>
+                    </td>
+                    <td>
+                        <input type="hidden" asp-for="Dependents[i].Id" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-primary float-left">Save</button>
+
+    <a asp-action="Index" asp-controller="Family" class="btn btn-dark float-right">Back</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

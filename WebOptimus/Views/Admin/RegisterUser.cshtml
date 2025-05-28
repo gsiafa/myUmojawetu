@@ -1,0 +1,314 @@
+﻿@model WebOptimus.Models.ViewModel.Admin.AdminRegisterViewModel
+@using WebOptimus.StaticVariables
+@using WebOptimus.Extensions
+
+@{
+    ViewData["Title"] = "Register New User";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    // Determine if the region and city fields should be disabled based on user role
+    bool isLocalAdmin = ViewBag.CurrentUserRole == RoleList.LocalAdmin;
+    string disabledAttribute = isLocalAdmin ? "disabled" : "";
+}
+
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+            </div>
+            <div class="col-sm-6">
+                <a class="btn btn-xs btn-outline-primary float-md-right" style="width:100px;float:right; text-align: center;" href="@Url.Action("Users", "Admin")"><i class="fas fa-arrow-left"></i>  Back </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container">
+        <form asp-action="RegisterUser" asp-controller="Admin" method="post" autocomplete="false" id="theForm">
+            <div class="row">
+           
+                <div class="col-lg-12">
+                    <h5 class="text-dark"><strong> ABOUT THE PERSON</strong></h5>
+                    <p>Please use this form to register a new member. </p>
+                </div>
+
+                <div class="col-12 mt-3">
+                    <div class="custom-form p-4 border rounded">
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="form-group app-label">
+                                    <label class="text-muted">Title<span class="text-danger">*</span></label>
+                                    <select class="intro form-control form-select form-select-lg mb-3" asp-for="Title" title=" " id="titlId" asp-items="@(new SelectList(ViewBag.Ttile, "Id", "Name"))">
+                                        <option selected disabled="disabled">Please Select Title</option>
+                                    </select>
+                                    <span asp-validation-for="Title" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group app-label">
+                                    <label class="text-muted">First Name<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="firstName2" name="FirstName" asp-for="FirstName" placeholder="Forename(s)">
+                                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group app-label">
+                                    <label class="text-muted">Last Name<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="surname" name="Surname" asp-for="Surname" placeholder="Last Name">
+                                    <span asp-validation-for="Surname" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group app-label">
+                                    <label class="text-muted">Year of Birth<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="y1" name="PersonYearOfBirth" asp-for="PersonYearOfBirth" placeholder="Year of Birth">
+                                    <span asp-validation-for="PersonYearOfBirth" class="text-danger"></span>
+                                </div>
+                            </div>
+                            @if (@ViewBag.IsLocalAdmin == true)
+                            {
+                                <input type="hidden" name="RegionId" asp-for="RegionId" value="@ViewBag.CurrentUserRegionId" />
+                                <input type="hidden" name="CityId" asp-for="CityId" value="@ViewBag.CurrentUserCityId" />
+
+                                <div class="col-md-6">
+                                    <div class="form-group app-label">
+                                        <label class="text-muted">Region<span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" disabled id="region" value="@ViewBag.CurrentUserRegionName">
+                               
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group app-label">
+                                        <label class="text-muted">County<span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" disabled id="county" value="@ViewBag.CurrentUserCityName">
+                                       
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col-md-6">
+                                    <div class="form-group app-label">
+                                        <label class="text-muted">Region<span class="text-danger">*</span></label>
+                                        <select class="intro form-control form-select form-select-lg mb-3" asp-for="RegionId" onchange="GetCity(this.value)" title="Region" asp-items="@(new SelectList(@ViewBag.RegionId, "Id", "Name"))" disabled="@isLocalAdmin">
+                                            <option selected disabled="disabled">Please select Region</option>
+                                        </select>
+                                        <span asp-validation-for="RegionId" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group app-label">
+                                        <label class="text-muted">County<span class="text-danger">*</span></label>
+                                        <span asp-validation-for="CityId" class="text-danger"></span>
+                                        <select asp-for="CityId" id="cityId" class="city intro form-control form-select form-select-lg mb-3" asp-items="@(new SelectList(@ViewBag.CityId, "Id", "Name"))" disabled="@isLocalAdmin">
+                                            <option selected disabled="disabled">Please select County</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            }
+                            <div class="col-md-6">
+                                <div class="form-group app-label">
+                                    <label class="text-muted">Outward Postcode<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="p1" name="OutwardPostcode" asp-for="OutwardPostcode" placeholder="Outward Postcode">
+                                    <span asp-validation-for="OutwardPostcode" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group app-label">
+                                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                                    <label class="text-muted">Phone Number<span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="mobile" name="PhoneNumber" asp-for="PhoneNumber" placeholder="Mobile Number">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <h5 class="text-dark"><strong> ABOUT THEIR DEPENDANT(S)</strong></h5>
+                </div>
+
+                <div class="col-12">
+                    <div class="custom-form p-4 border rounded">
+                        <div class="row">
+                            <div id="dependents" class="col-12">
+                                @for (int i = 0; i < Model.Dependents.Count; i++)
+                                {
+                                    <div class="dependent">
+                                        <div class="form-group">
+                                            <label asp-for="Dependents[i].PersonName">Name</label>
+                                            <input asp-for="Dependents[i].PersonName" class="form-control" />
+                                            <span asp-validation-for="Dependents[i].PersonName" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="Dependents[i].PersonYearOfBirth">Year of Birth</label>
+                                            <input asp-for="Dependents[i].PersonYearOfBirth" class="form-control" />
+                                            <span asp-validation-for="Dependents[i].PersonYearOfBirth" class="text-danger"></span>
+                                        </div>
+                                        <button type="button" class="btn btn-danger remove-dependent submitBnt btn btn-success float-right"> Remove</button>
+                                    </div>
+                                }
+                            </div>
+                            <div class="col-12 mt-4">
+                                <button type="button" class="btn btn-primary mt-3 submitBnt btn btn-success float-left" id="add-dependent"><i class="fas fa-user-plus"></i> Add Dependent</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-5">
+                <div class="col-lg-12">
+                    <h5 class="text-dark"><strong> ABOUT THEIR REFEREES/WITNESSES</strong></h5>
+                </div>
+
+                <div class="col-12 mt-3">
+                    <div class="custom-form p-4 border rounded">
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="form-group app-label">
+                                    <label class="text-muted">Referee Name<span class="text-danger">*</span></label>
+                                    <input asp-for="SponsorsMemberName" class="form-control" />
+                                    <span asp-validation-for="SponsorsMemberName" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group app-label">
+                                    <label class="text-muted">Referee Number<span class="text-danger">*</span></label>
+                                    <input asp-for="SponsorsMemberNumber" class="form-control" />
+                                    <span asp-validation-for="SponsorsMemberNumber" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group app-label">
+                                    <label class="text-muted">Local Admin Name<span class="text-danger">*</span></label>
+                                    <input asp-for="SponsorLocalAdminName" class="form-control" />
+                                    <span asp-validation-for="SponsorLocalAdminName" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group app-label">
+                                    <label class="text-muted">Local Admin Number<span class="text-danger">*</span></label>
+                                    <input asp-for="SponsorLocalAdminNumber" class="form-control" />
+                                    <span asp-validation-for="SponsorLocalAdminNumber" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-5">
+                <div class="col-lg-12">
+                    <h5 class="text-dark"><strong> ABOUT THEIR NEW ACCOUNT</strong></h5>
+                </div>
+
+                <div class="col-12 mt-3">
+                    <div class="custom-form p-4 border rounded">
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <div class="form-group app-label">
+                                    <label class="text-muted">Email<span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="email2" name="Email" asp-for="Email" placeholder="Email">
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group app-label">
+                                    <label class="text-muted">Password<span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" autocomplete="off" id="password2" name="Password" asp-for="Password" placeholder="Password">
+                                    <span asp-validation-for="Password" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group app-label">
+                                    <label class="text-muted">Confirm Password<span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" autocomplete="off" id="confirmpassword2" name="ConfirmPassword" asp-for="ConfirmPassword" placeholder="Confirm Password">
+                                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <select asp-for="SelectedRole" class="form-control" asp-items="Model.Roles"></select>
+                                <span asp-validation-for="SelectedRole" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <input type="checkbox" name="ForcePasswordChange" value="true" checked />
+                                <strong> Forced password change at first logon?</strong>
+                                <span asp-validation-for="ForcePasswordChange" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 mt-4">
+                    <input type="submit" id="submit" name="send" class="submitBnt btn btn-success float-left" value="Submit">
+                    <a asp-action="Users" asp-controller="Admin" class="btn btn-default float-right"><i class="fas fa-arrow-alt-circle-left"></i> Back</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            $('#add-dependent').click(function () {
+                var index = $('#dependents .dependent').length;
+                var dependentTemplate = `
+                            <div class="dependent">
+                                <div class="form-group">
+                                    <label for="Dependents_${index}__PersonName">Name</label>
+                                    <input id="Dependents_${index}__PersonName" name="Dependents[${index}].PersonName" class="form-control" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="Dependents_${index}__PersonYearOfBirth">Year of Birth</label>
+                                    <input id="Dependents_${index}__PersonYearOfBirth" name="Dependents[${index}].PersonYearOfBirth" class="form-control" />
+                                </div>
+                                <button type="button" class="btn btn-danger remove-dependent"><i class="fas fa-user-minus"></i> Remove Member</button>
+                            </div>`;
+                $('#dependents').append(dependentTemplate);
+            });
+
+            $(document).on('click', '.remove-dependent', function () {
+                $(this).closest('.dependent').remove();
+            });
+        });
+
+        function GetCity(id) {
+            var getcity = "<option value= '0'>please wait...</option>";
+
+            $("#cityId").html(getcity).show();
+            var url = '@Url.Action("GetCityByRegion", "Account")';
+
+            $.ajax({
+                url: url,
+                data: { Id: id },
+                cache: false,
+                type: "GET",
+                success: function (data) {
+                    var markup = "<option value= '0'>Please select County</option>";
+                    $(".city").css("border", "");
+                    for (var x = 0; x < data.length; x++) {
+                        markup += '<option value="' + data[x].value + '">' + data[x].text + '</option>';
+                    }
+                    $("#cityId").html(markup).show();
+                },
+                error: function (response) {
+                    alert("error" + response);
+                }
+            });
+        }
+    </script>
+}

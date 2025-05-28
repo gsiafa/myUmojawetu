@@ -1,0 +1,237 @@
+﻿@model WebOptimus.Models.ViewModel.ComposeMailViewModel
+@{
+    ViewData["Title"] = "Compose mail";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Compose New Message</h1>
+                <p>Use this form to compose and send a new email</p>
+            </div>
+        
+        </div>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Mailbox folders sidebar -->
+           @*  <div class="col-lg-2 col-md-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Folders</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="nav nav-pills flex-column">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <i class="fas fa-inbox"></i> Inbox
+                                    <span class="badge bg-primary float-right">12</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <i class="far fa-envelope"></i> Sent
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <i class="far fa-file-alt"></i> Drafts
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <i class="fas fa-filter"></i> Junk
+                                    <span class="badge bg-warning float-right">65</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <i class="far fa-trash-alt"></i> Trash
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+@* 
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Labels</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="nav nav-pills flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link" href="#"><i class="far fa-circle text-danger"></i> Important</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#"><i class="far fa-circle text-warning"></i> Promotions</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#"><i class="far fa-circle text-primary"></i> Social</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div> 
+            </div> *@
+            <!-- /.col -->
+            <!-- Mail compose form -->
+            <div class="col-lg-12 col-md-9">
+                <div class="card card-primary card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title">Compose New Message</h3>
+                    </div>
+                    <form method="post" asp-action="Compose" asp-controller="Mail">
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <partial name="_notify" />
+                      
+                            <input type="hidden" id="SelectedEmailsString" name="SelectedEmailsString" />
+
+                            <div class="form-group">
+                                <label for="emailSearch">Search for emails:</label>
+                                <input id="emailSearch" class="form-control" placeholder="Search for users" />
+                                <!-- Container for search results -->
+                                <div id="emailSearchResults"></div>
+                            </div>
+
+                            <!-- To field with selected emails -->
+                            <div class="form-group">
+                                <label for="To">To:</label>
+                                <!-- Use the string field to capture the list of emails as a single string -->
+                                <input id="toEmails" name="SelectedEmailsString" class="form-control" placeholder="Selected emails will appear here..."  />
+                                <div class="form-check mt-2">
+                                    <input asp-for="SendToAll" class="form-check-input" type="checkbox" />
+                                    <label asp-for="SendToAll" class="form-check-label"><strong>Send to All Members </strong></label>
+                                </div>
+                            </div>
+                        <div class="form-group">
+                                <input class="form-control" placeholder="Subject:" asp-for="Subject" name="Subject">
+                                <span asp-validation-for="Subject" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                                <textarea id="compose-textarea" class="form-control" asp-for="Message" name="Message" required placeholder="Compose your message here" style="height: 300px">
+                         
+                            </textarea>
+                                <span asp-validation-for="Message" class="text-danger"></span>
+                        </div>
+
+                       
+                       @*  <div class="form-group">
+                            <div class="btn btn-default btn-file">
+                                <i class="fas fa-paperclip"></i> Attachment
+                                <input type="file" name="attachment">
+                            </div>
+                            <p class="help-block">Max. 32MB</p>
+                        </div> *@
+                    </div>
+                    <!-- /.card-body -->
+                    <div class="card-footer">
+                        <div class="float-right">
+                            @* <button type="button" class="btn btn-default"><i class="fas fa-pencil-alt"></i> Draft</button> *@
+                            <button type="submit" class="btn btn-primary"><i class="far fa-envelope"></i> Send</button>
+                        </div>
+                        <a asp-action="Compose" asp-controller="Mail" class="btn btn-default"><i class="fas fa-times"></i> Discard</a>
+                    </div>
+                     </form>
+                </div>
+                <!-- /.card -->
+            </div>
+            <!-- /.col -->
+        </div>
+        <!-- /.row -->
+    </div><!-- /.container-fluid -->
+</section>
+
+<style>
+    #emailSearchResults {
+        position: absolute;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        width: 100%;
+        z-index: 1000;
+        display: none;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .email-option {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+
+        .email-option:hover {
+            background-color: #f5f5f5;
+        }
+</style>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var selectedEmails = [];
+
+            // Search functionality for the email search box
+            $('#emailSearch').on('keyup', function () {
+                let query = $(this).val();
+                if (query.length > 2) {
+                    $.ajax({
+                        url: '@Url.Action("SearchEmails", "Mail")', // The action that fetches email search results
+                        type: 'GET',
+                        data: { query: query },
+                        success: function (data) {
+                            let resultHtml = '';
+                            data.forEach(function (item) {
+                                resultHtml += '<div class="email-option" style="cursor: pointer;" data-email="' + item.email + '">' + item.email + '</div>';
+                            });
+                            $('#emailSearchResults').html(resultHtml).show();
+                        }
+                    });
+                } else {
+                    $('#emailSearchResults').hide();
+                }
+            });
+
+            // Handle email selection
+            $(document).on('click', '.email-option', function () {
+                let selectedEmail = $(this).data('email');
+
+                // Add the selected email to the list if not already selected
+                if (!selectedEmails.includes(selectedEmail)) {
+                    selectedEmails.push(selectedEmail);
+                    $('#toEmails').val(selectedEmails.join('; ')); // Display selected emails in the input separated by ;
+                    $('#SelectedEmailsString').val(selectedEmails.join('; ')); // Update the hidden field with the selected emails
+                }
+
+                // Clear search box and hide the results
+                $('#emailSearch').val('');
+                $('#emailSearchResults').hide();
+            });
+
+            // Hide search results when clicking outside
+            $(document).click(function (event) {
+                if (!$(event.target).closest('#emailSearch').length && !$(event.target).closest('#emailSearchResults').length) {
+                    $('#emailSearchResults').hide();
+                }
+            });
+        });
+    </script>
+
+
+}

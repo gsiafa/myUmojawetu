@@ -1,0 +1,78 @@
+﻿@model IEnumerable<WebOptimus.Models.ViewModel.ReportedDeathViewModel>
+@{
+    ViewData["Title"] = "Reported Deaths";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Reported Deaths</h1>
+            </div>
+            <div class="col-sm-6">
+                <div class="float-md-right">
+                    <a class="btn btn-outline-success" asp-action="AddDeath" asp-controller="Family">
+                        <i class="fas fa-plus"></i> Report New Death
+                    </a>
+                    <a class="btn btn-outline-primary" asp-action="ReportedDeaths" asp-route-filter="Approved" asp-controller="Family">
+                        <i class="fas fa-check"></i> Confirmed Deaths
+                    </a>
+                    <a class="btn btn-outline-secondary" asp-action="ReportedDeaths" asp-controller="Family">
+                        <i class="fas fa-hourglass-half"></i> Pending Deaths
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model != null && Model.Any())
+{
+    <table class="table table-bordered text-center" id="myTable" style="width: 100%">
+        <thead>
+            <tr>
+                <th>Deceased Name</th>
+                <th>Date Of Death</th>
+                <th>Region</th>
+                <th>City</th>
+                <th>Status</th>
+                <th>Reported On</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var death in Model)
+            {
+                <tr>
+                    <td>@death.DependentName</td>
+                    <td>@death.DateOfDeath.ToString("dd/MM/yyyy")</td>
+                    <td>@death.RegionName</td>
+                    <td>@death.CityName</td>
+                    <td>@death.Status</td>
+                    <td>@death.ReportedOn.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        <a asp-action="Details" asp-controller="Family" asp-route-id="@death.Id" class="text-primary" title="View" data-toggle="tooltip" style="cursor:pointer">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No death reported in your area.</p>
+}
+
+<style>
+    table td {
+        word-break: break-word;
+        white-space: normal !important;
+    }
+</style>
+
+@section scripts {
+    <script src="~/admin/js/table.js" asp-append-version="true"></script>
+}

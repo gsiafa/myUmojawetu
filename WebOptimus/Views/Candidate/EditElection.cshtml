@@ -1,0 +1,70 @@
+﻿@model WebOptimus.Models.ViewModel.ElectionViewModel
+
+@{
+    ViewData["Title"] = "Edit Election";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Edit Position</h1>
+            </div><!-- /.col -->
+            <div class="col-sm-6">
+                <a class="btn btn-xs btn-outline-primary float-md-right" style="width:100px;float:right; text-align: center;" onclick="@("window.location.href='" + @Url.Action("Election", "Region") + "'");"><i class="fas fa-arrow-left"></i>  Back </a>
+
+            </div><!-- /.col -->
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+<!-- /.content-header -->
+
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Edit Position</h2>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <form asp-action="EditElection" method="post" class="needs-validation" novalidate>
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" asp-for="ElectionId" />
+
+        <div class="form-group">
+            <label asp-for="ElectionName" class="control-label"></label>
+            <input asp-for="ElectionName" class="form-control" placeholder="Enter election name" />
+            <span asp-validation-for="ElectionName" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="StartDate" class="control-label"></label>
+            <input asp-for="StartDate" class="form-control" type="date" />
+            <span asp-validation-for="StartDate" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="EndDate" class="control-label"></label>
+            <input asp-for="EndDate" class="form-control" type="date" />
+            <span asp-validation-for="EndDate" class="text-danger"></span>
+        </div>
+
+        <div class="form-group form-check">
+            <input asp-for="IsActive" class="form-check-input" />
+            <label asp-for="IsActive" class="form-check-label"></label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

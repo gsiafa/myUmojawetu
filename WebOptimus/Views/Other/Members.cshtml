@@ -1,0 +1,322 @@
+﻿@model WebOptimus.Models.ViewModel.OtherDonerVM
+@{
+    ViewData["Title"] = "Donation";
+    Layout = "~/Views/Shared/_cLayout.cshtml";
+}
+
+<section class="content py-5">
+    <div class="container">
+        @if (@ViewBag.IsCause == "true")
+        {
+            <div class="row justify-content-center">
+                <div class="col-12 text-center mb-4">
+                    <h1 class="display-5 text-primary">Complete Your Donation</h1>
+                    <p class="lead text-primary fw-bold" style="font-size: 1.25rem;">
+                        Please select the names for which you wish to make a payment and proceed.
+                    </p>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <div class="card shadow-sm bg-light rounded">
+                        <div class="card-header text-center bg-primary text-white">
+                            <h4>Donation Details</h4>
+                        </div>
+                        <div class="card-body">
+                            <h6>Campaign Reg # @(Model.Cas.CauseCampaignpRef)</h6>
+                            <h6><strong>Start Date:</strong> <h3>@(Model.Cas.StartDate?.ToString("dd/MM/yyyy") ?? "N/A")</h3></h6>
+                            <h6><strong>End Date:</strong> <h3>@(Model.Cas.ClosedDate?.ToString("dd/MM/yyyy") ?? "N/A")</h3></h6>
+                          
+                            <hr>
+                       
+                           
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-9">
+                    <div class="card shadow-sm p-4 bg-white rounded">
+                        <h4 class="text-center text-primary mb-4">Donation Form</h4>
+                        <form method="post" asp-action="Payment" asp-controller="Other" id="donationForm">
+                            <input type="hidden" asp-for="CauseCampaignpRef" value="@Model.Cas.CauseCampaignpRef" />
+
+                            <!-- Dependents Section -->
+                            <div class="mb-4">
+                                <h5 class="text-secondary">Your Family</h5>
+                                <div class="form-group">
+                                    @for (int i = 0; i < Model.DependentsChecklist.Count; i++)
+                                    {
+                                        <div class="card mb-3 p-3">
+                                            <div class="form-check d-flex align-items-center">
+                                                <input type="checkbox"
+                                                       class="form-check-input dependent-checkbox"
+                                                       id="dependent-@i"
+                                                       data-index="@i"
+                                                       name="DependentsChecklist[@i].IsSelected"
+                                                       value="true" />
+                                                <label class="form-check-label fw-bold me-auto" for="dependent-@i">
+                                                    @Model.DependentsChecklist[i].Name
+                                                    @if (Model.DependentsChecklist[i].Paid)
+                                                    {
+                                                        <span class="badge bg-success ms-2">Paid</span>
+                                                    }
+                                                    <span class="badge bg-secondary ms-2">£@Model.DependentsChecklist[i].Price</span>
+                                                </label>
+                                                <div class="ms-3">
+                                                    <input type="number"
+                                                           class="form-control custom-amount"
+                                                           name="DependentsChecklist[@i].CustomAmount"
+                                                           min="@(Model.DependentsChecklist[i].Price)"
+                                                           value="@(Model.DependentsChecklist[i].Price.ToString("F2"))"
+                                                           placeholder="Custom Amount (£)" />
+                                                    <input type="hidden" class="price-value" value="@(Model.DependentsChecklist[i].Price)" />
+
+
+                                                </div>
+                                            </div>
+                                            <input type="hidden" name="DependentsChecklist[@i].IsSelected" value="false" />
+                                            <input type="hidden" name="DependentsChecklist[@i].Price" value="@Model.DependentsChecklist[i].Price.ToString("F2") ?? "0.00" "" />
+
+
+                                            <input type="hidden" name="DependentsChecklist[@i].PersonRegNumber" value="@Model.DependentsChecklist[i].PersonRegNumber" />
+
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- Group Members Section -->
+                            <div class="mb-4">
+                                @if (Model.GroupMembers.Count() > 0){
+                                    <h5 class="text-secondary">Your Group Member(s)</h5>
+                                    <div class="form-group">
+                                        @for (int i = 0; i < Model.GroupMembers.Count; i++)
+                                        {
+                                            <div class="card mb-3 p-3">
+                                                <div class="form-check d-flex align-items-center">
+                                                    <input type="checkbox"
+                                                           class="form-check-input group-checkbox"
+                                                           id="group-@i"
+                                                           data-index="@i"
+                                                           name="GroupMembers[@i].IsSelected"
+                                                           value="true" />
+                                                    <label class="form-check-label fw-bold me-auto" for="group-@i">
+                                                        @Model.GroupMembers[i].Name
+                                                        @if (Model.GroupMembers[i].Paid)
+                                                        {
+                                                            <span class="badge bg-success ms-2">Paid</span>
+                                                        }
+                                                        <span class="badge bg-secondary ms-2">£@Model.GroupMembers[i].Price</span>
+                                                    </label>
+                                                    <div class="ms-3">
+                                                        <input type="number"
+                                                               class="form-control custom-amount"
+                                                               name="GroupMembers[@i].CustomAmount"
+                                                               min="@Model.GroupMembers[i].Price"
+                                                               value="@Model.GroupMembers[i].Price"
+                                                               placeholder="Custom Amount (£)" />
+                                                    </div>
+                                                </div>
+                                                <input type="hidden" name="GroupMembers[@i].IsSelected" value="false" />
+
+                                                <input type="hidden" name="GroupMembers[@i].Price" value="@Model.GroupMembers[i].Price" />
+                                                <input type="hidden" name="GroupMembers[@i].PersonRegNumber" value="@Model.GroupMembers[i].PersonRegNumber" />
+                                            </div>
+                                        }
+                                    </div>
+                                } 
+                               
+                            </div>
+
+                            <!-- Donation Amount Section -->
+                            <!-- Donation Amount Section -->
+                            <div class="mb-4 d-none">
+                                <h5 class="text-secondary">Donation Amount:</h5>
+                                <div class="form-group">
+                                    <label for="amount" class="form-label">Total Amount (£):</label>
+                                    <input type="text" class="form-control" asp-for="Amount" id="amount" />
+                                    <span asp-validation-for="Amount" class="text-danger" id="amountError"></span>
+                                </div>
+                            </div>
+                         
+                            <!-- Transaction Fee and Total Payment -->
+                            <div class="mb-4">
+                                <h5 class="text-secondary">Payment Summary:</h5>
+                            @*     <div class="form-group">
+                                    <label for="transactionFee" class="form-label">Transaction Fee (Stripe) (£):</label>
+                                    <input type="text" class="form-control" id="transactionFee" readonly />
+                                    <input type="hidden" asp-for="TransactionFees" id="hiddenTransactionFee" />
+                                </div> *@
+                                <div class="form-group">
+                                    <label for="total" class="form-label">Total Payment (£):</label>
+                                    <input type="text" class="form-control" id="total" readonly />
+                                    <input type="hidden" asp-for="TotalAmount" id="hiddenTotalAmount" />
+                                </div>
+                            </div>
+
+                            <!-- Reason for Higher Amount -->
+                            <div class="mb-4">
+                                <div class="form-group">
+                                    <label for="reason" class="form-label">Note/Comment (Optional)</label>
+                                    <textarea class="form-control" name="Reason" placeholder="Is there anything we need to be aware of..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Donor Information Section -->
+                            <div class="bg-light p-3 mb-4 rounded">
+                                <h5 class="text-secondary">Donor Information</h5>
+                                <div class="form-group mb-3">
+                                    <label for="firstName" class="form-label">First Name:</label>
+                                    <input type="text" class="form-control" asp-for="User.FirstName" />
+                                    <span asp-validation-for="User.FirstName" class="text-danger"></span>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="lastName" class="form-label">Last Name:</label>
+                                    <input type="text" class="form-control" asp-for="User.Surname" />
+                                    <span asp-validation-for="User.Surname" class="text-danger"></span>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="email" class="form-label">Email Address:</label>
+                                    <input type="email" class="form-control" asp-for="User.Email" />
+                                    <span asp-validation-for="User.Email" class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone" class="form-label">Phone:</label>
+                                    <input type="text" class="form-control" asp-for="User.PhoneNumber" />
+                                    <span asp-validation-for="User.PhoneNumber" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary btn-lg px-5">Proceed To Payment</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning text-center">
+                <h2 class="text-warning">Cause Not Found</h2>
+                <p>Please contact the administrator for assistance.</p>
+            </div>
+        }
+    </div>
+</section>
+
+@section scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js "></script>
+
+    <script src="~/admin/js/table.js" asp-append-version="true"></script>
+
+    <style>
+        .invalid-amount {
+            border-color: red;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('donationForm');
+            const allCheckboxes = document.querySelectorAll('.dependent-checkbox, .group-checkbox');
+            const allCustomAmountInputs = document.querySelectorAll('.custom-amount');
+            const amountInput = document.getElementById('amount');
+
+            /**
+             * Initialize all custom amount fields with their respective Price.
+             * Prevents them from resetting to 0.00 when prices exist.
+             */
+            function initializeCustomAmounts() {
+                document.querySelectorAll('.custom-amount').forEach((input) => {
+                    const formRow = input.closest('.form-check');
+                    const priceInput = formRow.querySelector('.price-value'); // Hidden field holding price
+                    let initialPrice = parseFloat(priceInput ? priceInput.value : 0) || 0;
+
+                    if (!input.value || parseFloat(input.value) === 0) {
+                        input.value = initialPrice.toFixed(2); // Set to stored price
+                    }
+
+                    console.log(`Setting initial price for ${input.name}: ${input.value}`);
+                });
+
+                updateAmount(); // Ensure total is correct on page load
+            }
+
+            /**
+             * Calculate the total donation amount based on checked items.
+             */
+            function calculateTotal() {
+                let total = 0;
+
+                document.querySelectorAll('.dependent-checkbox:checked, .group-checkbox:checked').forEach((checkbox) => {
+                    const formRow = checkbox.closest('.form-check');
+                    const customAmountInput = formRow.querySelector('.custom-amount');
+                    let customAmount = parseFloat(customAmountInput.value) || 0;
+
+                    total += customAmount;
+                });
+
+                console.log(`Total calculated: ${total}`);
+                return parseFloat(total.toFixed(2));
+            }
+
+            /**
+             * Handle checkbox changes: Set the custom amount to the corresponding Price when checked and update Total.
+             */
+            allCheckboxes.forEach((checkbox) => {
+                checkbox.addEventListener('change', function () {
+                    const formRow = checkbox.closest('.form-check');
+                    const customAmountInput = formRow.querySelector('.custom-amount');
+                    const priceInput = formRow.querySelector('.price-value');
+                    let initialPrice = parseFloat(priceInput ? priceInput.value : 0) || 0;
+
+                    // Only reset if user hasn't modified the value already
+                    if (checkbox.checked && (!customAmountInput.value || parseFloat(customAmountInput.value) === 0)) {
+                        customAmountInput.value = initialPrice.toFixed(2);
+                    }
+
+                    console.log(`Checkbox ${checkbox.id} changed. New amount: ${customAmountInput.value}`);
+                    updateAmount();
+                });
+            });
+
+            /**
+             * Handle changes in custom amount inputs: Update total dynamically.
+             */
+            allCustomAmountInputs.forEach((input) => {
+                input.addEventListener('input', function () {
+                    updateAmount();
+                });
+            });
+
+            /**
+             * Update the total amount and sync it to the hidden field.
+             */
+                  function updateAmount() {
+            const total = calculateTotal();
+            amountInput.value = total.toFixed(2); // optional hidden field
+            const hiddenTotal = document.getElementById('hiddenTotalAmount');
+            const visibleTotal = document.getElementById('total');
+
+            if (hiddenTotal) {
+                hiddenTotal.value = total.toFixed(2);
+            }
+
+            if (visibleTotal) {
+                visibleTotal.value = total.toFixed(2);
+            }
+        }
+
+            // Initialize all inputs on page load
+            initializeCustomAmounts();
+        });
+    </script>
+
+
+
+}

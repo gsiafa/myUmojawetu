@@ -1,0 +1,14 @@
+﻿@using WebOptimus.StaticVariables
+@if (TempData[SD.Error] != null)
+{
+    <div class="alert alert-danger animated-message">
+        @TempData[SD.Error]
+    </div>
+}
+
+@if (TempData[SD.Success] != null)
+{
+    <div class="alert alert-success animated-message">
+        @TempData[SD.Success]
+    </div>
+}

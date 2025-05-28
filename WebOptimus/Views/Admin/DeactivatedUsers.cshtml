@@ -1,0 +1,220 @@
+﻿@model IEnumerable<WebOptimus.Models.Dependant>
+@using WebOptimus.StaticVariables
+@{
+    ViewData["Title"] = "Manage User";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<!-- Content Wrapper. Contains page content -->
+<!-- Add Back Button -->
+<partial name="_notify" />
+<div class="content-header">
+    <div class="mb-3">
+        <a asp-action="Users" asp-controller="Admin" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Users
+        </a>
+    </div>
+    <div class="row">
+        <!-- First box: Unverified Users -->
+        <div class="col-6 col-md-3">
+            <div class="small-box bg-primary">
+                <div class="inner">
+                    <h3>@ViewBag.unverifyUser</h3>
+                    <p>Unverified Users</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <a asp-action="Users" asp-route-filter="unverified" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+        </div>           
+
+        <!-- Existing Card: Deactivated Members -->
+        <div class="col-6 col-md-3">
+            <div class="small-box bg-danger">
+                <div class="inner">
+                    <h3>@ViewBag.cancelledUserCount</h3>
+                    <p>Cancelled Membership</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-user-slash"></i>
+                </div>
+                <a class="small-box-footer" asp-action="CancelledMembership" asp-controller="Account">
+                    More info <i class="fas fa-arrow-circle-right"></i>
+                </a>
+            </div>
+        </div>
+
+        <!--  New Card: Cancellation Requests -->
+        <div class="col-6 col-md-3">
+            <div class="small-box bg-warning">
+                <div class="inner">
+                    <h3>@ViewBag.pendingCancellationCount</h3>
+                    <p>Pending Cancellation Requests</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-user-times"></i>
+                </div>
+                <a class="small-box-footer" asp-action="CancellationRequests" asp-controller="Account">
+                    View Requests <i class="fas fa-arrow-circle-right"></i>
+                </a>
+            </div>
+        </div>
+
+
+    </div>
+
+</div>
+
+@if (Model.Any())
+{
+    <section class="col-lg-12 connectedSortable">
+        <div class="card">
+            <div class="card-header border-transparent">
+                <h3 class="card-title text-center"><strong>Deactivated Users</strong></h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <form id="deactivateForm" asp-action="DeactivateUsers" method="post">
+                <div class="card-body" style="width: 100%; overflow-x: auto;">
+                    <table class="table m-0 myTable" style="width: 100%;">
+                        <thead>
+                            <tr class="text-center">
+                                 @*    <th>
+                                        <input type="checkbox" id="selectAll" onclick="toggleSelection(this)" />
+                                    </th> *@
+                                <th>Member Name</th>
+                                    <th>Registration #</th>
+                                <th> Email </th>                            
+                                <th>Region</th>
+                                <th>County</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.OrderByDescending(a => a.PersonName))
+                            {
+                                <tr class="text-center">
+                                     @*    <td>
+                                            <input type="checkbox" name="selectedUsers" value="@item.Id" />
+                                        </td> *@
+                                    <td>@Html.DisplayFor(modelItem => item.PersonName)</td>
+                                        <td>@Html.DisplayFor(modelItem => item.PersonRegNumber)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.Email)</td>                                  
+                                    <td>@Html.DisplayFor(modelItem => item.RegionName)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.CityName)</td>
+                                        <td style="white-space:nowrap">
+                                            <!-- Reactivate Button -->
+                                            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#reactivateModal"
+                                                    data-personregnumber="@item.PersonRegNumber" data-personname="@item.PersonName">
+                                                <i class="fas fa-user-check"></i> Reactivate
+                                            </button>
+
+                                        </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                 </form>
+              
+            </div>
+        </div>
+    </section>
+}
+else
+{
+    <p>No record exists...</p>
+}
+
+<!-- Reactivate User Modal -->
+<div class="modal fade" id="reactivateModal" tabindex="-1" role="dialog" aria-labelledby="reactivateModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reactivateModalLabel">Reactivate User</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to reactivate <strong id="reactivateUserName"></strong>?</p>
+                <form id="reactivateForm" method="post">
+                    <input type="hidden" id="reactivatePersonRegNumber" name="personRegNumber" />
+                    <div class="form-group">
+                        <label for="reactivationReason">Reason for Reactivation:</label>
+                        <textarea id="reactivationReason" name="reason" class="form-control" rows="3" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-success" id="confirmReactivate">Confirm Reactivation</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+   
+    <script>
+        $(document).ready(function () {
+            $('#reactivateModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget); // Button that triggered the modal
+                var personRegNumber = button.data('personregnumber'); // Get data from button
+                var personName = button.data('personname');
+
+                // Set modal fields
+                $('#reactivateUserName').text(personName);
+                $('#reactivatePersonRegNumber').val(personRegNumber);
+            });
+
+            // Handle Reactivation Submission
+            $('#confirmReactivate').click(function (e) {
+                e.preventDefault(); // Prevent default form submission
+
+                var reason = $('#reactivationReason').val().trim();
+
+                if (reason === "") {
+                    alert("Please provide a reason for reactivation.");
+                    return;
+                }
+
+                var formData = $('#reactivateForm').serialize();
+                $.post('/Admin/ReactivateUser', formData, function (response) {
+                    location.reload(); // Refresh page after successful reactivation
+                }).fail(function () {
+                    alert("Error processing reactivation request.");
+                });
+            });
+        });
+    </script>
+
+
+ 
+    <style>
+        .col-20 {
+            width: calc(100% / 5);
+        }
+
+        .delete {
+            color: red;
+        }
+
+        .fa-unlock {
+            color: green;
+        }
+
+        .unlock {
+            color: red;
+        }
+    </style>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="~/admin/js/table.js" asp-append-version="true"></script>
+}

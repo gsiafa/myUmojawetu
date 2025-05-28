@@ -1,0 +1,66 @@
+﻿ @model IEnumerable<WebOptimus.Models.Poll>
+@{
+    ViewData["Setting"] = "Poll";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<!-- Content Wrapper. Contains page content -->
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Polls</h1>
+            </div><!-- /.col -->
+            <div class="col-sm-6">
+
+    <a class="btn btn-outline-success float-md-right" asp-action="CreatePoll" asp-controller="Poll"><i class="fas fa-plus"></i> Add New Poll </a>
+            </div><!-- /.col -->
+  
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+<!-- /.content-header -->
+
+
+
+
+<section class="section">
+    <div class="container-fluid">
+        @foreach (var poll in Model)
+        {
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h3>@poll.Question</h3>
+                </div>
+                <div class="card-body">
+                    @if (poll.AnswerType == "radio")
+                    {
+                        @foreach (var option in poll.Options)
+                        {
+                            <div>
+                                <input type="radio" name="poll@poll.PollId" value="@option.OptionText" /> @option.OptionText
+                            </div>
+                        }
+                    }
+                    else if (poll.AnswerType == "checkbox")
+                    {
+                        @foreach (var option in poll.Options)
+                        {
+                            <div>
+                                <input type="checkbox" name="poll@poll.PollId" value="@option.OptionText" /> @option.OptionText
+                            </div>
+                        }
+                    }
+                    else if (poll.AnswerType == "input")
+                    {
+                        <input type="text" class="form-control" placeholder="Enter your answer" />
+                    }
+                    else if (poll.AnswerType == "textarea")
+                    {
+                        <textarea class="form-control" placeholder="Enter your answer"></textarea>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</section>

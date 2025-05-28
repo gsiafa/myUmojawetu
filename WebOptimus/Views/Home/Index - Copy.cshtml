@@ -1,0 +1,240 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+    <section class="hero-wrapper hero-1 text-center text-md-start">
+        <div class="hero-slider-active">
+            <div class="single-slide">
+            <div class="slide-bg bg-cover wow zoomIn" style="background: linear-gradient(to top, rgba(0, 0, 0,0.5), rgba(0, 0, 0,0.5)), url(/assets/img/Flag-of-Tanzania.png) no-repeat 50% 50%;background-size: cover;"></div>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12 col-xxl-8 col-lg-9 col-sm-10">
+                            <div class="hero-contents pe-lg-3 text-white">
+                            <h1 class="fs-lg animated" data-animation-in="fadeInRight" data-delay-in="0.3">UMOJA WETU </h1>
+                            <p class="pe-lg-5 mb-4 animated" data-animation-in="fadeInRight" data-delay-in="0.6">
+                                UMOJA WETU cares about the Tanzania's Community in the United Kingdom. <br />With the importance of community solidarity, UMOJA WETU aim is to do whatever is possible and necessary to mobilise the Tanzania's who live in the UK with the ultimate aim of sending back the remains of any Tanzania who passes away in the UK.
+                            </p> <br />
+                            <a asp-controller="Account" asp-action="Register" data-animation-in="fadeInRight" data-delay-in="0.9" class="theme-btn2 me-sm-4 mt-4 animated">Join Us</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+       @*      <div class="single-slide">
+                <div class="slide-bg bg-cover wow zoomIn" style="background: linear-gradient(to top, rgba(0,56,96,0.7), rgba(0,56,96,0.7)), url(/assets/home/home2.jpg) no-repeat 50% 50%;background-size: cover;"></div>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12 col-xxl-8 col-lg-9 col-sm-10">
+                            <div class="hero-contents pe-lg-3 text-white">
+                                <h1 class="fs-lg animated" data-animation-in="fadeInRight" data-delay-in="0.3">Creative Idea To Excellent Products</h1>
+                                <p class="pe-lg-5 mb-4 animated" data-animation-in="fadeInRight" data-delay-in="0.6">We are 100+ professional software engineers with more than <br>10 years of experience in delivering superior products.</p>
+                                <a asp-controller="Home" asp-action="Contact" data-animation-in="fadeInRight" data-delay-in="0.9" class="theme-btn me-sm-4 mt-4 animated">Get Consultant</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> *@
+        </div>
+@* 
+        <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+            <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" width="44px" height="44px" id="circle" fill="none" stroke="currentColor">
+                <circle r="20" cy="22" cx="22" id="quantechcircle" />
+            </symbol>
+        </svg> *@
+    </section>
+   
+
+       
+<section class="best-services-wrapper section-padding">
+    <div class="container">
+        <div class="col-12 col-xl-6 offset-xl-3 text-center">
+            <div class="section-title">
+                <h2>About Us</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xl-12 col-md-12 col-12">
+
+
+                <p>
+                    UMOJA WETU
+
+                     ndio ngao na msingi mkubwa wa mkusanyiko huu.
+                    Sisi na familia zetu ni watu wenye nasaba au asili ya Tanzania, mapenzi yetu na maadili yetu yanatuunga moja moja hapa tulipo mbali na Nyumbani (Tanzania Diaspora)
+
+                    Ni miaka mingi sasa tangu watu wa Tanzania waanze kuishi Ughaibuni. Idadi yetu inaongezeka siku hadi siku na jumla yetu inatupa nguvu kubwa ya kutuwezesha kufanya kazi kwa Pamoja na ushirkiano mkubwa.
+
+                    <a asp-action="About" asp-controller="Home" style="text-decoration: underline; color: #212529 !important;">Read More</a>
+                </p> <br><br>
+            </div>
+           
+        </div>
+ 
+    </div>
+</section>
+   
+<section class="best-services-wrapper section-padding" style="margin-top: -140px !important;">
+    <div class="container">
+        <div class="col-12 col-xl-6 offset-xl-3 text-center">
+            <div class="section-title">
+                <h2>How It Works </h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xl-4 col-md-6 col-12">
+                <div class="single-service-left-icon">
+                    <div class="icon">
+                        <img src="assets/img/icons/desktop.png" alt="">
+                    </div>
+                    <div class="content">
+                        <h4><a href="services-details.html">Register With Us</a></h4>
+                        <p>You will need to register with us. Provide us with your details such as dependents and next of kin. Once confirmed you'll be given a unique registration number.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4 col-md-6 col-12">
+                <div class="single-service-left-icon">
+                    <div class="icon">
+                        <img src="assets/img/icons/mobile.png" alt="">
+                    </div>
+                    <div class="content">
+                        <h4><a href="services-details.html">Notification of bereavement</a></h4>
+                        <p>Once we ascertain that a member has passed away, we will open a new campaign that will give information about the members and the deadline for contributions. The system will calculate how much we should each contribute</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4 col-md-6 col-12">
+                <div class="single-service-left-icon">
+                    <div class="icon">
+                        <img src="assets/img/icons/ux.png" alt="">
+                    </div>
+                    <div class="content">
+                        <h4><a href="services-details.html">Payment</a></h4>
+                        <p>At the end of the campaign, all the money collected is transferred to the deceased’s next of Kin. The next of kin information is kept confidential and can be updated any time by members.</p>
+                    </div>
+                </div>
+            </div>
+           
+        </div>
+      
+    </div>
+</section>
+
+@*    <section class="section-content-block">
+
+            <div class="container">
+                
+                <div class="row section-heading-wrapper">
+                    <div class="col-lg-12 col-md-12 col-sm-12 text-left">
+                         <h2 style="text-align: center">Our Team </h2> 
+                        <p>We are a working group using our members’ who are all of Tanzania origin, knowledge, experience and expertise in their field, we have set teams with the vision to drive Tanzania Solidarity UK forward and ensure that all registered members are free from the financial burden of repatriation costs.</h4>                            
+                    </div> <!-- end .col-sm-12  --> 
+                </div> <br>
+
+                <div class="row wow fadeIn">
+
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+
+                        <div class="team-layout-1">       
+
+                            <figure class="team-member">
+                                <a href="#" title="MELISSA MUNOZ">
+                            <img src="/assets/img/Flag-of-Tanzania.png" alt="MELISSA MUNOZ" />
+                                </a>                                                           
+
+                            </figure> <!-- end. team-member  -->
+
+                            <article class="team-info">
+                                <h5>
+                                  Fatima
+                                  <span>/ President</span>
+                                </h5>
+
+                               
+                                
+                            </article>                       
+
+                        </div> <!--  end team layout-1 -->
+
+                    </div> <!--  end .col-lg-3 col-md-3 col-sm-6 col-xs-12 -->
+
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+
+                        <div class="team-layout-1">       
+
+                            <figure class="team-member">
+                                <a href="#" title="ALEXANDER GARY">
+                            <img src="/assets/img/Flag-of-Tanzania.png" alt="ALEXANDER GARY" />
+                                </a>
+                            </figure> <!-- end. team-member  -->
+
+                            <article class="team-info">
+                                <h5>
+                                  Jack Smith
+                                  <span>/ Founder</span>
+                                </h5>
+  
+                                
+                            </article>                      
+
+                        </div> <!--  end team-layout-1 -->
+
+                    </div> <!--  end .col-lg-3 col-md-3 col-sm-6 col-xs-12  -->
+
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+
+                        <div class="team-layout-1">       
+
+                            <figure class="team-member">
+                                <a href="#" title="JOHN ABRAHAM">
+                            <img src="/assets/img/Flag-of-Tanzania.png" alt="JOHN ABRAHAM" />
+                                </a>                                 
+                            </figure> <!-- end. team-member  -->
+
+                            <article class="team-info">
+                                <h5>
+                                  James Lora
+                                  <span>/ Founder</span>
+                                </h5>
+
+                                 
+                                
+                            </article>                           
+
+                        </div> <!--  end team-layout-1 -->
+
+                    </div> <!--  end .col-lg-3 col-md-3 col-sm-6 col-xs-12  -->  
+
+
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+
+                        <div class="team-layout-1">       
+
+                            <figure class="team-member">
+                                <a href="#" title="JOHN ABRAHAM">
+                            <img src="/assets/img/Flag-of-Tanzania.png" alt="JOHN ABRAHAM" />
+                                </a>                                                              
+                            </figure> <!-- end. team-member  -->
+
+                            <article class="team-info">
+                                <h5>
+                                  Jhon Doe
+                                  <span>/ Founder</span>
+                                </h5>
+                              
+                                
+                            </article>                           
+
+                        </div> <!--  end team-layout-1 -->
+
+                    </div> <!--  end .col-lg-3 col-md-3 col-sm-6 col-xs-12  -->                      
+
+
+                </div> <!-- end .row  --> 
+
+            </div> <!-- end .container  -->
+
+        </section> <!--  end .section-our-team -->
+   
+ *@
+

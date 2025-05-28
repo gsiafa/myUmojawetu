@@ -1,0 +1,52 @@
+﻿@{
+    ViewData["Title"] = "Payment Successful";
+    Layout = "~/Views/Shared/_cLayout.cshtml";
+}
+
+<!-- Confirmation Section -->
+<section class="contact-page-wrap section-padding bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <!-- Payment Complete Message Column -->
+            <div class="col-12 col-md-8">
+                <div class="card shadow-lg border-0 rounded">
+                    <div class="card-body p-5">
+                        <div class="text-center">
+                            <i class="fas fa-check-circle text-success mb-4" style="font-size: 4rem;"></i>
+                            <h2 class="text-success mb-3">Payment Successful</h2>
+                            <p class="lead text-dark">Thank you for your generous donation. Your support is greatly appreciated and will make a significant impact.</p>
+                            <hr class="my-4">
+                            <p class="text-dark mb-3">Your reference number is:</p>
+                            <h4 class="text-primary fw-bold mb-3">@ViewBag.Ref</h4>
+                            <p class="text-secondary">If you have any questions, feel free to contact our support team.</p>
+                        </div>
+                        <div class="text-center mt-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a asp-action="PaymentHistory" asp-controller="Donation" class="btn btn-primary btn-md px-4">
+                                    <i class="fas fa-history me-1"></i>Payment History
+                                </a>
+                                <div class="flex-grow-1"></div> <!-- Spacer -->
+                                <a href="@Url.Action("Dashboard", "Home")" class="btn btn-outline-secondary btn-md px-4">
+                                    <i class="fas fa-home me-1"></i>Home
+                                </a>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Information Section -->
+        <div class="row mt-5">
+            <div class="col-12 text-center">
+                <h3 class="text-primary fw-bold mb-3">Need Assistance?</h3>
+                <p class="text-secondary">
+                    If you have any questions or need further help, please
+                    <a href="@Url.Action("Contact", "Home")" class="text-primary">contact us</a>. We’re here to support you.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>

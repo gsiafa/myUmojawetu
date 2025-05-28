@@ -1,0 +1,159 @@
+﻿@model WebOptimus.Services.PaginatedList<WebOptimus.Models.ViewModel.UserDependentsViewModel>
+@{
+    ViewData["Title"] = "Families";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Families</h1>
+            </div>
+            <div class="col-sm-6">
+                <a class="btn btn-outline-success float-md-right" asp-action="AddFamily" asp-controller="Family">
+                    <i class="fas fa-plus"></i> Add New Family Member
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h2>All Families Information </h2>
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+                <h1 class="card-title">Total Account Holders</h1>
+                <h2 class="card-text">@Model.FirstOrDefault()?.TotalUsers</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-body">
+                <h1 class="card-title">Total Registered Members (Adults + Children)  </h1>
+                <h2 class="card-text">@Model.FirstOrDefault()?.TotalDependents</h2>
+            </div>
+        </div>
+    </div>
+   @*  <div class="col-md-4">
+        <div class="card text-white bg-warning mb-3">
+            <div class="card-body">
+                <h1 class="card-title">Total Registered under 25</h1>
+                <h2 class="card-text">@ViewData["Totalunder18Dependents"]</h2>
+            </div>
+        </div>
+    </div> *@
+</div>
+
+
+@if (Model != null && Model.Any())
+{
+    <div class="d-flex justify-content-between">
+        <div>
+            Showing @((Model.PageIndex - 1) * Model.PageSize + 1) to @(Math.Min(Model.PageIndex * Model.PageSize, Model.TotalCount)) of @Model.TotalCount records
+        </div>
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                @if (Model.HasPreviousPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link" asp-action="Index" asp-route-pageIndex="@(Model.PageIndex - 1)" asp-route-pageSize="@(Model.PageSize)">Previous</a>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item disabled">
+                        <span class="page-link">Previous</span>
+                    </li>
+                }
+
+                @if (Model.HasNextPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link" asp-action="Index" asp-route-pageIndex="@(Model.PageIndex + 1)" asp-route-pageSize="@(Model.PageSize)">Next</a>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item disabled">
+                        <span class="page-link">Next</span>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+
+    <table class="table table-bordered" id="dependentsTable" style="width: 100%">
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Dependent Name</th>
+                <th>Year of Birth</th>
+                <th>Reg#</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr class="grey-row">
+                    <td>@user.FirstName</td>
+                    <td>@user.LastName</td>
+                    <td colspan="3">Family Member(s)</td>
+                    <td>
+                        <a class="btn btn-sm btn-primary" asp-action="Edit" asp-controller="Family" asp-route-id="@user.UserId">
+                            <i class="fas fa-pencil-alt"></i>
+                        </a>
+                    </td>
+                </tr>
+                @if (user.Dependents != null && user.Dependents.Any())
+                {
+                    @foreach (var dependent in user.Dependents)
+                    {
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td>@dependent.PersonName</td>
+                            <td>@dependent.PersonYearOfBirth</td>
+                            <td>@dependent.PersonRegNumber</td>
+                            <td></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td colspan="4" class="text-center">No dependents found.</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No users found.</p>
+}
+
+
+<style>
+    .grey-row {
+        background-color: #007BFF;
+        color: #fff;
+    }
+</style>
+
+@section scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js "></script>
+    <script src="~/admin/js/table.js" asp-append-version="true"></script>
+
+
+}

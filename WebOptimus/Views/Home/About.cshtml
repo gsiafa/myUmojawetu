@@ -1,0 +1,97 @@
+﻿@{
+    ViewData["Title"] = "About us";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<div class="slider-section"
+     style="background-image: url('/assets/img/Flag-of-Tanzania.png'); background-repeat: no-repeat; background-position: center; background-size: cover; width: 100%; height: 400px; margin: 0; padding: 0; position: relative;">
+    <div class="slider-container" style="width: 100%; height: 100%;">
+        <div class="slider-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0;">
+            <h2 class="animated-text" style="color: #fff!important">About Us</h2>
+        </div>
+    </div>
+</div>
+
+
+
+@if (!string.IsNullOrEmpty(ViewBag.BannerText))
+{
+    <div class="header-banner">
+        <div class="banner-text">
+            <span>@ViewBag.BannerText</span>
+        </div>
+    </div>
+}
+<!-- About Us Start -->
+<div class="section section-padding">
+    <div class="container">
+        <div class="row mb-n4">
+            <!-- About Content Start -->
+            <div class="col-md-6 col-12 pe-lg-5 align-self-center mb-4">
+                <div class="about-content">
+                    <h2 class="title animated-text">About Us</h2>
+                    <p style="line-height: 1.8;">
+                        Umoja Wetu cares about the Tanzanian community in the United Kingdom. Since 2024, we have been faced with the challenges of bereavements. Some members of our community thought it a good idea to create a group that assists families during the difficult process of repatriating their loved ones home. In some cases, compatriots who passed away in the UK did not have family members present. With the importance of community solidarity, Umoja Wetu pledged to do whatever is necessary to mobilize the Tanzanian community in the UK with the aim of sending the remains of any Tanzanian who passes away in the UK back home.
+                    </p>
+                    <a asp-action="Register" asp-controller="Account" class="btn btn-style theme-btn mt-4" >Join Us</a>
+                </div>
+            </div>
+            <!-- About Content End -->
+            <!-- About Image Start -->
+          @*   <div class="col-md-6 col-12 mb-4">
+                <div class="about-image animated-image">
+                    <img src="~/assets/img/ukregion.png" alt="Umoja Wetu Image" class="img-fluid enhanced-image">
+                </div>
+            </div> *@
+            <div class="col-md-6 col-12 mb-4">
+                <div class="about-video animated-video" style="width: 100% !important;">
+                    <video autoplay loop muted controls class="img-fluid enhanced-video" style="width: 100%;">
+                        <source src="~/assets2/video/intro.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+
+
+            <!-- About Image End -->
+        </div>
+    </div>
+</div>
+<!-- About Us End -->
+
+
+<section class="best-services-wrapper section-padding">
+    <div class="container">
+        <div class="col-12 col-xl-6 offset-xl-3 text-center mb-4">
+            <div class="section-title">
+                <h2>What We Do</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xl-12 col-md-12 col-12">
+                <div class="single-service-left-icon">
+                    <p style="line-height: 1.8;"> In times of bereavement, many members of our community encounter significant financial challenges when it comes to repatriating their loved ones back to Tanzania. This process, both emotionally and financially demanding, often places an overwhelming burden on close relatives. Despite the best efforts and support from friends and extended family, the financial strain can become an immense hurdle for those left behind. <br><br> At Umoja Wetu, we believe in the strength of community solidarity. We have established a collective response to these challenges by registering and managing a comprehensive database of Tanzanians living in the UK. Our initiative aims to alleviate some of the financial pressure families face during these difficult times. Through our platform, members unite to provide much-needed support, with a target of raising £10,000 for the next of kin when any registered member passes away. This collective effort ensures that no family has to bear the burden alone and that every Tanzanian, no matter their circumstances, can be laid to rest with dignity in their homeland. <br><br> By fostering a network of support, we not only ease the immediate financial obligations but also create a sense of community and togetherness that reinforces our shared values and cultural heritage. Our goal is to stand together in times of need, ensuring that the Tanzanian diaspora in the UK feels supported and cared for, both in life and in death. </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Image Enhancements */
+    .enhanced-image {
+        display: block;
+        width: auto; /* Maintain natural size of the image */
+        height: auto;
+        max-width: 100%; /* Makes sure it fits in the container */
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        transition: transform 0.4s ease;
+    }
+
+        .enhanced-image:hover {
+            transform: scale(1.05); /* Slight zoom on hover */
+        }
+</style>

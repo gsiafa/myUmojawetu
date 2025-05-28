@@ -1,0 +1,58 @@
+﻿@model IEnumerable<WebOptimus.Models.ViewModel.PaymentDetailViewModel>
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Paid Payments</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <h2>Paid Payments</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Payment Date</th>
+                <th>Cause Ref</th>
+                <th>Payment Ref</th>
+                <th>Payee Name</th>
+                <th>Amount</th>
+                <th>Transaction Fees</th>
+                <th>Net Amount Received</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var payment in Model)
+            {
+                <tr>
+                    <td>@payment.DateCreated.ToString("dd/MM/yyyy")</td>
+                    <td>@payment.CauseCampaignpRef</td>
+                    <td>@payment.OurRef</td>
+                    <td>@payment.DependentName</td>
+                    <td>@payment.Amount.ToString("C")</td>
+                    <td>@(payment.TransactionFees == 0 ? "-" : payment.TransactionFees.ToString("C"))</td>
+                    <td>@(payment.TotalAmount == 0 ? "-" : payment.TotalAmount.ToString("C"))</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</body>
+</html>

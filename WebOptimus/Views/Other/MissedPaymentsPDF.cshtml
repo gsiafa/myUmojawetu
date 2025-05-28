@@ -1,0 +1,45 @@
+﻿@using WebOptimus.Models.ViewModel
+@model IEnumerable<WebOptimus.Models.ViewModel.AdminMissedPaymentViewModel>
+
+@{
+    Layout = null;
+   
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Missed Payments</title>
+</head>
+<body>
+    <h2>Missed Payments</h2>
+    <table border="1" style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Year of Birth</th>
+                <th>Contact #</th>
+                <th>Reg Number</th>
+                <th>Cause Ref</th>
+                <th>Amount</th>
+                <th>Closed Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var missed in Model)
+            {
+                <tr>
+                    <td>@missed.DependentName</td>
+                    <td>@missed.YearOfBirth</td>
+                    <td>@missed.PhoneNumber</td>
+                    <td>@missed.RegNumber</td>
+                    <td>@missed.CauseCampaignpRef</td>
+                    <td>@missed.Amount.ToString("C")</td>
+                    <td>@missed.IsClosedDate.ToString("dd/MM/yyyy")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</body>
+</html>
+

@@ -1,0 +1,49 @@
+﻿@model List<WebOptimus.Models.ViewModel.PollResultsViewModel>
+
+@{
+    ViewData["Setting"] = "Poll Results";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+@foreach (var poll in Model)
+{
+    <h3>@poll.Question</h3>
+
+    <!-- Display the number of respondents -->
+    <p><strong>Total Responses:</strong> @poll.ResponseCounts.Values.Sum()</p>
+
+    <!-- Chart to visualize the responses -->
+    <canvas id="chart-@poll.PollId" width="400" height="200"></canvas>
+
+    <script>
+        var ctx = document.getElementById("chart-@poll.PollId").getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Json.Serialize(poll.Options)),
+                datasets: [{
+                    label: 'Votes',
+                    data: @Html.Raw(Json.Serialize(poll.ResponseCounts.Values)) // Response counts
+                        }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+
+    <!-- List of individual responses -->
+    <h4>Submitted Answers:</h4>
+    <ul>
+        @foreach (var response in poll.Responses)
+        {
+            <li>@response</li>
+        }
+    </ul>
+
+    <hr />
+}

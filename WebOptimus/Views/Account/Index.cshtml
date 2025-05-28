@@ -1,0 +1,308 @@
+﻿@model WebOptimus.Models.ViewModel.AccountViewModel
+@using WebOptimus.StaticVariables
+@{
+    ViewData["Title"] = "Account";
+    Layout = "~/Views/Shared/_cLayout.cshtml";
+}
+
+<partial name="_notify" />
+<div class="container">
+    <div class="row">
+        <!-- Change Password -->
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <i class="fas fa-key fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title font-weight-bold">Change Password</h5>
+                    <p class="text-muted">Update your account password for better security.</p>
+                    <!-- Change Password Button -->
+                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#changePasswordModal">
+                        Change Password <i class="fas fa-key"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile -->
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <i class="fas fa-user fa-3x text-success mb-3"></i>
+                    <h5 class="card-title font-weight-bold">Profile</h5>
+                    <p class="text-muted">View and update your personal profile details.</p>
+                    <a asp-action="Index" asp-controller="Profile" class="btn btn-success btn-sm">
+                        Edit Profile <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Deactivate Account -->
+       
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-slash fa-3x text-warning mb-3"></i>
+                    <h5 class="card-title font-weight-bold">Deactivate Account</h5>
+                    <p class="text-muted">Temporarily disable your account - you can rejoin anytime.</p>
+                    <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#deactivateAccountModal">
+                        Deactivate <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Cancel Membership -->
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <i class="fas fa-times-circle fa-3x text-danger mb-3"></i>
+                    <h5 class="card-title font-weight-bold">Cancel Membership</h5>
+                    <p class="text-muted">Notify us to permanently remove your membership.</p>
+                    <a asp-action="CancelMembership" asp-controller="Profile" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#cancelAccountModal">
+                        Cancel Membership <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+       
+    </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="changePasswordLabel"><i class="fas fa-key"></i> Change Password</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Error Message Display --><!-- Error Message Display -->
+                <div id="changePasswordError" class="alert alert-danger d-none"></div>
+
+
+                <form id="changePasswordForm" method="post" asp-action="UpdatePassword" asp-controller="Account">
+                    <!-- Current Password -->
+                    <div class="form-group">
+                        <label>Current Password: <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" asp-for="OldPassword" id="oldPassword" placeholder="Enter Current Password" required>
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="#oldPassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <span asp-validation-for="OldPassword" class="text-danger"></span>
+                    </div>
+
+                    <!-- New Password -->
+                    <div class="form-group">
+                        <label>New Password: <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" asp-for="Password" id="newPassword" placeholder="Enter New Password" required>
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="#newPassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <!-- Confirm New Password -->
+                    <div class="form-group">
+                        <label>Confirm New Password: <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" asp-for="ConfirmPassword" id="confirmPassword" placeholder="Re-enter New Password" required>
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="#confirmPassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </div>
+
+                    <!-- Hidden Email Field -->
+                    <input id="EmailAddress" asp-for="Email" type="hidden" value="@ViewBag.EmailAddress" />
+
+                    <!-- Submit & Close Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-success">Update Password</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Deactivate Account Modal -->
+<div class="modal fade" id="deactivateAccountModal" tabindex="-1" aria-labelledby="deactivateAccountLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-white">
+                <h5 class="modal-title" id="deactivateAccountLabel"><i class="fas fa-user-slash"></i> Deactivate Account</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="deactivateAccountForm" method="post" asp-action="DeactivateAccount" asp-controller="Account">
+                <div class="modal-body">
+                    <input type="hidden" name="PersonRegNumber" asp-for="DeactivateAccountViewModel.PersonRegNumber" />
+                    <input type="hidden" name="UserId" asp-for="DeactivateAccountViewModel.UserId" />
+
+                    <div class="form-group">
+                        <label>Reason for Deactivation: <span class="text-danger">*</span></label>
+                        <textarea class="form-control" name="DeactivationReason" asp-for="DeactivateAccountViewModel.DeactivationReason" required placeholder="Please provide a reason for deactivation"></textarea>
+                        <span asp-validation-for="DeactivateAccountViewModel.DeactivationReason" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                            <input class="custom-control-input" type="checkbox" name="DeactivateWithDependents" asp-for="DeactivateAccountViewModel.DeactivateWithDependents" id="DeactivateWithDependents" />
+                            <label class="custom-control-label" for="DeactivateWithDependents">
+                                Also deactivate all my family members (if any)
+                            </label>
+                        </div>
+                    </div>
+
+
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> Your account will be deactivated immediately. You will need to contact us again for reactivation.
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Deactivate</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="cancelAccountModal" tabindex="-1" aria-labelledby="CancelledAccountLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="CancelledAccountLabel"><i class="fas fa-user-slash"></i> Cancel Membership</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!-- Cancelled Account Modal -->
+            <form id="cancelMembershipForm" method="post" asp-action="RequestToCancelMembership" asp-controller="Account">
+                <div class="modal-body">
+                    <input type="hidden" name="PersonRegNumber" asp-for="DeactivateAccountViewModel.PersonRegNumber" />
+                    <input type="hidden" name="UserId" asp-for="DeactivateAccountViewModel.UserId" />
+                    <div class="alert">
+                        <strong>We're sorry to hear that you want to leave.</strong> We truly value your membership, and we’d love to know why you've decided to leave. <br /><br />
+                        <p>Did you know, you have the option to <strong>deactivate your account instead </strong> (along with your family members) and rejoin at any time?</p>
+
+                        <p>However, if you choose to cancel your membership, you will miss out on:</p>
+                        <ul>
+                            <li>The power of community solidarity and mutual support.</li>                         
+                        </ul>
+                    </div>
+                    <div class="form-group">
+                        <label>Reason for Cancelling Membership: <span class="text-danger">*</span></label>
+                        <textarea class="form-control" name="DeactivationReason" asp-for="DeactivateAccountViewModel.DeactivationReason" required placeholder="Please tell us why you are leaving"></textarea>
+                        <span asp-validation-for="DeactivateAccountViewModel.DeactivationReason" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                            <input class="custom-control-input" type="checkbox" name="DeactivateWithDependents" asp-for="DeactivateAccountViewModel.DeactivateWithDependents" id="IsFamilyToCancel" />
+                            <label class="custom-control-label" for="IsFamilyToCancel">
+                                Also request cancellation for my family members (if any)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> Your membership cancellation request will be reviewed by an administrator. You will be notified once approved.
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Request Cancellation</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script>
+        document.getElementById('deactivateAccountForm').addEventListener('submit', function(event) {
+            var checkbox = document.getElementById('deactivateWithDependents');
+            console.log("Checkbox checked:", checkbox.checked);
+        });
+    </script>
+
+
+
+    <script>
+        $(document).ready(function () {
+            // Toggle password visibility
+            $(".toggle-password").click(function () {
+                let targetInput = $(this).data("target");
+                let inputField = $(targetInput);
+                let icon = $(this).find("i");
+
+                if (inputField.attr("type") === "password") {
+                    inputField.attr("type", "text");
+                    icon.removeClass("fa-eye").addClass("fa-eye-slash");
+                } else {
+                    inputField.attr("type", "password");
+                    icon.removeClass("fa-eye-slash").addClass("fa-eye");
+                }
+            });
+
+            // Handle form submission via AJAX
+            $("#changePasswordForm").submit(function (e) {
+                e.preventDefault();
+
+                $.ajax({
+                    type: "POST",
+                    url: $(this).attr("action"),
+                    data: $(this).serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            // Show success message inside modal
+                            $("#changePasswordError").removeClass("d-none alert-danger")
+                                .addClass("alert-success").html(response.message).show();
+
+                            // Hide modal after a short delay
+                            setTimeout(function () {
+                                $("#changePasswordModal").modal("hide");
+                                $("#changePasswordError").addClass("d-none"); // Hide message
+                                $("#changePasswordForm")[0].reset(); // Reset form
+                            }, 2000);
+                        } else {
+                            // Show error message inside modal
+                            $("#changePasswordError").removeClass("d-none alert-success")
+                                .addClass("alert-danger").html(response.message).show();
+                        }
+                    },
+                    error: function () {
+                        $("#changePasswordError").removeClass("d-none alert-success")
+                            .addClass("alert-danger").html("Something went wrong. Please try again.").show();
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+
+                 

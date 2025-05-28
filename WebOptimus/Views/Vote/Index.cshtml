@@ -1,0 +1,177 @@
+﻿@model IEnumerable<WebOptimus.Models.ViewModel.VotingViewModel>
+
+@{
+    ViewData["Title"] = "Vote";
+    Layout = "~/Views/Shared/_cLayout.cshtml";
+}
+
+@* 
+<div class="slider-section"
+     style="background-image: url('/assets/img/Flag-of-Tanzania.png'); background-repeat: no-repeat; background-position: center; background-size: cover; width: 100%; height: 400px; margin: 0; padding: 0; position: relative;">
+    <div class="slider-container" style="width: 100%; height: 100%;">
+        <div class="slider-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0;">
+
+            <h1 class="animated-text" style="color: #fff!important">Your Candidate(s)</h1>
+        </div>
+    </div>
+</div> *@
+<div class="container my-5">
+    @if (@ViewBag.isempty == true)
+    {
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+               
+                <p>There's no ongoing election yet...</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <h2 class="mb-4">Cast Your Vote for a Candidate</h2>
+                <p>Select the candidate you'd like to vote for and submit your choice. Every vote counts!</p>
+            </div>
+        </div>
+        <div class="row">
+            @foreach (var candidate in Model)
+            {
+                <div class="col-md-12 mb-3">
+                    <div class="card ballot-card p-4">
+                        <div class="row align-items-center">
+                            <!-- Candidate Image -->
+                            <div class="col-md-2 text-center ballot-image">
+                                <img src="@Url.Content("~/"+ candidate.ExistingImagePath)" alt="Candidate Image" class="img-fluid rounded-circle" style="width: 120px; height: 120px;" />
+                            </div>
+
+                            <!-- Candidate Details -->
+                            <div class="col-md-7">
+                                <h4 class="candidate-name text-center font-weight-bold">@candidate.FullName (@candidate.ElectionName)</h4>
+                                <p class="text-muted text-center mb-3">@Html.Raw(candidate.CandidateDescription)</p>
+                            </div>
+
+                            <!-- Vote Button & Video -->
+                            <div class="col-md-3 text-center">
+                                <button type="button" class="btn btn-success btn-block mt-4 vote-btn"
+                                        data-candidate-id="@candidate.CandidateId"
+                                        data-candidate-name="@candidate.FullName">
+                                    <i class="fas fa-vote-yea"></i> Vote
+                                </button>
+
+                                <!-- Candidate Video -->
+                                @if (!string.IsNullOrEmpty(candidate.ExistingVideoPath))
+                                {
+                                    <video controls style="width: 100%; max-height: 120px; margin-top: 10px;">
+                                        <source src="@Url.Content("~/"+ candidate.ExistingVideoPath)" type="video/mp4" />
+                                        Your browser does not support the video tag.
+                                    </video>
+                                }
+                                else
+                                {
+                                    <p class="text-muted mt-3">No Video Available</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+   
+</div>
+
+<!-- Modal for Reg Number Input -->
+<div class="modal fade" id="regNumberModal" tabindex="-1" role="dialog" aria-labelledby="regNumberModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="regNumberModalLabel">Enter Your Registration Number</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="regNumberForm">
+                    <h4 id="candidateNameDisplay"></h4>
+                    <div class="form-group">
+                        <label for="regNumberInput">Registration Number:</label>
+                        
+                        <input type="text" class="form-control" id="regNumberInput" placeholder="Please Enter your Reg Number" required>
+                        <input type="hidden" id="candidateIdInput" />
+                    </div>
+                    <div class="alert alert-danger" id="voteError" style="display: none;"></div>
+                    <div class="alert alert-success" id="votesuccess" style="display: none;"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="submitVoteBtn">Submit Vote</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Show modal when clicking "Vote" button
+            $('.vote-btn').click(function () {
+                var candidateId = $(this).data('candidate-id');
+                var candidateName = $(this).data('candidate-name'); // Get candidate name
+
+                $('#candidateIdInput').val(candidateId);
+                $('#candidateNameDisplay').text('You are voting for: ' + candidateName); // Update modal with candidate name
+                $('#regNumberModal').modal('show');
+            });
+
+            // Handle the form submission (submit vote)
+            $('#submitVoteBtn').click(function () {
+                var regNumber = $('#regNumberInput').val();
+                var candidateId = $('#candidateIdInput').val();
+
+                if (regNumber) {
+                    // Clear any previous error messages
+                    $('#voteError').hide();
+                    $('#votesuccess').hide();
+                    
+                    // Make an AJAX request to validate reg number and vote
+                    $.ajax({
+                        url: '/Vote/ValidateVote',
+                        type: 'POST',
+                        data: {
+                            regNumber: regNumber,
+                            candidateId: candidateId
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                // Success message or redirect
+                                alert('Vote successfully cast!');
+                                $('#votesuccess').text(response.message).show();
+                                window.location.reload();
+                            } else {
+                                // Show error message
+                                $('#voteError').text(response.message).show();
+                            }
+                        },
+                        error: function (xhr) {
+                            console.error('Error submitting vote:', xhr);
+                        }
+                    });
+                }
+            });
+
+            // Handle closing the modal with the "X" button and the "Close" button
+            $('.close, .btn-secondary').click(function () {
+                $('#regNumberModal').modal('hide');
+            });
+        });
+
+    </script>
+}

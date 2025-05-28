@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Group Invitation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            border: 1px solid #dddddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .email-header {
+            background: #0073e6;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+            .email-header h1 {
+                margin: 0;
+                font-size: 24px;
+            }
+
+        .email-body {
+            padding: 20px;
+        }
+
+            .email-body h2 {
+                font-size: 20px;
+                color: #0073e6;
+                margin-bottom: 10px;
+            }
+
+            .email-body p {
+                margin: 10px 0;
+            }
+
+            .email-body a {
+                color: #0073e6;
+                text-decoration: none;
+                font-weight: bold;
+            }
+
+        .email-footer {
+            text-align: center;
+            padding: 20px;
+            background: #f2f2f2;
+            color: #666666;
+            font-size: 12px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #0073e6;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="email-header">
+            <h1>You've Been Invited to Join a Payment Group!</h1>
+        </div>
+        <div class="email-body">
+            <h2>Dear {{userName}},</h2>
+            <p>You have been invited to join the Payment Group "<strong>{{GroupName}}</strong>" at UmojaWetu. This group enables members to manage payments together, allowing for seamless coordination and mutual payment support.</p>
+            <p>By joining this group, you will be able to:</p>
+            <ul>
+                <li>Pay for other members in your group.</li>
+                <li>Allow other group members to pay on your behalf.</li>
+                <li>Track and manage payment activities more effectively.</li>
+            </ul>
+            <p>Please confirm or decline your invitation using the buttons below:</p>
+            <a href="{{ConfirmUrl}}" class="cta-button cta-confirm" style="color: white; background-color: green; text-decoration: none; padding: 10px 15px; border-radius: 5px; font-weight: bold;">Confirm</a>
+            <a href="{{DeclineUrl}}" class="cta-button cta-decline" style="color: white; background-color: red; text-decoration: none; padding: 10px 15px; border-radius: 5px; font-weight: bold;">Decline</a>
+
+            <p>If you have any questions, please contact us at <a href="mailto:info@umojawetu.com">info@umojawetu.com</a>.</p>
+        </div>
+        </div>
+        <div class="email-footer">
+            <p>&copy; {{currentYear}} UmojaWetu. All rights reserved.</p>
+            <p>UmojaWetu - Strength in Unity</p>
+        </div>
+    </div>
+</body>
+</html>

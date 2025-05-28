@@ -1,0 +1,477 @@
+﻿@model WebOptimus.Models.ViewModel.DependantViewModel
+@using WebOptimus.StaticVariables
+@{
+    ViewData["Title"] = "Family";
+    Layout = "~/Views/Shared/_cLayout.cshtml";
+}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row mb-3">
+            <div class="col-md-8">
+                <p class="mb-0">
+                    These are your family members listed. You can add more family members as needed, but to remove any, you'll need to reach out to Admin through the contact form. Admin will process removal requests as necessary.
+                </p>
+            </div>
+            @if (ViewBag.AdminUser != RoleList.Dependent)
+            {
+                <div class="col-md-4 text-right">
+                    <button type="button" class="btn btn-primary" onclick="showAddFamilyModal()">
+                        <i class="fas fa-plus"></i> Add New Family
+                    </button>
+                </div>
+            }
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header p-2">
+                        <ul class="nav nav-pills">
+                            <li class="nav-item"><a class="nav-link" asp-action="Index" asp-controller="Profile"><i class="fas fa-user me-2"></i> Profile</a></li>
+                            <li class="nav-item"><a class="nav-link active" asp-action="Dependents" asp-controller="Profile"><i class="fas fa-users me-2"></i> Family</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-action="NextOfKin" asp-controller="Profile"><i class="fas fa-user-friends me-2"></i> Next Of Kin</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-action="Successor" asp-controller="Profile"><i class="fas fa-user-check me-2"></i> Successor</a></li>
+                        </ul>
+                    </div>
+
+                    <partial name="_notify" />
+
+                    <div class="card-body">
+                        <div class="card-body" style="width: 100%; overflow-x: auto;">
+                            <table class="table m-0 myTable" style="width: 100%;">
+                                <thead>
+                                    <tr class="text-center">
+                                        <th>Title</th>
+                                        <th>Gender</th>
+                                        <th>Family Member Name</th>
+                                        <th>Year of Birth</th>
+                                        <th>Tel</th>
+                                        <th>Email</th>
+                                        <th>Reg Number</th>
+                                        @if (ViewBag.AdminUser != RoleList.Dependent)
+                                        {
+                                            <th>Actions</th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var i in Model.dependants)
+                                    {
+                                        <tr class="text-center">
+                                            <td>@Html.DisplayFor(modelItem => i.TitleName)</td>
+                                            <td>@Html.DisplayFor(modelItem => i.GenderName)</td>
+                                            <td>@Html.DisplayFor(modelItem => i.PersonName)</td>
+                                            <td>@Html.DisplayFor(modelItem => i.PersonYearOfBirth)</td>
+                                            <td>@Html.DisplayFor(modelItem => i.Telephone)</td>
+                                            <td>@Html.DisplayFor(modelItem => i.Email)</td>
+                                            <td>@Html.DisplayFor(modelItem => i.PersonRegNumber)</td>
+
+                                            @if (ViewBag.AdminUser != RoleList.Dependent)
+                                            {
+                                                <td class="text-center">
+                                                    <div class="btn-group" role="group" style="display: flex; gap: 3px;">
+                                                        <button type="button" class="btn btn-warning" title="Edit Details" onclick="showEditModal('@i.Id', '@i.PersonName', '@i.PersonYearOfBirth', '@i.Telephone', '@i.Email', '@i.Title', '@i.Gender')">
+                                                            <i class="fas fa-edit"></i>
+                                                        </button>
+
+                                                        @if (int.TryParse(i.PersonYearOfBirth, out int yearOfBirth) &&
+                  DateTime.Now.Year - yearOfBirth >= 18 && // Check if over 18
+                  ViewBag.personRegNumber != i.PersonRegNumber && // Check if not the logged-in user
+                  !i.HasAccount) // Check if no account exists
+                                                        {
+                                                            <button type="button" class="btn btn-primary" title="Open Account" onclick="showOpenAccountModal('@i.Id', '@i.PersonName', '@i.PersonYearOfBirth', '@i.Telephone', '@i.Email', '@i.PersonRegNumber')">
+                                                                <i class="fas fa-user-plus"></i>
+                                                            </button>
+                                                        }
+                                                    </div>
+                                                </td>
+
+                                            }
+
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal for Adding Family Member -->
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title" id="addModalLabel">Add Additional Family Member</h1>
+                <button type="button" class="close" onclick="CloseAddModal()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Dependents" asp-controller="Profile" method="post" autocomplete="false" id="addForm">
+                    <!-- Title Dropdown -->
+                    <div class="form-group">
+                        <label class="col-sm-3 col-form-label">Title: <span class="text-danger">*</span></label>
+                        <div class="col-sm-12 form-group">
+                            <select class="form-control" asp-for="DependentTitle" asp-items="@(new SelectList(ViewBag.DTtile, "Id", "Name"))">
+                                <option selected disabled>Please Select Title</option>
+                            </select>
+                            <span asp-validation-for="DependentTitle" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Gender Dropdown -->
+                    <div class="form-group">
+                        <label class="col-sm-3 col-form-label">Gender: <span class="text-danger">*</span></label>
+                        <div class="col-sm-12 form-group">
+                            <select class="form-control" asp-for="DependentGender" asp-items="@(new SelectList(ViewBag.DGender, "Id", "GenderName"))">
+                                <option selected disabled>Please Select Gender</option>
+                            </select>
+                            <span asp-validation-for="DependentGender" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Name Input -->
+                    <div class="form-group">
+                        <label class="col-sm-3 col-form-label">Full Name: <span class="text-danger">*</span></label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" asp-for="PersonName" placeholder="Enter Full Name" />
+                            <span asp-validation-for="PersonName" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Year of Birth Dropdown -->
+                    <div class="form-group">
+                        <label class="col-sm-4 col-form-label">Year of Birth: <span class="text-danger">*</span></label>
+                        <div class="col-sm-12">
+                            <select class="form-control" asp-for="PersonYearOfBirth" id="birthYear">
+                                <option value="" selected disabled>Please Select Year</option>
+                            </select>
+                            <span asp-validation-for="PersonYearOfBirth" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Phone Input -->
+                    <div class="form-group">
+                        <label class="col-sm-3 col-form-label">Telephone:</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" asp-for="DependentPhoneNumber" placeholder="Enter Telephone" />
+                            <span asp-validation-for="DependentPhoneNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Email Input -->
+                    <div class="form-group">
+                        <label class="col-sm-3 col-form-label">Email:</label>
+                        <div class="col-sm-12">
+                            <input type="email" class="form-control" asp-for="DependentEmail" placeholder="Enter Email" />
+                            <span asp-validation-for="DependentEmail" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="modal-footer d-flex justify-content-between">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <button type="button" class="btn btn-secondary" onclick="CloseAddModal()">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Editing Family Member -->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title" id="editModalLabel">Edit Family Member</h1>
+                <button type="button" class="close" onclick="CloseEditModal()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="EditDependent" asp-controller="Profile" method="post" autocomplete="false" id="editForm">
+                    <input type="hidden" id="editPersonId" name="Id" />
+
+                    <!-- Title Dropdown -->
+                    <div class="form-group">
+                        <label class="col-sm-3 col-form-label">Title: <span class="text-danger">*</span></label>
+                        <div class="col-sm-12 form-group">
+                            <select class="form-control" asp-for="DependentTitle" asp-items="@(new SelectList(ViewBag.DTtile, "Id", "Name"))" id="editDependentTitle">
+                                <option selected disabled>Please Select Title</option>
+                            </select>
+                            <span asp-validation-for="DependentTitle" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Gender Dropdown -->
+                    <div class="form-group">
+                        <label class="col-sm-3 col-form-label">Gender: <span class="text-danger">*</span></label>
+                        <div class="col-sm-12 form-group">
+                            <select class="form-control" asp-for="DependentGender" asp-items="@(new SelectList(ViewBag.DGender, "Id", "GenderName"))" id="editDependentGender">
+                                <option selected disabled>Please Select Gender</option>
+                            </select>
+                            <span asp-validation-for="DependentGender" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Name Input -->
+                    <div class="form-group">
+                        <label class="col-sm-3 col-form-label">Full Name: <span class="text-danger">*</span></label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" asp-for="PersonName" id="editPersonName" placeholder="Enter Full Name" />
+                            <span asp-validation-for="PersonName" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Year of Birth Dropdown -->
+                    <div class="form-group">
+                        <label class="col-sm-4 col-form-label">Year of Birth: <span class="text-danger">*</span></label>
+                        <div class="col-sm-12">
+                            <!-- Disabled Dropdown -->
+                            <select class="form-control" asp-for="PersonYearOfBirth" id="editPersonYearOfBirth" disabled>
+                                <option value="" selected disabled>Please Select Year</option>
+                            </select>
+                            <!-- Hidden Input to Hold the Selected Year -->
+                            <input type="hidden" asp-for="PersonYearOfBirth" id="hiddenPersonYearOfBirth" />
+                           
+                        </div>
+                    </div>
+
+
+                    <!-- Phone Input -->
+                    <div class="form-group">
+                        <label class="col-sm-3 col-form-label">Telephone:</label>
+                        <div class="col-sm-12">
+                            <input type="text" class="form-control" asp-for="DependentPhoneNumber" id="editDependentPhoneNumber" placeholder="Enter Telephone" />
+                            <span asp-validation-for="DependentPhoneNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Email Input -->
+                    <div class="form-group">
+                        <label class="col-sm-3 col-form-label">Email:</label>
+                        <div class="col-sm-12">
+                            <input type="email" class="form-control" asp-for="DependentEmail" id="editDependentEmail" placeholder="Enter Email" />
+                            <span asp-validation-for="DependentEmail" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="modal-footer d-flex justify-content-between">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="button" class="btn btn-secondary" onclick="CloseEditModal()">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="openAccountModal" tabindex="-1" role="dialog" aria-labelledby="openAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="openAccountModalLabel">Open Login Account</h5>
+            
+                <button type="button" class="close" onclick="CloseOpenAccountModal()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="openAccountInfo">
+                    This will allow <strong> <span id="personNamePlaceholder"></span></strong>  to have their own account and be able to login and make contributions on behalf of the family as well. <br /><br /> Once you submit, we'll send confirmation email for them to validate their email before they can login.
+                </p>
+                <form asp-action="CreateDependentAccount" asp-controller="Profile" method="post" id="openAccountForm">
+                    <input type="hidden" id="dependentId" name="DependentId" />
+
+                    <div class="form-group">
+                        <label for="personName">Name</label>
+                        <input type="text" class="form-control" id="personName" name="PersonName" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label for="personYearOfBirth">Year of Birth</label>
+                        <input type="text" class="form-control" id="personYearOfBirth" name="PersonYearOfBirth" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label for="telephone">Tel</label>
+                        <input type="text" class="form-control" id="telephone" name="Telephone" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label for="regNumber">Registration Number</label>
+                        <input type="text" class="form-control" id="regNumber" name="RegNumber" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" name="Email"  />
+                    </div>
+                  
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="password" name="Password" required />
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="#password">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="confirmPassword" name="ConfirmPassword" required />
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="#confirmPassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <small id="passwordMatchError" class="text-danger" style="display: none;">Password and Confirm Password do not match</small>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <button type="button" class="btn btn-secondary" onclick="CloseOpenAccountModal()">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/admin/js/table.js" asp-append-version="true"></script>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#myTable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                lengthMenu: [10, 25, 50, 100],
+                searching: true,
+                ordering: true,
+                paging: true,
+                info: true
+            });
+
+            // Populate year of birth for static form fields
+            populateYearDropdown('birthYear');
+        });
+
+        function showAddFamilyModal() {
+            $('#addModal').modal('show');
+        }
+
+        function showEditModal(id, name, yearOfBirth, phone, email, title, gender) {
+            // Set values for the edit modal fields
+            $('#editPersonId').val(id);
+            $('#editPersonName').val(name);
+            $('#editDependentPhoneNumber').val(phone);
+            $('#editDependentEmail').val(email);
+
+            // Set selected options for Title and Gender dropdowns
+            $('#editDependentTitle').val(title).trigger('change');
+            $('#editDependentGender').val(gender).trigger('change');
+
+            // Populate the Year of Birth dropdown and select the correct year
+            populateYearDropdown('editPersonYearOfBirth', yearOfBirth);
+
+                   // Set the hidden input value to the selected year
+        $('#hiddenPersonYearOfBirth').val(yearOfBirth);
+            // Show the edit modal
+            $('#editModal').modal('show');
+        }
+        function populateYearDropdown(elementId, selectedYear = null) {
+            var birthYearSelect = document.getElementById(elementId);
+            if (!birthYearSelect) return; // Safety check in case element is missing
+
+            var currentYear = new Date().getFullYear();
+            var earliestYear = 1900;
+
+            // Clear existing options
+            birthYearSelect.innerHTML = '<option value="" selected disabled>Please Select Year</option>';
+
+            // Generate the year options dynamically
+            for (var year = currentYear; year >= earliestYear; year--) {
+                var option = document.createElement('option');
+                option.value = year;
+                option.text = year;
+                birthYearSelect.appendChild(option);
+            }
+
+            // If a selected year is provided, set it as selected
+            if (selectedYear) {
+                $(birthYearSelect).val(selectedYear);
+            }
+        }
+        function CloseAddModal() {
+            $('#addModal').modal('hide'); // Hide the Add Modal
+        }
+
+        function CloseEditModal() {
+            $('#editModal').modal('hide'); // Hide the Edit Modal
+        }
+                function showOpenAccountModal(id, name, yearOfBirth, tel, email, regNumber) {
+            $('#dependentId').val(id);
+            $('#personName').val(name);
+            $('#personYearOfBirth').val(yearOfBirth);
+            $('#telephone').val(tel);
+            $('#email').val(email);
+            $('#regNumber').val(regNumber);
+                    $('#personNamePlaceholder').text(name);
+
+            $('#openAccountModal').modal('show');
+        }
+
+        function CloseOpenAccountModal() {
+            $('#openAccountModal').modal('hide');
+        }
+
+          
+
+     
+
+      
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Password visibility toggle
+            document.querySelectorAll('.toggle-password').forEach(button => {
+                button.addEventListener('click', function () {
+                    const targetInput = document.querySelector(this.getAttribute('data-target'));
+                    const icon = this.querySelector('i');
+
+                    if (targetInput.type === 'password') {
+                        targetInput.type = 'text';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    } else {
+                        targetInput.type = 'password';
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye');
+                    }
+                });
+            });
+
+            // Password match validation
+            document.getElementById('openAccountForm').addEventListener('submit', function (event) {
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                if (password !== confirmPassword) {
+                    event.preventDefault();
+                    document.getElementById('passwordMatchError').style.display = 'block';
+                } else {
+                    document.getElementById('passwordMatchError').style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+}

@@ -1,0 +1,425 @@
+﻿@model IEnumerable<WebOptimus.Models.User>
+@using WebOptimus.StaticVariables
+@{
+    ViewData["Title"] = "Manage User";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<!-- Content Wrapper. Contains page content -->
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <!-- Row with 2 side-by-side columns -->
+    <div class="row">
+        <!-- First box: Unverified Users -->
+        <div class="col-6 col-md-3">
+            <div class="small-box bg-primary">
+                <div class="inner">
+                    <h3>@ViewBag.unverifyUser</h3>
+                    <p>Unverified Users</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <a asp-action="Users" asp-route-filter="unverified" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+
+        <!-- Second box: Register New Member (button already inside) -->
+        <div class="col-6 col-md-3">
+            <div class="small-box bg-danger">
+                <div class="inner">
+                    <h3>@ViewBag.deactivatedUserCount</h3>
+                    <p>Deactivated Members</p>
+                   
+                </div>
+                <div class="icon">
+                    <i class="fas fa-user-slash"></i>
+                </div>
+                <a class="small-box-footer" asp-action="DeactivatedUsers" asp-controller="Admin">More info<i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+
+   
+            <!-- Existing Card: Deactivated Members -->
+            <div class="col-6 col-md-3">
+                <div class="small-box bg-danger">
+                    <div class="inner">
+                        <h3>@ViewBag.cancelledUserCount</h3>
+                        <p>Cancelled Membership</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-user-slash"></i>
+                    </div>
+                <a class="small-box-footer" asp-action="CancelledMembership" asp-controller="Account">
+                        More info <i class="fas fa-arrow-circle-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!--  New Card: Cancellation Requests -->
+            <div class="col-6 col-md-3">
+                <div class="small-box bg-warning">
+                    <div class="inner">
+                        <h3>@ViewBag.pendingCancellationCount</h3>
+                        <p>Pending Cancellation Requests</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-user-times"></i>
+                    </div>
+                    <a class="small-box-footer" asp-action="CancellationRequests" asp-controller="Account">
+                        View Requests <i class="fas fa-arrow-circle-right"></i>
+                    </a>
+                </div>
+            </div>
+       
+
+    </div>
+   
+</div>
+<!-- /.content-header -->
+
+
+
+
+<partial name="_notify" />
+@if (Model.Any())
+{
+    <p> These are members with account. You can use this section to deactivate a member's account. Please note if you're deactivating a member's account, it'll not automatically deactivate their dependents (if any). You can deactivate those who missed payments <a asp-action="PaymentDashboard" asp-controller="Cause"> here</a> under the missed payment section buttom of the screen. </p>
+
+    <section class="col-lg-12 connectedSortable">
+        <div class="card">
+            <div class="card-header border-transparent">
+                <h3 class="card-title text-center"><strong>Registered Users</strong></h3>
+             
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <form id="deactivateForm" asp-action="DeactivateUsers" method="post">
+
+                    <input type="hidden" id="selectedUsersInput" name="selectedUsers" />
+                    <input type="hidden" id="deactivationReasonInput" name="deactivationReason" />
+
+                <div class="card-body" style="width: 100%; overflow-x: auto;">
+                    <table class="table m-0 myTable" style="width: 100%;">
+                        <thead>
+                            <tr class="text-center">
+                                    <th>
+                                        <input type="checkbox" id="selectAll" onclick="toggleSelection(this)" />
+                                    </th>
+                                <th>@Html.DisplayNameFor(model => model.First().FullName)</th>
+                                <th>@Html.DisplayNameFor(model => model.First().Email)</th>
+                                    <th>Reg #</th>
+                                <th>@Html.DisplayNameFor(model => model.First().Role)</th>
+                                <th>Region</th>
+                                <th>County</th>
+                                    <th>Account Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.OrderByDescending(a => a.FullName))
+                            {
+                                <tr class="text-center">
+                                        <td>
+                                            <input type="checkbox" name="selectedUsers" value="@item.PersonRegNumber" />
+                                        </td>
+                                    <td>@Html.DisplayFor(modelItem => item.FullName)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                                        <td>@Html.DisplayFor(modelItem => item.PersonRegNumber)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.Role)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.RegionName)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.CityName)</td>
+                                        <td>
+                                            @if (item.IsActive)
+                                            {
+                                                <span class="badge badge-success">Active</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-danger">Inactive</span>
+                                            }
+                                        </td>
+                                    <td style="white-space:nowrap">
+                                       
+                                            <a asp-action="EditUserRole" asp-controller="Admin" asp-route-personRegNumber="@item.PersonRegNumber" class="text-warning" title="Manage Access" data-toggle="tooltip" style="cursor:pointer">
+                                                <i class="fas fa-universal-access"></i>
+                                            </a>
+                                            @if (item.IsActive == false) //  Show only for inactive users
+                                            {
+                                                <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
+                                                        data-bs-target="#activateModal" data-personreg="@item.PersonRegNumber"
+                                                        data-personname="@item.FullName" title="Activate">
+                                                    <i class="fas fa-user-check"></i>
+                                                </button>
+
+
+
+
+                                            }
+
+                                          @*   @if (ViewContext.HttpContext.Request.Query["filter"] == "awaitingapproval")
+                                            {
+                                                <a asp-action="UnverifiedUserDetails"
+                                                   asp-controller="Account"
+                                                   asp-route-dependentId="@item.DependentId"
+                                                   class="text-info"
+                                                   title="View Unverified User Details"
+                                                   data-toggle="tooltip"
+                                                   style="cursor:pointer">
+                                                    <i class="fas fa-user-clock"></i>
+                                                </a>
+                                            } *@
+
+                                            @if (item.LockoutEnd == null || item.LockoutEnd < DateTime.Now)
+                                            {
+                                                if (item.EmailConfirmed == false)
+                                                {
+                                                    <button asp-action="UnverifiedUser" asp-controller="Account" asp-route-id="@item.Id" class="unlock text-white" title="Verify User" data-toggle="tooltip">
+                                                        <i class="fas fa-user-check"></i>
+                                                    </button>
+
+                                                    <button asp-action="ResendVerificationLink" asp-controller="Account" asp-route-userId="@item.Id" class="btn btn-warning text-white" title="Resend Verification Email" data-toggle="tooltip">
+                                                        <i class="fas fa-envelope"></i>
+                                                    </button>
+                                                }
+                                                else if (!(item.Email == @ViewBag.currentUser))
+                                                {
+                                                    <button asp-action="LockUnlock" asp-controller="Account" asp-route-id="@item.Id" class="lock" title="Lock Account" onclick="return confirm('Are you sure you want to Lock this account?')" data-toggle="tooltip">
+                                                        <i class="fas fa-unlock"></i>
+                                                    </button>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <button asp-action="LockUnlock" asp-controller="Account" asp-route-id="@item.Id" class="unlock" title="Unlock Account" onclick="return confirm('Are you sure you want to unlock this account?')" data-toggle="tooltip">
+                                                    <i class="fas fa-lock"></i>
+                                                </button>
+                                            }
+
+                                            <a asp-action="Impersonate" asp-controller="Account" asp-route-userId="@item.Id" onclick="return confirm('Are you sure you want to login as this user?')" title="Impersonate User" data-toggle="tooltip">
+                                                <i class="fas fa-sign-in-alt"></i>
+                                            </a>
+                                       
+
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                 </form>
+                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deactivationModal">
+                    Deactivate Selected Users
+                </button>
+            </div>
+        </div>
+    </section>
+}
+else
+{
+    <p>No record exists...</p>
+}
+
+<!-- Modal for Deactivation -->
+<div class="modal fade" id="deactivationModal" tabindex="-1" role="dialog" aria-labelledby="deactivationModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deactivationModalLabel">Deactivate Users</h5>
+                <button type="button" class="close" onclick="closeDeactivationModal()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Please provide a reason for deactivation:</p>
+                <textarea id="deactivationReason" name="deactivationReason" class="form-control" rows="3" required></textarea>
+                <ul id="deactivationUserList"></ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeDeactivationModal()">Cancel</button>
+                <button type="button" id="confirmDeactivate" class="btn btn-danger">Deactivate</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Activate User Modal -->
+<!-- Activate User Modal -->
+<div class="modal fade" id="activateModal" tabindex="-1" aria-labelledby="activateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="activateModalLabel">Confirm Activation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="activateForm" method="post" asp-action="ActiveMember" asp-controller="Admin">
+                <div class="modal-body">
+                    <p id="activatePersonName"></p>
+                    <input type="hidden" id="activatePersonRegNumber" name="personRegNumber" />
+
+                    <div class="mb-3">
+                        <label for="activateReason" class="form-label">Reason for Activation:</label>
+                        <textarea class="form-control" id="activateReason" name="reason" rows="3" required></textarea>
+                    </div>
+
+                    <div class="form-check mt-3">
+                        <input class="form-check-input" type="checkbox" id="activateWithFamily" name="activateWithFamily">
+                        <label class="form-check-label" for="activateWithFamily">
+                            Activate with Family (if applicable)
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Activate</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@* <style>
+    .col-20 {
+        width: calc(100% / 5);
+    }
+
+    .delete {
+        color: red;
+    }
+
+    .fa-unlock {
+        color: green;
+    }
+
+    .unlock {
+        color: red;
+    }
+</style> *@
+
+@section Scripts {
+    <!-- Bootstrap JS & jQuery -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="~/admin/js/table.js" asp-append-version="true"> </script>
+
+
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const selectAllCheckbox = document.getElementById("selectAll");
+            const checkboxes = document.querySelectorAll('input[name="selectedUsers"]');
+            const deactivateButton = document.querySelector('.btn[data-target="#deactivationModal"]'); // Button that opens modal
+            const deactivationForm = document.getElementById("deactivateForm");
+            const deactivationReasonInput = document.getElementById("deactivationReason");
+            const selectedUsersInput = document.getElementById("selectedUsersInput");
+            const userList = document.getElementById("deactivationUserList");
+            const confirmDeactivateButton = document.getElementById("confirmDeactivate");
+
+            function updateSelectedUsers() {
+                const selectedUsers = Array.from(checkboxes)
+                    .filter(checkbox => checkbox.checked)
+                    .map(checkbox => checkbox.value.trim()); // Keep as a string
+
+                selectedUsersInput.value = JSON.stringify(selectedUsers); // Store selected IDs in hidden input
+
+                console.log("Selected Users:", selectedUsers); // Debugging
+
+                // Enable or disable the "Deactivate" button based on selection
+                deactivateButton.disabled = selectedUsers.length === 0;
+            }
+
+            // Toggle all checkboxes when "Select All" is clicked
+            selectAllCheckbox.addEventListener("change", function () {
+                checkboxes.forEach(checkbox => checkbox.checked = selectAllCheckbox.checked);
+                updateSelectedUsers();
+            });
+
+            // Track individual checkbox selection changes
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener("change", updateSelectedUsers);
+            });
+
+            // Show the modal with the list of selected users
+            deactivateButton.addEventListener("click", function () {
+                const selectedUsers = JSON.parse(selectedUsersInput.value);
+                if (selectedUsers.length === 0) {
+                    alert("Please select at least one user to deactivate.");
+                    return;
+                }
+
+                // Clear previous user list
+                userList.innerHTML = "";
+
+                // Add selected users to modal list
+                checkboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        const userName = checkbox.closest('tr').querySelector('td:nth-child(2)').innerText; // Assuming name is in column 2
+                        const listItem = document.createElement("li");
+                        listItem.innerText = userName;
+                        userList.appendChild(listItem);
+                    }
+                });
+
+                // Show the modal
+                $("#deactivationModal").modal("show");
+            });
+
+            // Close modal
+            function closeDeactivationModal() {
+                $("#deactivationModal").modal("hide");
+            }
+
+            // Submit the form when clicking "Deactivate" in the modal
+            confirmDeactivateButton.addEventListener("click", function () {
+                const reason = deactivationReasonInput.value.trim();
+                if (!reason) {
+                    alert("Deactivation reason is required.");
+                    return;
+                }
+
+                // Ensure selected users are updated before submission
+                selectedUsersInput.value = JSON.stringify(
+                    Array.from(checkboxes)
+                        .filter(checkbox => checkbox.checked)
+                        .map(checkbox => checkbox.value.trim()) // Keep as a string
+                );
+
+                // Ensure the reason is included in form submission
+                document.getElementById("deactivationReasonInput").value = reason;
+
+                console.log("Submitting Users:", selectedUsersInput.value); // Debugging
+                console.log("Reason:", reason);
+
+                // Submit the form
+                deactivationForm.submit();
+            });
+        });
+    </script>
+
+ <script>
+             document.addEventListener("DOMContentLoaded", function () {
+            var activateModal = document.getElementById("activateModal");
+
+            activateModal.addEventListener("show.bs.modal", function (event) {
+                var button = event.relatedTarget; // Button that triggered the modal
+                var personReg = button.getAttribute("data-personreg");
+                var personName = button.getAttribute("data-personname");
+
+                // Set values in the modal
+                document.getElementById("activatePersonRegNumber").value = personReg;
+                document.getElementById("activatePersonName").innerHTML =
+                    "Are you sure you want to activate <strong>" + personName + "</strong>?";
+            });
+        });
+
+</script>
+
+
+
+    
+
+}

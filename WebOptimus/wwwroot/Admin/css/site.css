@@ -1,0 +1,39 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+@media (max-width: 768px) {
+    .fund-item-text {
+        flex-wrap: wrap; /* Ensure the fund text wraps on smaller devices */
+        text-align: center;
+    }
+
+        .fund-item-text .col {
+            width: 100%; /* Make each item take the full width on smaller screens */
+            margin-bottom: 10px;
+        }
+}
+
+@media (min-width: 769px) {
+    .donation-card {
+        max-width: 800px; /* Set a wider max width on larger screens */
+    }

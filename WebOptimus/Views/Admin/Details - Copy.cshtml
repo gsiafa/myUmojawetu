@@ -1,0 +1,614 @@
+﻿@model WebOptimus.Models.ViewModel.RegisterViewModel
+@using WebOptimus.Extensions
+@using WebOptimus.StaticVariables
+@{
+
+    ViewData["Title"] = "Registration Details";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- Content Header (Page header) -->
+<!-- Content Wrapper. Contains page content -->
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row col-sm-12">
+            <div class="col-sm-6">
+                <h1>Information about <strong> @Model.FirstName  @Model.Surname </strong>  </h1>
+        
+            </div>
+
+            <div class="col-sm-6">
+                <a asp-action="EditUser" asp-controller="Admin" asp-route-userId="@Model.UserId" class="btn btn-primary float-right"><i class="fas fa-pencil-alt"></i> Edit</a>
+
+            </div>
+         
+        </div>
+       
+    </div><!-- /.container-fluid -->
+  
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- left column -->
+
+            <div class="col-md-6">
+                <!-- general form elements -->
+                <div class="card card-info">
+                  
+                    <div class="card-header">
+                        <h3 class="card-title">Personal Information</h3>
+
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /.card-header -->
+                    <!-- form start -->
+                    <input hidden name="jbId" id="getId"  />
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Title: </label>
+
+                            <div class="col-sm-8">
+                                <select class="form-control" disabled name="Title" asp-for="Title" title=" " id="LessorUId" asp-items="@(new SelectList(@ViewBag.TitleList , "Id", "Name"))">
+                                    <option selected disabled="disabled" value="@ViewBag.defaultValue" class="text-danger">Please select Title</option>
+                                </select>
+
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Forname(s): </label>
+
+                            <div class="col-sm-8">
+                                <input type="text" id="firtName" disabled asp-for="FirstName" name="Register.FirstName" class="form-control">
+
+
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Last Name: </label>
+
+                            <div class="col-sm-8">
+                                <input type="text" id="surname" disabled asp-for="Surname" name="Register.Surname" class="form-control">
+
+
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Year Of Birth:</label>
+
+                            <div class="col-sm-8">
+                                <input type="text" id="yr1" disabled name="DOB" asp-for="DOB" class="form-control">
+
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Phone Number: </label>
+
+                            <div class="col-sm-8">
+                                <input type="tel" id="mobile" disabled name="PhoneNumber" asp-for="PhoneNumber" class="form-control" >
+
+                            </div>
+                        </div>
+                                   <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Region: </label>
+
+                            <div class="col-sm-8">
+                                <input type="text" id="region" disabled name="Region" asp-for="Region" class="form-control" >
+
+                            </div>
+                        </div>
+                                   <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">County: </label>
+
+                            <div class="col-sm-8">
+                                <input type="text" id="city" disabled name="City" asp-for="City" class="form-control">
+
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Outword Postcode: </label>
+
+                            <div class="col-sm-8">
+                                <input type="text" id="postcode" disabled name="OutwardPostcode" asp-for="OutwardPostcode" class="form-control" >
+
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Email Address: </label>
+
+                            <div class="col-sm-8">
+                                <input type="email" disabled name="Email" asp-for="Email" class="form-control" id="email">
+
+                            </div>
+                        </div>
+
+
+
+                        @if (User.IsInRole(RoleList.GeneralAdmin))
+                        {
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Role/Access: </label>
+
+                                <div class="col-sm-8">
+
+                                    <select asp-for="RoleId" disabled asp-items="@Model.RoleList" id="srt" class="form-control">
+                                        <option disabled selected>--Select Role--</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                        }
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Date Joined: </label>
+
+                            <div class="col-sm-8">
+
+                                <input type="date" disabled name="DateCreated" asp-for="DateCreated" class="form-control" >
+
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Created By: </label>
+
+                            <div class="col-sm-8">
+
+                                <input type="text" disabled name="CreatedBy" asp-for="CreatedBy" class="form-control" >
+
+                            </div>
+                        </div>
+          
+                    </div>
+
+                </div>
+                <!-- /.card -->
+
+
+            </div>
+            <!--/.col (left) -->
+            <!-- left column -->
+            <div class="col-md-6">
+                <!-- general form elements -->
+                <div class="card card-dark">
+               
+                    <div class="card-header">
+                        <h3 class="card-title">Sponsors Information</h3>
+
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /.card-header -->
+                    <!-- form start -->
+                
+                    <div class="card-body">
+                       
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Member 1 Name: </label>
+
+                                <div class="col-sm-8">
+                                <input type="text" disabled name="SponsorsMemberName" asp-for="SponsorsMemberName" class="form-control" >
+
+                                </div>
+                            </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Member 1 Number:  </label>
+
+                            <div class="col-sm-8">
+                                <input type="text" disabled name="SponsorsMemberNumber" asp-for="SponsorsMemberNumber" class="form-control">
+
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Member 2 Name:  </label>
+
+                            <div class="col-sm-8">
+                                <input type="text" disabled name="SponsorLocalAdminName" asp-for="SponsorLocalAdminName" class="form-control">
+
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Member 2 Number: </label>
+
+                            <div class="col-sm-8">
+                                <input type="text" disabled name="SponsorLocalAdminNumber" asp-for="SponsorLocalAdminNumber" class="form-control">
+
+                            </div>
+                        </div>
+
+
+
+
+
+                    </div>
+
+                </div>
+                <!-- /.card -->
+
+
+            </div>
+            <!--/.col (left) -->
+            <!-- left column -->
+            <div class="col-md-6">
+                <!-- general form elements -->
+                <div class="card card-primary">
+                
+                    <div class="card-header">
+                        @if (Model.isDependant == false)
+                        {
+
+                            <h3 class="card-title">Family Information</h3>
+                        }
+                        else
+                        {
+
+                            <h3 class="card-title">Family <strong>  (@Model.DepsList.Count()) </strong></h3>
+                        }
+
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /.card-header -->
+                    <!-- form start -->
+                @if(@Model.isDependant == false)
+                {
+                    <div class="form-group row">
+                        <label class="col-sm-12 col-form-label" style="text-align: center !important;">No other family member registered. </label>
+
+                      
+                        </div>
+                }
+                    else
+                    {
+                       
+                       
+                          
+                            <table class="table m-0" id="myTable" style="width: 100%">
+                                <thead>
+                                    <tr class="text-center">
+                                        <th> Family Name</th>
+                                        <th>Year Of Birth</th>
+                                        <th>Registration #</th>
+
+                                    </tr>
+                                </thead>
+                            @foreach(var i in Model.DepsList)
+                            {
+                                <tbody>
+
+                                    <tr class="text-center">
+                                        <td> @i.PersonName </td>
+                                        <td> @i.PersonYearOfBirth </td>
+                                        <td> @i.PersonRegNumber </td>
+
+                                    </tr>
+
+                                </tbody>
+                            }
+                            </table>
+                      
+                  
+                    }
+                </div>
+                <!-- /.card -->
+          
+
+            </div>
+            <!--/.col (left) -->
+            <!-- right column -->
+            @if(Model.NextOfKins.Count() > 0){
+            <div class="col-md-6">
+                <!-- general form elements disabled -->
+                <div class="card card-warning">
+                 
+                    <div class="card-header">
+                        <h3 class="card-title">Next of Kin(s)</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                
+
+                    <table class="table m-0" id="myTable" style="width: 100%">
+                        <thead>
+                            <tr class="text-center">
+                                <th> Member Name</th>
+                                <th>Next of Kin</th>
+                                    <th>Relationship</th>
+                                <th>Phone Number</th>
+                                <th>Email Address</th>
+                            </tr>
+                        </thead>
+                        @foreach (var i in Model.NextOfKins)
+                        {
+                            <tbody>
+
+                                <tr class="text-center">
+                                    <td> @i.MemberName </td>
+                                    <td> @i.NextOfKinName </td>
+                                        <td> @i.Relationship </td>
+                                    <td> @i.PhoneNumber </td>
+                                    <td> @i.Email </td>
+                                </tr>
+
+                            </tbody>
+                        }
+                    </table>
+
+
+                    <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+            
+            </div>
+            <!--/.col (right) -->
+            }
+        </div>
+
+    </div><!-- /.container-fluid -->
+</section>
+<!-- /.content -->
+  @if (Model.applicationStatus == Status.Approved)
+{
+    <div class="col-md-12">
+        <!-- general form elements disabled -->
+        <div class="card card-success">
+
+            <div class="card-header">
+                <h3 class="card-title">Approval's Information</h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- /.card-header -->
+
+            <div class="card-body">
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Approval Name: </label>
+
+                    <div class="col-sm-10">
+                        <input type="text" disabled name="ApprovalDeclinerName" asp-for="GetUserInfo.ApprovalDeclinerName" class="form-control" >
+
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Approval's Email: </label>
+
+                    <div class="col-sm-10">
+                        <input type="text" disabled name="ApprovalDeclinerEmail" asp-for="GetUserInfo.ApprovalDeclinerEmail" class="form-control"  >
+
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Approved's Note: </label>
+
+                    <div class="col-sm-10">
+
+                        <textarea disabled class="form-control" asp-for="GetUserInfo.Note" id="exampleFormControlTextarea1" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Approved Date: </label>
+
+                    <div class="col-sm-10">
+                        <input type="text" disabled asp-for="GetUserInfo.NoteDate"  class="form-control" >
+
+                    </div>
+                </div>
+
+
+
+            </div>
+            <!-- /.card-body -->
+
+
+        </div>
+        <!-- /.card -->
+
+    </div>
+}
+
+@if (Model.applicationStatus == Status.Declined)
+{
+    <div class="col-md-12">
+        <!-- general form elements disabled -->
+        <div class="card card-danger">
+
+            <div class="card-header">
+                <h3 class="card-title">Decliner's Information</h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- /.card-header -->
+
+            <div class="card-body">
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Decliner's Name: </label>
+
+                    <div class="col-sm-10">
+                        <input type="text" disabled name="ApprovalDeclinerName" asp-for="GetUserInfo.ApprovalDeclinerName" class="form-control">
+
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Decliner's Email: </label>
+
+                    <div class="col-sm-10">
+                        <input type="text" disabled name="ApprovalDeclinerEmail" asp-for="GetUserInfo.ApprovalDeclinerEmail" class="form-control">
+
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Decliner's Note: </label>
+
+                    <div class="col-sm-10">
+
+                        <textarea disabled class="form-control" asp-for="GetUserInfo.Note" id="exampleFormControlTextarea1" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Declined Date: </label>
+
+                    <div class="col-sm-10">
+                        <input type="text" disabled asp-for="GetUserInfo.NoteDate" class="form-control">
+
+                    </div>
+                </div>
+
+
+
+            </div>
+            <!-- /.card-body -->
+
+
+        </div>
+        <!-- /.card -->
+
+    </div>
+}
+<div class="form-group row col-12">
+
+    @if(Model.applicationStatus == Status.AwaitingApproval)
+    {
+        <div class="col-4">
+
+
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#exampleModal">
+                <i class="fas fa-thumbs-up"></i> Approve
+            </button>
+
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+
+                    <form asp-action="Approve" asp-controller="Admin" method="post">
+                        <input id="guid" asp-for="@Model.UserId" name="userId" style="visibility:hidden" type="text" value="@ViewBag.userID" />
+
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+
+                                <label for="exampleFormControlTextarea1">Approval's Note:</label>
+                                <textarea class="form-control" id="exampleFormControlTextarea1" asp-for="Note" rows="3" placeholder="Please enter comments from sponsors"></textarea>
+
+                                <span asp-validation-for="Note" class="text-danger"></span>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+
+            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal2">
+                <i class="fas fa-thumbs-down"></i> Decline
+            </button>
+
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+
+                    <form asp-action="Decline" asp-controller="Admin" method="post">
+                        <input id="guid" asp-for="@Model.UserId" name="userId" style="visibility:hidden" type="text" value="@ViewBag.userID" />
+
+                        <div class="modal-content">
+                            <div class="modal-header">                               
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+
+                                <label for="exampleFormControlTextarea1">Approval Note:</label>
+                                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" asp-for="Note" placeholder="Please enter reason(s) for declining"></textarea>
+
+                                <span asp-validation-for="Note" class="text-danger"></span>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-4">
+            <a asp-action="Users" asp-controller="Admin" class="btn btn-default float-right"><i class="fas fa-arrow-alt-circle-left"></i> Back</a>
+
+        </div>
+    }
+    else if (Model.applicationStatus == Status.Declined)
+    {
+
+        <div class="col-sm-6">
+            <button type="button" class="btn btn-success float-left" data-toggle="modal" data-target="#exampleModal">
+                <i class="fas fa-thumbs-up"></i> Approve
+            </button>
+        </div>
+        <div class="col-sm-6">
+            <a asp-action="Users" asp-controller="Admin" class="btn btn-default float-right"><i class="fas fa-arrow-alt-circle-left"></i> Back</a>
+
+        </div>
+    }
+    else
+    {
+              <div class="col-sm-6">
+            <a asp-action="EditUser" asp-controller="Admin" asp-route-userId="@Model.UserId" class="btn btn-primary float-left"><i class="fas fa-pencil-alt"></i> Edit</a>
+
+            </div>
+        <div class="col-sm-6">
+            <a asp-action="Users" asp-controller="Admin" class="btn btn-default float-right"><i class="fas fa-arrow-alt-circle-left"></i> Back</a>
+
+        </div>
+     
+    }
+
+    
+</div>
+
+<style>
+    .textarea {
+        pointer-events: none;
+    }
+</style>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+   
+}

@@ -1,0 +1,32 @@
+table td {
+    word-break: break-word;
+    white-space: normal !important;
+}
+
+.centerme {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+#myTable_wrapper {
+    background-color: #fff;
+}
+
+#gform_wrapper_1 {
+    background-color: #fff !important;
+}
+
+.delete {
+    color: red !important;
+    border: none;
+}
+
+.lock {
+    color: green;
+    border: none;
+}
+
+.unlock {
+    color: red !important;
+    border: none;
+}

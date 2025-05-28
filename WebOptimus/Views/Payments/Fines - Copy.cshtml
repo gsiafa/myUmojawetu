@@ -1,0 +1,120 @@
+﻿@model WebOptimus.Models.ViewModel.FinesViewModel
+@{
+    ViewData["Title"] = "Pay Fines";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Background Banner -->
+<div class="slider-section"
+     style="background-image: url('/assets/img/Flag-of-Tanzania.png'); background-repeat: no-repeat; background-position: center; background-size: cover; width: 100%; height: 400px; margin: 0; padding: 0; position: relative;">
+    <div class="slider-container" style="width: 100%; height: 100%;">
+        <div class="slider-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0;">
+            <h2 class="animated-text" style="color: #fff!important">Pay Your Fines</h2>
+        </div>
+    </div>
+</div>
+
+
+<section class="content py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm p-4 bg-white rounded">
+                    <h4 class="text-center text-primary mb-4">Pay Outstanding Fines</h4>
+
+                    @if (!string.IsNullOrEmpty(ViewBag.Success))
+                    {
+                        <div class="alert alert-success text-center">@ViewBag.Success</div>
+                    }
+                    @if (!string.IsNullOrEmpty(ViewBag.Error))
+                    {
+                        <div class="alert alert-danger text-center">@ViewBag.Error</div>
+                    }
+                    <partial name="_notify" />
+                    <form method="post" asp-action="CheckFines" asp-controller="Payments" id="fineSearchForm">
+                        <div class="mb-3">
+                            <label for="identifier" class="form-label">Enter Your Email or Registration Number:</label>
+                            <input type="text" class="form-control" id="identifier" name="identifier" required placeholder="Enter Email or Reg Number">
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">Find Fines</button>
+                        </div>
+                    </form>
+
+                    @if (Model != null && Model.Amount > 0)
+                    {
+                        <hr>
+                        <h5 class="text-secondary">Outstanding Fines</h5>
+                        <div class="form-group">
+                            <label class="form-label">Fines for: <strong>@Model.PersonName</strong></label>
+                            <input type="hidden" id="userId" value="@Model.UserId" />
+                            <input type="hidden" id="dependentId" value="@Model.DependentId" />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Total Fines (£):</label>
+                            <input type="text" class="form-control" id="fineAmount" value="@Model.Amount" readonly />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Transaction Fee (Stripe) (£):</label>
+                            <input type="text" class="form-control" id="transactionFee" readonly />
+                            <input type="hidden" id="hiddenTransactionFee" />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Total Payment (£):</label>
+                            <input type="text" class="form-control" id="totalPayment" readonly />
+                            <input type="hidden" id="hiddenTotalAmount" />
+                        </div>
+
+                        <form method="post" asp-action="ProcessFinePayment" asp-controller="Payments" id="finePaymentForm">
+                            <input type="hidden" name="UserId" value="@Model.UserId" />
+                            <input type="hidden" name="DependentId" value="@Model.DependentId" />
+                            <input type="hidden" name="Amount" id="fineAmountHidden" value="@Model.Amount" />
+                            <input type="hidden" name="TransactionFees" id="hiddenTransactionFee" />
+                            <input type="hidden" name="TotalAmount" id="hiddenTotalAmount" />
+                            <input type="hidden" name="PersonName" value="@Model.PersonName" />
+                            <input type="hidden" name="Email" value="@Model.Email" />
+                            <input type="hidden" name="PersonRegNumber" value="@Model.PersonRegNumber" />
+
+                            <div class="text-center mt-3">
+                                <button type="submit" class="btn btn-success btn-lg px-5">Proceed to Payment</button>
+                            </div>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const fineAmountInput = document.getElementById('fineAmount');
+            const transactionFeeInput = document.getElementById('transactionFee');
+            const totalPaymentInput = document.getElementById('totalPayment');
+            const hiddenTransactionFee = document.getElementById('hiddenTransactionFee');
+            const hiddenTotalAmount = document.getElementById('hiddenTotalAmount');
+            const stripeFeePercentage = 0.015; // 1.4% Stripe fee
+            const stripeFeeFlat = 0.20; // £0.20 flat fee
+
+            function calculateTransactionFee() {
+                let fineAmount = parseFloat(fineAmountInput.value) || 0;
+                let fee = (fineAmount * stripeFeePercentage) + stripeFeeFlat;
+                let total = fineAmount + fee;
+
+                transactionFeeInput.value = fee.toFixed(2);
+                totalPaymentInput.value = total.toFixed(2);
+
+                hiddenTransactionFee.value = fee.toFixed(2);
+                hiddenTotalAmount.value = total.toFixed(2);
+            }
+
+            // Run the calculation on page load
+            calculateTransactionFee();
+        });
+    </script>
+}
+

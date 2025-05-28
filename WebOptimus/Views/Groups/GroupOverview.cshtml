@@ -1,0 +1,97 @@
+﻿@model WebOptimus.Models.ViewModel.GroupOverviewViewModel
+@{
+    ViewData["Title"] = "My Join Requests";
+    Layout = "~/Views/Shared/_cLayout.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Groups Overview</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <!-- My Groups -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3 class="card-title"><strong>My Groups</strong></h3>
+        </div>
+        <div class="card-body">
+            @if (Model.MyGroups.Any())
+            {
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Group Name</th>
+                            <th>Total Members</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var group in Model.MyGroups)
+                        {
+                            <tr>
+                                <td>@group.GroupName</td>
+                                <td>@group.TotalMembers</td>
+                                <td>
+                                    <a asp-action="GroupMembers" asp-route-groupId="@group.Id" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-eye"></i> View Members
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p>You are not part of any groups yet. Join or create one!</p>
+            }
+        </div>
+    </div>
+
+    <!-- Pending Requests -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title"><strong>Pending Requests</strong></h3>
+        </div>
+        <div class="card-body">
+            @if (Model.PendingRequests.Any())
+            {
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Group Name</th>
+                            <th>Request Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var request in Model.PendingRequests)
+                        {
+                            <tr>
+                                <td>@request.GroupName</td>
+                                <td>@request.RequestDate.ToString("dd/MM/yyyy")</td>
+                                <td>@request.Status</td>
+                                <td>
+                                    <form method="post" asp-action="RevokeRequest" asp-route-requestId="@request.Id">
+                                        <button type="submit" class="btn btn-danger btn-sm">Revoke</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p>No pending join requests at the moment.</p>
+            }
+        </div>
+    </div>
+</div>

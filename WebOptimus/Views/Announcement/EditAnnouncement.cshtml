@@ -1,0 +1,62 @@
+﻿@model WebOptimus.Models.ViewModel.AnnouncementViewModel
+
+@{
+    ViewData["Title"] = "Edit Announcement";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h4>New Announcement</h4>
+<hr />
+<form method="post" asp-action="EditAnnouncement" asp-controller="Announcement" id="myForm">
+    <div class="row">
+        <input hidden asp-for="Id" />
+        <div class="col-md-12">
+            <div class="form-group">
+                <label asp-for="Title" class="control-label">Brief Title (of announcements) <span class="text-danger">*</span></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <div class="mb-3">
+                    <label asp-for="Content" class="control-label">Full Details <span class="text-danger">*</span></label>
+                    <textarea asp-for="Content" class="textarea" placeholder="Place some text here"
+                              style="width: 100%; height: 300px; font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;"></textarea>
+                    <span asp-validation-for="Content" class="text-danger"></span>
+                </div>
+            </div>
+         
+         @*    <div class="form-group">
+                <input type="checkbox" name="IsActive" value="true" checked />
+                <strong> Broadcast announcement to all members immediately.</strong>
+
+            </div> *@
+            <div class="form-group">
+                <input asp-for="IsActiveToInternMember" name="IsActiveToInternMember" type="checkbox" />
+                <strong> Broadcast announcement to all internal members (only those with account should see this).</strong>
+               
+            </div>
+            <div class="form-group">
+                <input asp-for="IsActiveToPublic" name="IsActiveToPublic" type="checkbox" />
+                <strong> Broadcast announcement to the public (those without an account should see this).</strong>
+              
+            </div>
+
+            <div class="ml-auto mt-4">
+                <small class="btn btn-dark signInText" style="float:right;">
+                    <a class="signInText" style="cursor: pointer; color:#fff !important; text-decoration: none; float:right;" asp-action="Index" asp-controller="Announcement">Back</a>
+                </small>
+                <small>
+                    <button type="submit" class="btn btn-success justify-content-end signInText" style="cursor: pointer; color:#fff !important; text-decoration: none;">Submit</button>
+                </small>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+

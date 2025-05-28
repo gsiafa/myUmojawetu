@@ -1,0 +1,24 @@
+﻿<div class="card mb-3 p-3">
+    <div class="form-check d-flex align-items-center">
+        <input type="checkbox"
+               class="form-check-input me-2 dependent-checkbox"
+               data-price="@Model.Price"
+               id="dependent-@Model.DependentId"
+               name="DependentsChecklist[@Model.DependentId].IsSelected"
+               value="true" />
+
+        <label class="form-check-label fw-bold me-auto" for="dependent-@Model.DependentId">
+            @Model.Name <span class="badge bg-secondary">£@Model.Price</span>
+        </label>
+
+        <div class="ms-3">
+            <input type="number"
+                   class="form-control custom-amount"
+                   id="custom-amount-@Model.DependentId"
+                   name="DependentsChecklist[@Model.DependentId].CustomAmount"
+                   min="@Model.Price"
+                   value="@Model.Price"
+                   placeholder="Custom Amount (£)" />
+        </div>
+    </div>
+</div>

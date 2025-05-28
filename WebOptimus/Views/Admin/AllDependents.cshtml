@@ -1,0 +1,60 @@
+﻿@model IEnumerable<WebOptimus.Models.ViewModel.Admin.DependentViewModel>
+
+@{
+    ViewData["Title"] = "All Dependents";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-12">
+                <h1 class="m-0">These are all the members including those under 25.</h1>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <a class="btn btn-xs btn-outline-primary float-md-right" style="width:100px;float:right; text-align: center;" onclick="@("window.location.href='" + @Url.Action("Index", "Admin") + "'");"><i class="fas fa-arrow-left"></i>  Back </a>
+
+        </div><!-- /.col --><br />
+    </div>
+</div>
+
+<div class="content">
+    <div class="container-fluid">
+        <table class="table table-bordered text-center" id="dependentsTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Registration Number</th>
+                    <th>Year of Birth</th>
+                    <th>Age</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.DependentName</td>
+                        <td>@item.PersonRegNumber</td>
+                        <td>@item.YearOfBirth</td>
+                        <td>@item.Age</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js "></script>
+    <script>
+        $(document).ready(function () {
+            $('#dependentsTable').DataTable({
+                responsive: true
+            });
+        });
+    </script>
+}

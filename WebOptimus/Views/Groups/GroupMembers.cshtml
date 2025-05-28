@@ -1,0 +1,242 @@
+﻿@model IEnumerable<WebOptimus.Models.ViewModel.GroupMemberViewModel>
+
+@{
+    ViewData["Title"] = "Group Members";
+    Layout = "~/Views/Shared/_cLayout.cshtml";
+}
+
+<!-- Content Header -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Group Members</h1>
+            </div>
+            <div class="col-sm-6 text-right">
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Groups
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="_notify" />
+<div class="container-fluid">
+    @if (Model.Any())
+    {
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><strong>Members List</strong></h3> <br />
+                <p>Members listed here can pay for each other.</p>
+                <div class="card-tools">
+                    <!-- Invite Member Button -->
+                    <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#inviteMemberModal" data-groupid="@ViewBag.GroupId">
+                        <i class="fas fa-envelope"></i> Invite Member
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="card-body" style="width: 100%; overflow-x: auto;">
+                    <table class="table m-0 myTable" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th class="text-center">Full Name</th>
+                                <th class="text-center">Registration Number</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Date Confirmed</th>
+                                <th class="text-center">Role</th> <!-- Added column for Admin/Member -->
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var member in Model)
+                            {
+                                <tr>
+                                    <td class="text-center">@member.FullName</td>
+                                    <td class="text-center">@member.PersonRegNumber</td>
+                                    <td class="text-center">
+                                        <span class="badge @(member.Status == "Invited" ? "badge-warning" : member.Status == "Confirmed" ? "badge-success" : "badge-danger")">
+                                            @member.Status
+                                        </span>
+                                    </td>
+                                    <td class="text-center">@(member.DateConfirmed?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                                    <td class="text-center">
+                                        @if (member.IsAdmin)
+                                        {
+                                            <span class="badge badge-primary">Admin</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-secondary">Member</span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        @if ((bool)ViewBag.IsAdmin)
+                                        {
+                                            <!-- Admin can remove all members except themselves -->
+                                            @if (member.PersonRegNumber != ViewBag.CurrentDependentId)
+                                            {
+                                                <a class="btn btn-danger btn-sm" data-toggle="modal" data-target="#removeMemberModal"
+                                                   data-groupid="@ViewBag.GroupId" data-memberid="@member.PersonRegNumber">
+                                                    <i class="fas fa-user-minus"></i> Remove
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <!-- Admin can leave group -->
+                                                <a class="btn btn-danger btn-sm" data-toggle="modal" data-target="#leaveGroupModal" data-groupid="@ViewBag.GroupId">
+                                                    <i class="fas fa-sign-out-alt"></i> Leave Group
+                                                </a>
+                                            }
+                                        }
+                                        else if (member.PersonRegNumber == ViewBag.CurrentDependentId)
+                                        {
+                                            <!-- Non-Admin can only leave -->
+                                            <a class="btn btn-danger btn-sm" data-toggle="modal" data-target="#leaveGroupModal" data-groupid="@ViewBag.GroupId">
+                                                <i class="fas fa-sign-out-alt"></i> Leave Group
+                                            </a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            <strong>No members found in this group.</strong> Start inviting members to grow your group!
+        </div>
+    }
+</div>
+
+<!-- Invite Member Modal -->
+<div class="modal fade" id="inviteMemberModal" tabindex="-1" role="dialog" aria-labelledby="inviteMemberModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="inviteMemberModalLabel">Invite Member</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" asp-action="InviteMember">             
+
+                <p> Please enter the member's email or Registration number (we will send them an invite which they must confirm before being part of this group.)</p>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="memberEmailOrRegNumber">Member Email or Registration Number</label>
+                        <input type="text" id="memberEmailOrRegNumber" name="memberEmailOrRegNumber" class="form-control" required>
+                    </div>
+                    <div class="form-check">
+                       
+                        <input type="checkbox" class="form-check-input" id="includeFamily" name="includeFamily" value="true">
+                        <label class="form-check-label" for="includeFamily">Invite along with their family</label>
+                    </div>
+
+
+
+                    <input type="hidden" id="groupId" name="groupId" />
+
+                    <input type="hidden" name="includeFamily" value="false" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Send Invite</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Leave Group Modal -->
+<div class="modal fade" id="leaveGroupModal" tabindex="-1" role="dialog" aria-labelledby="leaveGroupModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="leaveGroupModalLabel">Leave Group</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" asp-action="LeaveGroup">
+                <div class="modal-body">
+                    <p>Are you sure you want to leave this group?</p>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="leaveWithFamily" name="leaveWithFamily" value="true">
+                        <label class="form-check-label" for="leaveWithFamily">Leave with all family members</label>
+                    </div>
+                    <input type="hidden" id="leaveGroupId" name="groupId" />
+                    <input type="hidden" id="leaveDependentId" name="dependentId" value="@ViewBag.CurrentDependentId" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Leave Group</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Remove Member Modal -->
+<div class="modal fade" id="removeMemberModal" tabindex="-1" role="dialog" aria-labelledby="removeMemberModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="removeMemberModalLabel">Remove Member</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" asp-action="RemoveMember">
+                <div class="modal-body">
+                    <p>Are you sure you want to remove this member from the group?</p>
+                    <input type="hidden" id="removeGroupId" name="groupId" />
+                    <input type="hidden"  id="removeMemberId" name="PersonRegNumber" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No, Cancel</button>
+                    <button type="submit" class="btn btn-danger">Yes, Remove Member</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/admin/js/table.js" asp-append-version="true"></script>
+    <script>
+        $('#inviteMemberModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var groupId = button.data('groupid');
+            $('#groupId').val(groupId);
+        });
+
+
+                 $('#leaveGroupModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget); // Button that triggered the modal
+            var groupId = button.data('groupid'); // Extract GroupId
+            $('#leaveGroupId').val(groupId); // Set hidden input value
+        });
+
+
+
+            $('#removeMemberModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget); // Button that triggered the modal
+                var groupId = button.data('groupid'); // Extract groupId from data-* attribute
+                var dependentId = button.data('memberid'); // Extract dependentId from data-* attribute
+
+                // Set the values in the modal's hidden fields
+                $('#removeGroupId').val(groupId);
+                $('#removeMemberId').val(dependentId);
+            });
+     
+
+   
+
+    </script>
+}

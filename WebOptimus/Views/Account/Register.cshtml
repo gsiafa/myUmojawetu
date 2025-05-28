@@ -1,0 +1,616 @@
+﻿@model WebOptimus.Models.ViewModel.UserVM.UserRegisterViewModel
+@using WebOptimus.Extensions
+@using WebOptimus.StaticVariables
+@{
+    ViewData["Title"] = "Umoja Wetu Registration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="slider-section"
+     style="background-image: url('/assets/img/Flag-of-Tanzania.png'); background-repeat: no-repeat; background-position: center; background-size: cover; width: 100%; height: 400px; margin: 0; padding: 0; position: relative;">
+    <div class="slider-container" style="width: 100%; height: 100%;">
+        <div class="slider-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0;">
+            <h1 class="animated-text" style="color: #fff!important">Register</h1>
+        </div>
+    </div>
+</div>
+
+<div class="section section-padding" style="background: #f8f9fa;">
+    <div class="container">
+        <div class="row mb-n5">
+
+            <div class="col-lg-5 col-12 mb-5">
+                <div class="contact-information">               
+                    <h2 class="contact-title">Register With Us</h2>
+                    <p>
+                        To become a member, you must be at least 18 years old or above. Please complete the form to register with us if you're eligible. <br /><br />
+                        You can register as an individual or as a family by adding your dependents. As an individual, you will contribute for yourself; as a family, you can make contributions on behalf of your family members.
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-7 col-12 mb-5">
+                <div class="contact-form" >
+                    <h5 class="title mb-4"></h5>
+
+                    @if (TempData[SD.Error] != null)
+                    {
+                        <div class="alert alert-danger animated-message">
+                            @TempData[SD.Error]
+                        </div>
+                    }
+
+                    @if (TempData[SD.Success] != null)
+                    {
+                        <div class="alert alert-success animated-message">
+                            @TempData[SD.Success]
+                        </div>
+                    }
+                    <form asp-action="Register" asp-controller="Account" method="post" autocomplete="false" id="registrationForm">
+                        <div asp-validation-summary="All" class="text-danger"></div>
+
+                        <!-- About You Section -->
+                        <fieldset>
+                            <legend class="fw-bold">About You</legend> <hr />
+
+                            <div class="form-group row mt-4">
+                                <label class="col-sm-4 col-form-label fw-bold">Title: <span class="text-danger">*</span></label>
+                                <div class="col-sm-12 form-group">
+                                    <select class="form-control" asp-for="Title" asp-items="@(new SelectList(ViewBag.Ttile, "Id", "Name"))">
+                                        <option selected disabled>Please Select Title</option>
+                                    </select>
+
+                                    <span asp-validation-for="Title" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row ">
+                                <label class="col-sm-4 col-form-label fw-bold">Gender: <span class="text-danger">*</span></label>
+                                <div class="col-sm-12 form-group">
+                                    <select class="form-control form-select form-select-lg mb-3" asp-for="Gender" id="genderId" asp-items="@(new SelectList(ViewBag.Gender, "Id", "GenderName"))">
+                                        <option selected disabled="disabled">Please Select Gender</option>
+                                    </select>
+                                    <span asp-validation-for="Gender" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label fw-bold">First Name: <span class="text-danger">*</span></label>
+                                <div class="col-sm-12">
+                                    <input type="text" class="form-control" id="firstName" name="FirstName" asp-for="FirstName" placeholder="First Name">
+                                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label fw-bold">Surname: <span class="text-danger">*</span></label>
+                                <div class="col-sm-12">
+                                    <input type="text" class="form-control" id="surname" name="Surname" asp-for="Surname" placeholder="Last Name">
+                                    <span asp-validation-for="Surname" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label fw-bold">Year of Birth: <span class="text-danger">*</span></label>
+                                <div class="col-sm-12">
+                                    <select class="form-control" id="birthYear" name="PersonYearOfBirth" asp-for="PersonYearOfBirth">
+                                        <option value="" selected disabled>Please Select Year</option>
+                                    </select>
+                                    <span asp-validation-for="PersonYearOfBirth" class="text-danger"></span>
+                                </div>
+                            </div>
+
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label fw-bold">Region: <span class="text-danger">*</span></label>
+                                <div class="col-sm-12">
+                                    <select class="intro form-control form-select form-select-lg mb-3" asp-for="RegionId" id="regionSelect" onchange="GetmCity(this.value)" asp-items="@(new SelectList(ViewBag.RegionId, "Id", "Name"))">
+                                        <option selected disabled="disabled">Please Select Region</option>
+                                    </select>
+                                    <span asp-validation-for="RegionId" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label fw-bold">County: <span class="text-danger">*</span></label>
+                                <div class="col-sm-12">
+                                    <select class="form-control form-select form-select-lg mb-3" asp-for="CityId" id="countySelect">
+                                        <option selected disabled>Please Select County</option>
+                                        @if (ViewBag.CityId != null)
+                                        {
+                                            foreach (var city in ViewBag.CityId as List<WebOptimus.Models.City>)
+                                            {
+                                                <option value="@city.Id">@city.Name</option>
+                                            }
+                                        }
+                                    </select>
+                                    <span asp-validation-for="CityId" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                        @*     <div class="form-group row">
+                                <label class="col-sm-4 col-form-label fw-bold">Outward Postcode: <span class="text-danger">*</span></label>
+                                <div class="col-sm-12">
+                                    <input type="text" class="form-control" id="outwardPostcode" name="OutwardPostcode" asp-for="OutwardPostcode" placeholder="Outward Postcode">
+                                    <span asp-validation-for="OutwardPostcode" class="text-danger"></span>
+                                </div>
+                            </div> *@
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label fw-bold mt-4 title-tip title-tip-up">
+                                    Outward Postcode: <span class="text-danger">*</span>
+                                    <i class="fas fa-info-circle" title="We don't want your full postcode, only the first part of your Postcode. For example, SW1."></i>
+                                </label>
+                                <div class="col-sm-12">
+                                    <input type="text" class="form-control" id="outwardPostcode" name="OutwardPostcode" asp-for="OutwardPostcode" placeholder="Outward Postcode">
+                                    <span asp-validation-for="OutwardPostcode" class="text-danger"></span>
+                                </div>
+                            </div>
+
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label fw-bold">Mobile Number: <span class="text-danger">*</span></label>
+                                <div class="col-sm-12">
+                                    <input type="text" class="form-control" id="phone" name="PhoneNumber" asp-for="PhoneNumber" placeholder="Mobile Number">
+                                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label fw-bold">Email: <span class="text-danger">*</span></label>
+                                <div class="col-sm-12">
+                                    <input type="email" class="form-control" id="email" name="Email" asp-for="Email" placeholder="Email">
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label fw-bold">Password: <span class="text-danger">*</span></label>
+                                <div class="col-sm-12">
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="password" name="Password" asp-for="Password" placeholder="Password">
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-outline-secondary toggle-password-btn" onclick="togglePasswordVisibility('password', this)">Show</button>
+                                        </div>
+                                    </div>
+                                    <span asp-validation-for="Password" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label fw-bold">Confirm Password: <span class="text-danger">*</span></label>
+                                <div class="col-sm-12">
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="confirmPassword" name="ConfirmPassword" asp-for="ConfirmPassword" placeholder="Confirm Password">
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-outline-secondary" onclick="togglePasswordVisibility('confirmPassword', this)">Show</button>
+                                        </div>
+                                    </div>
+                                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- Dependents Section -->
+                        <fieldset>
+                            <legend class="fw-bold mt-4 title-tip title-tip-up" title="You can add additional family members.">Your Family/Dependents <i class="fas fa-info-circle"></i></legend>
+                            <hr />
+
+                            <div id="dependents" class="col-12 form-group row">
+                                @for (int i = 0; i < Model.Dependents.Count; i++)
+                                {
+                                    <div class="dependent">
+                                        <div class="form-group row">
+                                            <label class="col-sm-4 col-form-label fw-bold">Title: <span class="text-danger">*</span></label>
+                                            <div class="col-sm-12 form-group">
+                                                <select class="form-control form-select form-select-lg mb-3" asp-for="Dependents[i].DependentTitle" asp-items="@(new SelectList(ViewBag.DTtile, "Id", "Name"))">
+                                                    <option selected disabled="disabled">Please Select Title</option>
+                                                </select>
+                                                <span asp-validation-for="Dependents[i].DependentTitle" class="text-danger"></span>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group row">
+                                            <label class="col-sm-4 col-form-label fw-bold">Gender: <span class="text-danger">*</span></label>
+                                            <div class="col-sm-12 form-group">
+                                                <select class="form-control form-select form-select-lg mb-3" asp-for="Dependents[i].DependentGender" asp-items="@(new SelectList(ViewBag.DGender, "Id", "GenderName"))">
+                                                    <option selected disabled="disabled">Please Select Gender</option>
+                                                </select>
+                                                <span asp-validation-for="Dependents[i].DependentGender" class="text-danger"></span>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-4 col-form-label fw-bold" asp-for="Dependents[i].PersonName">Family Member/Dependent Full Name</label>
+                                            <input asp-for="Dependents[i].PersonName" class="form-control" />
+                                            <span asp-validation-for="Dependents[i].PersonName" class="text-danger"></span>
+                                        </div>
+
+                                        <div class="form-group mb-4">
+                                            <label class="col-sm-4 col-form-label fw-bold" asp-for="Dependents[@i].PersonYearOfBirth">Year of Birth</label>
+                                            <select class="form-control dependent-birth-year" id="dependentBirthYear@i" name="Dependents[@i].PersonYearOfBirth">
+                                                <option value="" selected disabled>Please Select Year</option>
+                                            </select>
+                                            <span asp-validation-for="Dependents[@i].PersonYearOfBirth" class="text-danger"></span>
+                                        </div>
+
+
+                                        <div class="form-group row mt-2">
+                                            <label class="col-sm-4 col-form-label fw-bold">Mobile Number: <span class="text-danger">(Optional)</span></label>
+                                            <div class="col-sm-12">
+                                                <input type="text" class="form-control" name="Dependents[${i}].DependentPhoneNumber" asp-for="Dependents[i].DependentPhoneNumber" placeholder="Mobile Number">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group row">
+                                            <label class="col-sm-4 col-form-label fw-bold">Email: <span class="text-danger">(Optional)</span></label>
+                                            <div class="col-sm-12">
+                                                <input type="email" class="form-control" name="Dependents[${i}].DependentEmail" asp-for="Dependents[i].DependentEmail" placeholder="Email">
+                                            </div>
+                                        </div>
+
+                                        <button type="button" class="btn btn-danger remove-dependent">Remove</button>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="col-12 mt-4">
+                                <button type="button" class="btn btn-primary mt-3" id="add-dependent"><i class="fas fa-user-plus"></i> Add Dependent</button>
+                            </div>
+                        </fieldset>
+
+                        <!-- Referees Section -->
+                        <fieldset class="mb-4 mt-4">
+                            <legend class="fw-bold mt-4 title-tip title-tip-up" title="Please provide two names of people who can attest your membership">Your Referees/Witness <i class="fas fa-info-circle"></i></legend>
+                            <hr />
+
+                            <div class="form-group row mt-3 mb-3">
+                                <label class="col-sm-5 col-form-label fw-bold">Referee Name: <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="refereeName" name="RefereeMemberName" asp-for="RefereeMemberName" placeholder="Referee Name">
+                                    <span asp-validation-for="RefereeMemberName" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row mb-3">
+                                <label class="col-sm-5 col-form-label fw-bold">Referee Mobile Number: <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    <input type="tel" class="form-control" id="refereePhone" name="RefereeMemberNumber" asp-for="RefereeMemberNumber" placeholder="Referee Mobile Number">
+                                    <span asp-validation-for="RefereeMemberNumber" class="text-danger"></span>
+                                </div>
+                            </div>
+
+
+                            <div class="form-group row mt-3 mb-3">
+                                <label class="col-sm-5 col-form-label fw-bold">Local Admin Name: <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="refereeName" name="RefereeLocalAdminName" asp-for="RefereeLocalAdminName" placeholder="Local Admin Name">
+                                    <span asp-validation-for="RefereeLocalAdminName" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row mb-3">
+                                <label class="col-sm-5 col-form-label fw-bold">Local Admin Number: <span class="text-danger">*</span></label>
+                                <div class="col-sm-7">
+                                    <input type="tel" class="form-control" id="refereePhone" name="RefereeLocalAdminNumber" asp-for="RefereeLocalAdminNumber" placeholder="Local Admin Number">
+                                    <span asp-validation-for="RefereeLocalAdminNumber" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </fieldset>
+
+
+                        <!-- Consent Section -->
+                        <div class="form-group consent-container mt-4 d-flex align-items-center">
+                            <input type="checkbox" asp-for="IsConsent" required id="privacy-consent" class="big-checkbox mr-2">
+                            <label for="privacy-consent" class="consent-text mb-0">
+                                I consent to the terms outlined in the <a asp-action="Privacy" asp-controller="Home" target="_blank">Privacy Statement</a>.
+                                I understand how my personal information will be handled.
+                            </label>
+                            <span asp-validation-for="IsConsent" class="text-danger ml-2"></span>
+                        </div>
+
+                        <div class="col-12 mb-3 mt-2">
+                            <button type="submit" class="btn btn-style px-5">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+      <style>
+        .title-tip {
+            position: relative;
+            cursor: pointer;
+            color: #333;
+        }
+
+            .title-tip i {
+                color: #007bff; /* Adjust the color of the icon */
+                margin-left: 5px;
+            }
+
+                .title-tip i:hover {
+                    color: #0056b3; /* Change icon color on hover */
+                    text-decoration: underline;
+                }
+
+      </style>
+
+    <script>
+        $(document).ready(function () {
+            $('[title]').tooltip(); // Initialize tooltips for elements with the "title" attribute
+        });
+    </script>
+
+    <style>
+        /* Ensure the button height matches the input field */
+        .toggle-password-btn {
+            height: 100%; /* Matches the input field height */
+            border-left: 0; /* Removes border between input and button */
+            padding: 10px 20px; /* Adjust padding to match input field */
+        }
+
+        .input-group .form-control {
+            border-right: 0; /* Ensures seamless connection between input and button */
+        }
+
+        /* Fixes the height mismatch for the button */
+        .input-group-append .btn {
+            display: inline-block;
+            height: 100%; /* Makes sure the button is the same height as the input */
+            padding: 10px 15px; /* Adjust padding */
+        }
+
+        /* Make sure the button and input widths are aligned */
+        .input-group .form-control, .input-group-append .btn {
+            flex: 1 1 auto; /* Ensures both elements stretch proportionally */
+        }
+
+        .big-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px; /* Adds some space between checkbox and label */
+        }
+
+        .consent-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .consent-text {
+            margin-bottom: 0; /* Ensures the label text aligns with the checkbox */
+        }
+
+        .mr-2 {
+            margin-right: 0.5rem; /* Adjusts margin-right for proper spacing */
+        }
+
+        .ml-2 {
+            margin-left: 0.5rem; /* Adjusts margin-left for validation message */
+        }
+    </style>
+    <style>
+        .consent-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .consent-text {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .big-checkbox {
+            width: 30px;
+            height: 30px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .consent-text a {
+            color: blue;
+            text-decoration: underline;
+        }
+
+        .title-tip[title]:hover {
+            position: relative;
+        }
+
+            .title-tip[title]:hover:before {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                z-index: 99999;
+                content: attr(title);
+                margin-top: 0.5em;
+                padding: 0.5em;
+                width: 300px;
+                overflow: hidden;
+                word-wrap: break-word;
+                font-size: inherit;
+                color: #FFF;
+                text-align: center;
+                background-color: #222;
+                box-sizing: border-box;
+                box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
+            }
+
+            .title-tip[title]:hover:after {
+                position: absolute;
+                top: 100%;
+                left: 50%;
+                z-index: 99999;
+                content: '';
+                margin-left: -0.125em;
+                width: 0;
+                height: 0;
+                border: 0.25em dashed transparent;
+                border-bottom: 0.25em solid #222;
+                font-size: inherit;
+            }
+
+        .title-tip-up[title]:hover:before {
+            top: auto;
+            bottom: 100%;
+            margin-top: 0;
+            margin-bottom: 0.5em;
+        }
+
+        .title-tip-up[title]:hover:after {
+            top: auto;
+            bottom: 100%;
+            border: 0.25em dashed transparent;
+            border-top: 0.25em solid #222;
+        }
+    </style>
+
+    <script>
+        // Function to toggle password visibility
+        function togglePasswordVisibility(id, button) {
+            var input = document.getElementById(id);
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.textContent = 'Hide';
+            } else {
+                input.type = 'password';
+                button.textContent = 'Show';
+            }
+        }
+               // Define populateYearDropdown globally to avoid "function not defined" error
+        function populateYearDropdown(element) {
+            var currentYear = new Date().getFullYear();
+            var earliestYear = 1900;
+
+            // Get the existing selected value
+            var selectedValue = $(element).val();
+
+            for (var year = currentYear; year >= earliestYear; year--) {
+                $(element).append($('<option>', {
+                    value: year,
+                    text: year,
+                    selected: year == selectedValue // Preselect the stored value
+                }));
+            }
+        }
+
+        $(document).ready(function () {
+            // Populate Year of Birth for Dependents (Retain value after postback)
+            $(".dependent-birth-year").each(function () {
+                populateYearDropdown(this);
+            });
+
+            $('#add-dependent').click(function () {
+                var index = $('#dependents .dependent').length;
+                var dependentTemplate = `
+                    <div class="dependent">
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Title: <span class="text-danger">*</span></label>
+                            <div class="col-sm-12 form-group success-selected">
+                                <select name="Dependents[${index}].DependentTitle" class="intro form-control form-select form-select-lg mb-3">
+                                    <option selected disabled="disabled">Please Select Title</option>
+        @foreach (var item in ViewBag.DTtile as List<WebOptimus.Models.Title>)
+        {
+                                            <option value="@item.Id">@item.Name</option>
+        }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Gender: <span class="text-danger">*</span></label>
+                            <div class="col-sm-12 form-group success-selected">
+                                <select name="Dependents[${index}].DependentGender" class="intro form-control form-select form-select-lg mb-3">
+                                    <option selected disabled="disabled">Please Select Gender</option>
+        @foreach (var item in ViewBag.DGender as List<WebOptimus.Models.Gender>)
+        {
+                                            <option value="@item.Id">@item.GenderName</option>
+        }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="Dependents_${index}__PersonName">Family Member/Dependent Full Name  <span class="text-danger">*</span></label>
+                            <input id="Dependents_${index}__PersonName" name="Dependents[${index}].PersonName" class="form-control" />
+                        </div>
+                        <div class="form-group mb-4">
+                            <label for="Dependents_${index}__PersonYearOfBirth">Year of Birth <span class="text-danger">*</span></label>
+                            <select id="Dependents_${index}__PersonYearOfBirth" name="Dependents[${index}].PersonYearOfBirth" class="form-control dependent-birth-year"></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="Dependents_${index}__DependentPhoneNumber">Telephone</label>
+                            <input id="Dependents_${index}__DependentPhoneNumber" name="Dependents[${index}].DependentPhoneNumber" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label for="Dependents_${index}__DependentEmail">Email</label>
+                            <input id="Dependents_${index}__DependentEmail" name="Dependents[${index}].DependentEmail" class="form-control" />
+                        </div><br>
+                        <button type="button" class="btn btn-danger remove-dependent"><i class="fas fa-user-minus"></i> Remove Member</button>
+                    </div>`;
+
+                $('#dependents').append(dependentTemplate);
+
+                // Populate Year of Birth dropdown for new dependent
+                populateYearDropdown(`#Dependents_${index}__PersonYearOfBirth`);
+            });
+
+            $(document).on('click', '.remove-dependent', function () {
+                $(this).closest('.dependent').remove();
+            });
+
+            // Populate Year of Birth for main applicant
+            populateYearDropdown("#birthYear");
+        });
+
+
+    </script>
+
+
+    <script>
+        function GetmCity(regionId) {
+            // Clear the existing County dropdown options
+            var countySelect = document.getElementById('countySelect');
+            countySelect.innerHTML = '<option selected disabled="disabled">Please Select County</option>';
+
+            // Make an AJAX request to fetch cities by regionId
+            $.ajax({
+                url: '/Account/GetCitiesByRegionId', // Replace with your actual controller route
+                type: 'GET',
+                data: { regionId: regionId },
+                success: function (data) {
+                    // Populate the County dropdown with the returned data
+                    if (data.length > 0) {
+                        data.forEach(function (city) {
+                            var option = document.createElement('option');
+                            option.value = city.id;
+                            option.text = city.name;
+                            countySelect.appendChild(option);
+                        });
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("An error occurred while fetching cities: ", error);
+                }
+            });
+        }
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var birthYearSelect = document.getElementById('birthYear');
+            var currentYear = new Date().getFullYear();
+            var earliestYear = 1900;
+
+            // Generate the year options dynamically
+            for (var year = currentYear; year >= earliestYear; year--) {
+                var option = document.createElement('option');
+                option.value = year;
+                option.text = year;
+                birthYearSelect.appendChild(option);
+            }
+        });
+    </script>
+
+}

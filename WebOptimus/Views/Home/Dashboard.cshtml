@@ -1,0 +1,405 @@
+﻿@model WebOptimus.Models.ViewModel.PaymentDashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_cLayout.cshtml";
+}
+<div class="content">
+    <!-- Header Section -->
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2 align-items-center">
+                <div class="col-sm-6">
+                    <h1 class="m-0 text-dark font-weight-bold">Dashboard</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right bg-transparent p-2 rounded">
+                        <li class="breadcrumb-item"><a href="#" class="text-primary">Home</a></li>
+                        <li class="breadcrumb-item active">Dashboard</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="container-fluid">
+
+            <!-- Membership Overview & Regional Statistics (Side by Side on Large, Full Width on Mobile) -->
+            <div class="row mb-4">
+                <!-- Membership Overview (Left) -->
+                <div class="col-lg-6 col-md-12 mb-4 mb-lg-0">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                            <h3 class="card-title">Membership Overview</h3>
+                            <i class="fas fa-chart-pie fa-lg"></i>
+                        </div>
+                        <div class="card-body">
+                            <!-- Chart & Labels Row -->
+                            <div class="row d-flex align-items-center">
+                                <!-- Pie Chart -->
+                                <div class="col-lg-6 col-md-12 d-flex justify-content-center mb-3 mb-lg-0">
+                                    <canvas id="membershipChart" style="max-width: 100%; height: 300px;"></canvas>
+                                </div>
+
+                                <!-- Membership Labels -->
+                                <div class="col-lg-6 col-md-12">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span class="text-success font-weight-bold">Total Members (Across all regions)</span>
+                                            <span class="badge badge-success p-2">@Model.TotalDependentsInDb</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span class="text-primary font-weight-bold">Under @ViewBag.minimumAge (Across all regions)</span>
+                                            <span class="badge badge-primary p-2">@Model.under18DependentsInDb</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span class="text-secondary font-weight-bold">Over @ViewBag.minimumAge (Across all regions)</span>
+                                            <span class="badge badge-secondary p-2">@Model.over18DependentsInDb</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Regional Statistics (Right) -->
+                <div class="col-lg-6 col-md-12">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                            <h3 class="card-title">Regional Statistics</h3>
+                            <i class="fas fa-chart-pie fa-lg"></i>
+                        </div>
+                        <div class="card-body">
+                            <!-- Chart & Labels Row -->
+                            <div class="row d-flex align-items-center">
+                                <!-- Pie Chart -->
+                                <div class="col-lg-6 col-md-12 d-flex justify-content-center mb-3 mb-lg-0">
+                                    <canvas id="regionalChart" style="max-width: 100%; height: 300px;"></canvas>
+                                </div>
+
+                                <!-- Regional Labels -->
+                                <div class="col-lg-6 col-md-12">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span class="text-info font-weight-bold">Total Members in @ViewBag.RegionName</span>
+                                            <span class="badge badge-info p-2">@Model.NumberOfPeopleInRegion</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span class="text-warning font-weight-bold">Under @ViewBag.minimumAge in @ViewBag.RegionName</span>
+                                            <span class="badge badge-warning p-2">@Model.under18DependentsInRegion</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span class="text-secondary font-weight-bold">Over @ViewBag.minimumAge in @ViewBag.RegionName</span>
+                                            <span class="badge badge-secondary p-2">@Model.over18DependentsInRegion</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- Family Overview Section -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                            <h3 class="card-title">Family Overview</h3>
+                            <i class="fas fa-users fa-lg"></i>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <!-- Total Dependents -->
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="small-box bg-gradient-success text-white shadow-lg rounded">
+                                        <div class="inner text-center">
+                                            <h3>@Model.TotalDependents</h3>
+                                            <h5 class="card-title">Your Total Family Members</h5>
+                                        </div>
+                                        <a asp-action="Dependents" asp-controller="Profile" class="small-box-footer">More Info <i class="fas fa-arrow-circle-right"></i></a>
+                                    </div>
+                                </div>
+
+                                <!-- Under 25 Dependents -->
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="small-box bg-gradient-primary text-white shadow-lg rounded">
+                                        <div class="inner text-center">
+                                            <h3>@Model.under18Dependents</h3>
+                                            <h5 class="card-title">Your Family Under @ViewBag.minimumAge</h5>
+                                        </div>
+                                        <button class="small-box-footer btn btn-primary" data-toggle="modal" data-target="#under18Modal">
+                                            More Info <i class="fas fa-arrow-circle-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Over 25 Dependents -->
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="small-box bg-gradient-secondary text-white shadow-lg rounded">
+                                        <div class="inner text-center">
+                                            <h3>@Model.over18Dependents</h3>
+                                            <h5 class="card-title">Your Family Over @ViewBag.minimumAge</h5>
+                                        </div>
+                                        <button class="small-box-footer btn btn-secondary" data-toggle="modal" data-target="#over18Modal">
+                                            More Info <i class="fas fa-arrow-circle-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Overview Section -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                            <h3 class="card-title">Your Highlights</h3>
+                            <i class="fas fa-coins fa-lg"></i>
+                        </div>
+                        <div class="card-body">
+                            <div class="row d-flex align-items-center">
+                                <!-- Membership Date -->
+                                <div class="col-lg-6 col-md-12 d-flex justify-content-center mb-3 mb-lg-0">
+                                    <div class="small-box bg-gradient-info text-white shadow-lg rounded p-4 w-100">
+                                        <div class="inner text-center">
+                                            <h5 class="font-weight-bold text-uppercase">Membership Date</h5>
+                                            <h2 class="display-4 font-weight-bold">@Model.DateJoined.ToString("dd MMM yyyy")</h2>
+                                           
+                                        </div>
+                                        <a href="#" class="small-box-footer" data-toggle="modal" data-target="#membershipModal">
+                                            More Info <i class="fas fa-info-circle"></i>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <!-- Contributions -->
+                                <div class="col-lg-6 col-md-12 d-flex justify-content-center">
+                                    <div class="small-box bg-gradient-purple text-white shadow-lg rounded p-4 w-100">
+                                        <div class="inner text-center">
+                                            <h5 class="font-weight-bold text-uppercase">Your Total Contributions</h5>
+                                            <h2 class="display-4 font-weight-bold">@Model.TotalAmount.ToString("C")</h2>
+                                        </div>
+                                        <a asp-action="PaymentHistory" asp-controller="Donation" class="small-box-footer">More Info <i class="fas fa-arrow-circle-right"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="membershipModal" tabindex="-1" role="dialog" aria-labelledby="membershipModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="membershipModalLabel">Membership Benefits</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>You have been a member for <strong id="membershipDuration"></strong>.</p>
+                <p>There are benefits to being a Umojawetu member:</p>
+                <ul>
+                    <li>Members get benefits after 6 months of joining.</li>
+                    <li>If you missed payment, you will have to wait 3 months before any campaign can be initiated for you in the event of a sad loss.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Under 25 Family Members -->
+<!-- Modal for Under 25 Family Members -->
+<div class="modal fade" id="under18Modal" tabindex="-1" role="dialog" aria-labelledby="under18Label" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="under18Label">Your Family Members Under @ViewBag.minimumAge</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="bg-primary text-white">
+                            <tr>
+                                <th>Name</th>
+                                <th>Year of Birth</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var dep in Model.Dependentsunder18)
+                            {
+                                <tr>
+                                    <td>@dep.PersonName</td>
+                                    <td>@dep.PersonYearOfBirth</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Over 25 Family Members -->
+<div class="modal fade" id="over18Modal" tabindex="-1" role="dialog" aria-labelledby="over18Label" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-secondary text-white">
+                <h5 class="modal-title" id="over18Label">Your Family Members Over 25</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="bg-secondary text-white">
+                            <tr>
+                                <th>Name</th>
+                                <th>Year of Birth</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var dep in Model.Dependentsover18)
+                            {
+                                <tr>
+                                    <td>@dep.PersonName</td>
+                                    <td>@dep.PersonYearOfBirth</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts {
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const dateJoinedString = "@Model.DateJoined.ToString("yyyy-MM-dd")";
+        const dateJoined = new Date(dateJoinedString);
+        const today = new Date();
+
+        let years = today.getFullYear() - dateJoined.getFullYear();
+        let months = today.getMonth() - dateJoined.getMonth();
+        let days = today.getDate() - dateJoined.getDate();
+
+        if (days < 0) {
+            months--;
+            days += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+        }
+
+        if (months < 0) {
+            years--;
+            months += 12;
+        }
+
+        document.getElementById("membershipDuration").innerText = `${years} Years, ${months} Months, and ${days} Days`;
+    });
+</script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const membershipCtx = document.getElementById('membershipChart').getContext('2d');
+            const regionalCtx = document.getElementById('regionalChart').getContext('2d');
+
+            // Membership Data
+            const totalMembers = @Model.TotalDependentsInDb;
+            const under18 = @Model.under18DependentsInDb;
+            const over18 = @Model.over18DependentsInDb;
+            const age = @ViewBag.minimumAge ?? 18; // Fallback if null
+
+            new Chart(membershipCtx, {
+                type: 'pie',
+                data: {
+                    labels: [`Total Members`, `Under ${age}`, `Over ${age}`],
+                    datasets: [{
+                        data: [totalMembers, under18, over18],
+                        backgroundColor: ['#28a745', '#007bff', '#6c757d'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    let value = context.raw;
+                                    let total = totalMembers;
+                                    let percentage = ((value / total) * 100).toFixed(1);
+                                    return `${context.label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Regional Data
+            const totalPeople = @Model.NumberOfPeopleInRegion;
+            const under18Region = @Model.under18DependentsInRegion;
+            const over18Region = @Model.over18DependentsInRegion;
+
+            new Chart(regionalCtx, {
+                type: 'pie',
+                data: {
+                    labels: [`Total in Region`, `Under ${age} in Region`, `Over ${age} in Region`],
+                    datasets: [{
+                        data: [totalPeople, under18Region, over18Region],
+                        backgroundColor: ['#17a2b8', '#ffc107', '#6c757d'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    let value = context.raw;
+                                    let total = totalPeople;
+                                    let percentage = ((value / total) * 100).toFixed(1);
+                                    return `${context.label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+
+
+
+}
+

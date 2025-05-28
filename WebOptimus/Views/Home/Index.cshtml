@@ -1,0 +1,191 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Slider Section Start -->
+<div class="slider-section section">
+    <div class="slide-item bg-parallax"
+         data-bg-image="/assets/img/Flag-of-Tanzania.png"
+         data-overlay="50"
+         style="background: url('/assets/img/Flag-of-Tanzania.png') no-repeat center center; background-size: cover;">
+
+        <div class="container">
+            <div class="slider-content text-center">
+                <p>
+                    UMOJA WETU cares about Tanzania's Community in the United Kingdom. <br />
+                    With the importance of community solidarity, UMOJA WETU's aim is to mobilize Tanzanians who live in the UK with the ultimate <span>aim of sending back the</span> remains of any Tanzania who passes away in the UK.
+                </p>
+
+                <!-- Add the Join Us button -->
+                <a asp-action="Register" asp-controller="Account" class="btn-style">Join Us</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(ViewBag.BannerText))
+{
+    <div class="header-banner">
+        <div class="banner-text">
+            <span>@ViewBag.BannerText</span>
+        </div>
+    </div>
+}
+
+
+
+<!--OffCanvas Overlay-->
+<div class="offcanvas-overlay"></div>
+
+
+<!-- Featured Conpanies Start -->
+<div class="section section-padding">
+    <div class="container">
+        <div class="section-title">
+            <h2 class="title">About Us</h2>
+            <p style="line-height: 1.8; font-size: 20px;">
+                <strong>UMOJA WETU</strong> ndio ngao na msingi mkubwa wa mkusanyiko huu. Sisi na familia zetu ni watu wenye nasaba au asili ya Tanzania, na mapenzi yetu pamoja na maadili yetu yanatuunganisha moja kwa moja hapa tulipo mbali na Nyumbani (Tanzania Diaspora).
+                <br><br>
+                Tangu watu wa Tanzania waanze kuishi Ughaibuni, ni miaka mingi imepita, na idadi yetu inaongezeka siku hadi siku. Pamoja na ongezeko hili, tunapata nguvu kubwa ya kutuwezesha kufanya kazi kwa pamoja na kushirikiana kwa ufanisi mkubwa.
+                <br><br>
+                Umoja wetu ni msingi wa mafanikio yetu, na kwa kuungana kama jamii moja, tunahakikisha kwamba tunasaidiana katika nyakati za furaha na huzuni. Ushirikiano huu unatuweka karibu licha ya umbali kutoka nyumbani.
+                <br><br>
+              
+                <a asp-action="About" asp-controller="Home" class="btn btn-style">Read More</a>
+            </p>
+
+        </div>
+
+
+    </div>
+</div>
+
+<section class="best-services-wrapper section-padding">
+    <div class="container">
+        <div class="col-12 col-xl-6 offset-xl-3 text-center mb-4">
+            <div class="section-title">
+                <h2>Our Commitment to You</h2>
+            </div>
+        </div>
+        <div class="row">
+            <!-- Text Section on the Left -->
+            <div class="col-xl-6 col-md-6 col-12">
+                <div class="single-service-left-icon">
+                    <p style="line-height: 1.8; font-size: 20px;">
+                        Umoja Wetu is proud to offer our support across all regions in the UK. Our mission is to provide a comprehensive, nationwide service that ensures no Tanzanian family faces financial difficulties alone in times of need. With a network that spans the entire country, we unite to help raise funds when a registered member passes away. This initiative ensures that every family, regardless of location, is supported with dignity and care.
+                        <br><br>
+                        Our reach extends from large cities to smaller towns, ensuring that wherever you are in the UK, you are never far from our community of support. We work tirelessly to foster connections, build trust, and stand together during difficult times. Every contribution strengthens our collective bond, allowing us to continue providing vital assistance to families in their time of greatest need. Together, we build a community of strength, solidarity, and compassion for all.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Image Section on the Right -->
+            <div class="col-xl-6 col-md-6 col-12 text-center">
+                <div class="about-image animated-image">
+                    <img src="/assets/img/ukregion.png" alt="Umoja Wetu Image" class="img-fluid enhanced-image">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+<section class="best-services-wrapper section-padding">
+    <div class="container">
+        <div class="col-12 col-xl-6 offset-xl-3 text-center mb-4">
+            <div class="section-title">
+                <h2>What We Offer</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xl-12 col-md-12 col-12">
+                <div class="single-service-left-icon">
+                    <p style="line-height: 1.8; font-size: 20px;"> In times of bereavement, many members of our community encounter significant financial challenges when it comes to repatriating their loved ones back to Tanzania. This process, both emotionally and financially demanding, often places an overwhelming burden on close relatives. Despite the best efforts and support from friends and extended family, the financial strain can become an immense hurdle for those left behind. <br><br> At Umoja Wetu, we believe in the strength of community solidarity. We have established a collective response to these challenges by registering and managing a comprehensive database of Tanzanians living in the UK. Our initiative aims to alleviate some of the financial pressure families face during these difficult times. Through our platform, members unite to provide much-needed support, with a target of raising £10,000 for the next of kin when any registered member passes away. This collective effort ensures that no family has to bear the burden alone and that every Tanzanian, no matter their circumstances, can be laid to rest with dignity in their homeland. <br><br> By fostering a network of support, we not only ease the immediate financial obligations but also create a sense of community and togetherness that reinforces our shared values and cultural heritage. Our goal is to stand together in times of need, ensuring that the Tanzanian diaspora in the UK feels supported and cared for, both in life and in death. </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- "How It Works" Section Start -->
+<div class="section section-padding" >
+    <div class="container">
+        <div class="section-title">
+            <h2 class="title">How It Works</h2>
+            <div class="row">
+                <!-- First Icon - Register -->
+                <div class="col-xl-4 col-md-6 col-12">
+                    <div class="single-service-left-icon">
+                        <div class="icon">
+                            <i class="fas fa-user-plus"></i> <!-- FontAwesome icon -->
+                        </div>
+                        <div class="content">
+                            <h4><a href="services-details.html">Register With Us</a></h4>
+                            <p style="line-height: 1.8; font-size: 20px;">Register by providing your personal details, including dependents and next of kin. Once verified, you will receive a unique registration number.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Second Icon - Notification -->
+                <div class="col-xl-4 col-md-6 col-12">
+                    <div class="single-service-left-icon">
+                        <div class="icon">
+                            <i class="fas fa-bell"></i> <!-- FontAwesome icon -->
+                        </div>
+                        <div class="content">
+                            <h4><a href="services-details.html">Notification of Bereavement</a></h4>
+                            <p style="line-height: 1.8; font-size: 20px;">Upon confirming a member's passing, we initiate a campaign with relevant details and contribution deadlines. The system calculates the contribution for each member.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Third Icon - Payment -->
+                <div class="col-xl-4 col-md-6 col-12">
+                    <div class="single-service-left-icon">
+                        <div class="icon">
+                            <i class="fas fa-hand-holding-usd"></i> <!-- FontAwesome icon -->
+                        </div>
+                        <div class="content">
+                            <h4><a href="services-details.html">Payment</a></h4>
+                            <p style="line-height: 1.8; font-size: 20px;">At the campaign’s conclusion, collected funds are transferred to the deceased's next of kin. Their information is confidential and can be updated by members at any time.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- "How It Works" Section End -->
+
+<style>
+    .ptext {
+        font-size: 18px; /* Adjust the size as needed */
+        line-height: 1.6; /* Optional: Adjust line-height for better readability */
+    }
+
+    .section-title h2 {
+        margin-top: 4px !important;
+    }
+
+
+    .read-more-button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+
+        .read-more-button:hover {
+            background-color: #0056b3;
+        }
+
+
+
+</style>

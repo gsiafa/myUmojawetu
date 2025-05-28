@@ -1,0 +1,62 @@
+﻿@model IEnumerable<WebOptimus.Models.ViewModel.JoinRequestViewModel>
+
+@{
+    ViewData["Title"] = "My Join Requests";
+    Layout = "~/Views/Shared/_cLayout.cshtml";
+}
+
+<!-- Content Header -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">My Join Requests</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="container-fluid">
+    @if (Model.Any())
+    {
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><strong>Join Requests</strong></h3>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Group Name</th>
+                            <th>Status</th>
+                            <th>Request Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var request in Model)
+                        {
+                            <tr>
+                                <td>@request.GroupName</td>
+                                <td>@request.Status</td>
+                                <td>@request.RequestDate.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    <form method="post" asp-action="RevokeJoinRequest" asp-route-requestId="@request.RequestId">
+                                        <button type="submit" class="btn btn-danger btn-sm">Revoke</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <p>No join requests found.</p>
+        </div>
+    }
+</div>

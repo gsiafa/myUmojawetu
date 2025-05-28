@@ -1,0 +1,349 @@
+﻿@model WebOptimus.Models.ViewModel.ProfileViewModel
+
+@{
+    ViewData["Title"] = "Profile";
+    Layout = "~/Views/Shared/_cLayout.cshtml";
+}
+
+<!-- Main content -->
+<section class="content">
+    <div class="container">
+        <div class="row">
+            <p style="margin-top: 6px;">
+                Please use this form to update your personal details. If any information appears incorrect or outdated, or if you need further assistance, kindly contact your local administrator for support and updates.
+            </p>
+            <br /><br>
+
+            <!-- Sidebar Column for Profile and About Me -->
+            <div class="col-md-3">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">About Me</h3>
+                    </div>
+                    <div class="card-body">
+                        <strong><i class="fas fa-user mr-1"></i> Title</strong>
+                        <p class="text-muted">@Model.TitleName</p>
+                        <hr>
+                        <strong><i class="fas fa-user mr-1"></i> Full Name</strong>
+                        <p class="text-muted">@Model.FullName</p>
+                        <hr>
+                        <strong><i class="fas fa-book mr-1"></i> Year of Birth</strong>
+                        <p class="text-muted">@Model.PersonYearOfBirth</p>
+                        <hr>
+                        <strong><i class="fas fa-map-marker-alt mr-1"></i> Region</strong>
+                        <p class="text-muted">@Model.RegionName</p>
+                        <hr>
+                        <strong><i class="fas fa-map-marker-alt mr-1"></i> County</strong>
+                        <p class="text-muted">@Model.CityName</p>
+                        <hr>
+                        <strong><i class="fas fa-map-marker-alt mr-1"></i> Outward Postcode</strong>
+                        <p class="text-muted">@Model.OutwardPostcode</p>
+                        <hr>
+                        <strong><i class="fas fa-phone mr-1"></i> Phone Number</strong>
+                        <p class="text-muted">@Model.PhoneNumber</p>
+                        <hr>
+                        <strong><i class="fas fa-envelope mr-1"></i> Email</strong>
+                        <p class="text-muted">@Model.Email</p>
+                        <hr>
+                        <strong><i class="fas fa-calendar mr-1"></i> Date Joined</strong>
+                        <p class="text-muted">@Model.DateJoined</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Column for Profile Form -->
+            <div class="col-md-9">
+                <div class="card">
+                    <div class="card-header p-2">
+                        <ul class="nav nav-pills">
+                            <li class="nav-item"><a class="nav-link active" asp-action="Index" asp-controller="Profile"> <i class="fas fa-user me-2"></i> Profile</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-action="Dependents" asp-controller="Profile"> <i class="fas fa-users me-2"></i> Family</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-action="NextOfKin" asp-controller="Profile"> <i class="fas fa-user-friends me-2"></i> Next Of Kin</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-action="Successor" asp-controller="Profile"> <i class="fas fa-user-check me-2"></i> Successor</a></li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content">
+                            <div class="active tab-pane" id="profile">
+                                <form asp-action="Index" asp-controller="Profile" method="post" id="profileForm" class="row g-3">
+                                    <input hidden asp-for="UserId" />
+                                    <input hidden asp-for="OldEmail" />
+                                    <input hidden asp-for="OldPhoneNumber" />
+                                    <partial name="_notify" />
+
+                                    <!-- Profile Fields with Side-by-Side Layout and Spacing -->
+                                    <div class="col-12 row mb-3">
+                                        <label class="col-sm-2 col-form-label fw-bold">Title: <span class="text-danger">*</span></label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" readonly name="TitleName" asp-for="TitleName" placeholder="Title">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 row mb-3">
+                                        <label class="col-sm-2 col-form-label fw-bold">Forename(s): <span class="text-danger">*</span></label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" readonly name="FirstName" asp-for="FirstName" placeholder="Forename(s)">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 row mb-3">
+                                        <label class="col-sm-2 col-form-label fw-bold">Last Name: <span class="text-danger">*</span></label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" readonly name="Surname" asp-for="Surname" placeholder="Last Name">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 row mb-3">
+                                        <label class="col-sm-2 col-form-label fw-bold">Year of Birth: <span class="text-danger">*</span></label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" readonly name="PersonYearOfBirth" asp-for="PersonYearOfBirth" placeholder="Year of Birth">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 row mb-3">
+                                        <label class="col-sm-2 col-form-label fw-bold">Region: <span class="text-danger">*</span></label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" readonly name="RegionName" asp-for="RegionName" placeholder="Region Name">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 row mb-3">
+                                        <label class="col-sm-2 col-form-label fw-bold">County: <span class="text-danger">*</span></label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" readonly name="CityName" asp-for="CityName" placeholder="City Name">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 row mb-3">
+                                        <label class="col-sm-2 col-form-label fw-bold">Outward Postcode: <span class="text-danger">*</span></label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" readonly name="OutwardPostcode" asp-for="OutwardPostcode" placeholder="Outward Postcode">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 row mb-3">
+                                        <label class="col-sm-2 col-form-label fw-bold">Phone Number: <span class="text-danger">*</span></label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" readonly name="PhoneNumber" asp-for="PhoneNumber" placeholder="Mobile Number">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 row mb-3">
+                                        <label class="col-sm-2 col-form-label fw-bold">Email: <span class="text-danger">*</span></label>
+                                        <div class="col-sm-10">
+                                            <input type="email" class="form-control" readonly name="Email" asp-for="Email" placeholder="Email Address">
+                                        </div>
+                                    </div>
+                                  
+                                    <!-- Buttons Row with Full Width Buttons -->
+                                    <div class="col-12 row">
+                                        <div class="col-6 text-end">
+                                            <button type="button" onclick="showEditProfileModal()" class="btn btn-success w-100 btn-lg btn-sm">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                        </div>
+
+                                        <div class="col-6 text-start">
+                                            <a class="btn btn-dark w-100 btn-lg btn-sm" asp-action="Dashboard" asp-controller="Home">
+                                                Exit
+                                            </a>
+                                        </div>
+                                    </div>                                   
+                                </form>
+                            </div>
+                        </div>
+                    </div><!-- /.card-body -->
+                </div>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+
+<!-- Modal for Editing Profile -->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Edit Profile</h5>
+                <button type="button" class="close" onclick="closeModal('#editModal')" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm" asp-action="EditProfile" asp-controller="Profile" method="post">
+                    <input type="hidden" asp-for="UserId" />
+                    <input type="hidden" asp-for="PersonRegNumber" />
+                    <div class="form-group row mt-2">
+                        <label for="ProfileEdit_Title" class="col-sm-4 col-form-label">Title: <span class="text-danger">*</span></label>
+                        <div class="col-sm-8">
+                            <select class="form-control" asp-for="Title" name="Title" asp-items="@(new SelectList(ViewBag.Ttile, "Id", "Name"))">
+                                <option selected disabled="disabled">Please Select Title</option>
+                            </select>
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group row mt-4 hidden ">
+                        <label for="ProfileEdit_FirstName" class="col-sm-4 col-form-label">First Name: <span class="text-danger">*</span></label>
+                        <div class="col-sm-8">
+                            <input type="text" readonly class="form-control" asp-for="FirstName" name="FirstName" placeholder="First Name">
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group row mt-4 hidden ">
+                        <label for="ProfileEdit_Surname" class="col-sm-4 col-form-label">Surname: <span class="text-danger">*</span></label>
+                        <div class="col-sm-8">
+                            <input type="text" readonly class="form-control" asp-for="Surname" name="Surname" placeholder="Surname">
+                            <span asp-validation-for="Surname" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group row mt-4 hidden">
+                        <label for="ProfileEdit_PersonYearOfBirth" class="col-sm-4 col-form-label">Year of Birth: <span class="text-danger">*</span></label>
+                        <div class="col-sm-8">
+                            <input type="text" readonly class="form-control" asp-for="PersonYearOfBirth" name="PersonYearOfBirth" placeholder="Year of Birth">
+                            <span asp-validation-for="PersonYearOfBirth" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group row mt-4">
+                        <label for="ProfileEdit_RegionId" class="col-sm-4 col-form-label">Region: <span class="text-danger">*</span></label>
+                        <div class="col-sm-8">
+                            <select class="form-control" asp-for="RegionId" name="RegionId" onchange="GetCity(this.value)" asp-items="@(new SelectList(ViewBag.RegionId, "Id", "Name"))">
+                                <option selected disabled="disabled">Please select Region</option>
+                            </select>
+                            <span asp-validation-for="RegionId" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group row mt-4">
+                        <label for="ProfileEdit_CityId" class="col-sm-4 col-form-label">County: <span class="text-danger">*</span></label>
+                        <div class="col-sm-8">
+                            <select class="form-control" asp-for="CityId" id="cityId" name="CityId" asp-items="@(new SelectList(ViewBag.CityId, "Id", "Name"))">
+                                <option selected disabled="disabled">Please select City</option>
+                            </select>
+                            <span asp-validation-for="CityId" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group row mt-4">
+                        <label for="ProfileEdit_OutwardPostcode" class="col-sm-4 col-form-label">Outward Postcode: <span class="text-danger">*</span></label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" asp-for="OutwardPostcode" name="OutwardPostcode" placeholder="Outward Postcode">
+                            <span asp-validation-for="OutwardPostcode" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group row mt-4">
+                        <label for="ProfileEdit_PhoneNumber" class="col-sm-4 col-form-label">Phone Number: <span class="text-danger">*</span></label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" asp-for="PhoneNumber" name="PhoneNumber" placeholder="Phone Number">
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group row mt-4">
+                        <label for="ProfileEdit_Email" class="col-sm-4 col-form-label">Email: <span class="text-danger">*</span></label>
+                        <div class="col-sm-8">
+                            <input type="email" class="form-control" asp-for="Email" name="Email" placeholder="Email">
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-between">
+                        <!-- Left aligned Submit button -->
+                        <small>
+                            <button type="submit" class="btn btn-success" style="cursor: pointer; color: #fff; text-decoration: none;">
+                                Save changes
+                            </button>
+                        </small>
+
+                        <!-- Right aligned Close button -->
+                        <small>
+                            <button type="button" class="btn btn-secondary" style="cursor: pointer;" onclick="closeModal('#editModal')">
+                                Close
+                            </button>
+                        </small>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="margin-bottom: 20px;"></div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+
+    <style>
+        .nav-pills .nav-link.active {
+            background-color: #007bff; /* Change to your primary color */
+            color: #fff;
+            border-radius: 0.25rem;
+            font-weight: bold;
+        }
+
+        .tab-pane {
+            transition: all 0.3s ease-in-out;
+        }
+
+        .signInText {
+            color: #262b30 !important;
+        }
+
+            .signInText:hover {
+                text-decoration: underline;
+            }
+
+        small {
+            color: #262b30 !important;
+        }
+
+        .button-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .button-row .col-sm-6 {
+                flex: 0 0 50%;
+                max-width: 50%;
+                padding: 0 10px; /* Adds a little padding between the buttons */
+            }
+
+        .btn-full-width {
+            width: 100%;
+            display: block; /* Ensures the button takes full width */
+            text-align: center;
+        }
+
+    </style>
+
+    <script>
+        function showEditProfileModal() {
+            $('#editModal').modal('show');
+        }
+
+        function closeModal(modalId) {
+            $(modalId).modal('hide');
+        }
+
+        function GetCity(id) {
+            var getcity = "<option value='0'>please wait...</option>";
+            $("#cityId").html(getcity).show();
+            var url = '@Url.Action("GetCityByRegion", "Account")';
+
+            $.ajax({
+                url: url,
+                data: { Id: id },
+                cache: false,
+                type: "GET",
+                success: function (data) {
+                    var markup = "<option value='0'>Please select City</option>";
+                    for (var x = 0; x < data.length; x++) {
+                        markup += '<option value="' + data[x].value + '">' + data[x].text + '</option>';
+                    }
+                    $("#cityId").html(markup).show();
+                },
+                error: function (response) {
+                    alert("error" + response);
+                }
+            });
+        }
+    </script>
+}

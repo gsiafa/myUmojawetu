@@ -1,0 +1,85 @@
+﻿@model IEnumerable<WebOptimus.Models.ViewModel.CandidateViewModel>
+@{
+    ViewData["Title"] = "Vote for Your Candidate";
+    Layout = "~/Views/Shared/_cLayout.cshtml";
+}
+
+<h2 class="text-center mb-4">Vote for Your Candidate</h2>
+
+<div class="container">
+    <div class="row">
+        @foreach (var candidate in Model)
+        {
+            <div class="col-md-12">
+                <!-- Ballot Box Styling -->
+                <div class="card mb-4 p-3" style="border: 2px solid #ccc; box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);">
+                    <div class="row no-gutters">
+                        <!-- Candidate Image -->
+                        <div class="col-md-3 d-flex align-items-center justify-content-center">
+                            <img src="@Url.Content("~/"+ candidate.ExistingImagePath)" class="img-fluid rounded" alt="Candidate Image" style="width: 100%; height: auto; object-fit: cover; max-height: 200px;">
+                        </div>
+
+                        <!-- Candidate Details (Position, Description, Vote Button) -->
+                        <div class="col-md-6">
+                            <div class="card-body">
+                                <h4 class="card-title text-center">@candidate.ElectionName</h4>
+                                <p class="card-text text-center">@candidate.CandidateDescription</p>
+
+                                <!-- Voting Button -->
+                                <div class="text-center">
+                                    <form asp-controller="Voting" asp-action="Vote" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="CandidateId" value="@candidate.CandidateId" />
+                                        <button type="submit" class="btn btn-success btn-lg mt-3">
+                                            <i class="fas fa-vote-yea"></i> Vote
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Candidate Video -->
+                        <div class="col-md-3 d-flex align-items-center justify-content-center">
+                            @if (!string.IsNullOrEmpty(candidate.ExistingVideoPath))
+                            {
+                                <video controls style="width: 100%; max-height: 200px;">
+                                    <source src="@Url.Content("~/"+ candidate.ExistingVideoPath)" type="video/mp4" />
+                                    Your browser does not support the video tag.
+                                </video>
+                            }
+                            else
+                            {
+                                <p class="text-muted text-center">No Video Available</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            border: none;
+            padding: 10px 20px;
+            font-size: 18px;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+            .btn-success:hover {
+                background-color: #218838;
+            }
+
+        .fas.fa-vote-yea {
+            margin-right: 8px;
+        }
+    </style>
+}

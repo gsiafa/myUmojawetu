@@ -1,0 +1,51 @@
+﻿@model WebOptimus.Models.ViewModel.Constitution.ConstitutionUploadViewModel
+
+@{
+    ViewData["Title"] = "Upload Constitution File";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Upload Constitution File</h1>
+            </div>
+            <div class="col-sm-6">
+                <a class="btn btn-outline-secondary float-md-right" asp-action="Index" asp-controller="Upload">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Upload New Constitution (PDF)</h3>
+                </div>
+                <form asp-action="Upload" method="post" enctype="multipart/form-data">
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="File">Choose File (.pdf)</label>
+                            <input asp-for="File" class="form-control" type="file" accept=".pdf" required />
+                            <span asp-validation-for="File" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-upload"></i> Upload
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

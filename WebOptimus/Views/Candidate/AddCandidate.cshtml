@@ -1,0 +1,173 @@
+﻿@model WebOptimus.Models.ViewModel.AddCandidateViewModel
+
+@{
+    ViewData["Title"] = "Add Candidate";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Register Candidate</h1>
+                <p>Fill in the details below to register a candidate for voting.</p><br />
+                <p>If select position is empty then please add a position <a asp-action="Election" asp-controller="Candidate"> here</a>.</p>
+            </div>
+            <div class="col-sm-6">
+                <a class="btn btn-xs btn-outline-primary float-md-right" style="width:100px; float:right; text-align: center;" href="@Url.Action("Index", "Candidate")"><i class="fas fa-arrow-left"></i> Back</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container-fluid">
+        <form asp-controller="Candidate" asp-action="AddCandidate" method="post" enctype="multipart/form-data">
+            <!-- Validation Summary to display all validation errors -->
+            <span asp-validation-summary="ModelOnly" class="text-danger"></span>
+
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <!-- Candidate Information -->
+                <div class="col-md-6">
+                    <div class="card card-info">
+                        <div class="card-header">
+                            <h3 class="card-title">Candidate Information</h3>
+                        </div>
+                        <div class="card-body">
+                            <!-- Dropdown for selecting Candidate from Users table -->
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Select Candidate: </label>
+                                <div class="col-sm-8">
+                                    <select asp-for="UserId" class="form-control" id="candidateSelect">
+                                        <option value="">Select Candidate</option>
+                                        @foreach (var user in Model.Users)
+                                        {
+                                            <option value="@user.Id">@user.FirstName @user.Surname</option>
+                                        }
+                                    </select>
+                                    <span asp-validation-for="UserId" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <!-- RegNumber Field (Read-only) -->
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">RegNumber: </label>
+                                <div class="col-sm-8">
+                                    <input asp-for="RegNumber" class="form-control" id="regNumber" readonly />
+                                </div>
+                            </div>
+
+                            <!-- Age Field (Read-only) -->
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Year of Birth: </label>
+                                <div class="col-sm-8">
+                                    <input asp-for="YearOfBirth" class="form-control" id="age" readonly />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Position: </label>
+                                <div class="col-sm-8">
+                                    <select asp-for="ElectionId" class="form-control">
+                                        <option value="">Select position</option>
+                                        @foreach (var election in Model.Elections)
+                                        {
+                                            <option value="@election.Value">@election.Text</option>
+                                        }
+                                    </select>
+                                    <span asp-validation-for="ElectionId" class="text-danger"></span>
+                                </div>
+                            </div>
+
+
+                            <!-- Candidate Description -->
+                          
+                        </div>
+                    </div>
+                </div>
+                <!-- Hidden UserId Field -->
+                <input type="hidden" id="hiddenUserId" name="UserId" asp-for="UserId" />
+
+                <!-- Media Uploads (Image and Video) -->
+                <div class="col-md-6">
+                    <div class="card card-success">
+                        <div class="card-header">
+                            <h3 class="card-title">Media Upload</h3>
+                        </div>
+                        <div class="card-body">
+                            <!-- Image Upload -->
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Upload Candidate's Picture: </label>
+                                <div class="col-sm-8">
+                                    <input type="file" name="ImageFile" class="form-control" accept="image/*" required />
+                                    <span class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <!-- Video Upload (Max 2 minutes) -->
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Upload Candidate's Campaign Video (Max 2 mins): </label>
+                                <div class="col-sm-8">
+                                    <input type="file" name="VideoFile" class="form-control" accept="video/*" required />
+                                    <span class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label">Candidate's Campaign Message: </label>
+                        <div class="col-sm-10">
+                            <textarea asp-for="CandidateDescription" class="textarea" placeholder="Place some text here"
+                                      style="width: 100%; height: 300px; font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;"></textarea>
+                            <span asp-validation-for="CandidateDescription" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Submission -->
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary">Register Candidate</button>
+                </div>
+            </div>
+        </form>
+
+     
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // Fetch user details based on selected candidate
+        document.getElementById('candidateSelect').addEventListener('change', function () {
+            var userId = this.value;
+
+            // Update the hidden UserId field
+            document.getElementById('hiddenUserId').value = userId;
+
+            if (userId) {
+                // Make an AJAX call to fetch user details
+                $.ajax({
+                    url: '/Candidate/GetUserDetails',
+                    type: 'GET',
+                    data: { userId: userId },
+                    success: function (data) {
+                        document.getElementById('regNumber').value = data.regNumber;
+                        document.getElementById('age').value = data.yearofbirth;
+                    },
+                    error: function (error) {
+                        console.error('Error fetching user details:', error);
+                    }
+                });
+            } else {
+                // Clear fields if no user is selected
+                document.getElementById('regNumber').value = '';
+                document.getElementById('age').value = '';
+                document.getElementById('hiddenUserId').value = '';
+            }
+        });
+    </script>
+}

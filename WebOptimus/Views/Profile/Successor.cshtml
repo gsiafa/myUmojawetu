@@ -1,0 +1,246 @@
+﻿@model WebOptimus.Models.ViewModel.SuccessorViewModel
+@using WebOptimus.StaticVariables
+@{
+    ViewData["Title"] = "Successor";
+    Layout = "~/Views/Shared/_cLayout.cshtml";
+}
+
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row mb-3">
+            <div class="col-md-8">
+                <p class="mb-0">
+                    We encourage you to designate one of your dependents as your successor. A successor will have the authority to manage your account in your absence and will be able to:
+                    <ul>
+                        <li>Add new dependents.</li>
+                        <li>Update Next of Kin information.</li>
+                        <li>Continue payments on your behalf.</li>
+                    </ul>
+                </p>
+                <p>Your successor cannot access or manage your account while you are alive. Their role only activates in your absence.</p>
+            </div>
+
+            <div class="col-md-4 text-right">
+                @if (ViewBag.Dep is List<Dependant> && ((List<Dependant>)ViewBag.Dep).Any())
+                {
+                    <!-- There are dependents available -->
+                    <button type="button" class="btn btn-primary" onclick="showAddSuccessorModal()">
+                        <i class="fas fa-plus"></i> Invite Successor
+                    </button>
+                }
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header p-2">
+                        <ul class="nav nav-pills">
+                            <li class="nav-item"><a class="nav-link" asp-action="Index" asp-controller="Profile"> <i class="fas fa-user me-2"></i> Profile</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-action="Dependents" asp-controller="Profile"> <i class="fas fa-users me-2"></i> Family</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-action="NextOfKin" asp-controller="Profile"> <i class="fas fa-user-friends me-2"></i> Next Of Kin</a></li>
+                            <li class="nav-item"><a class="nav-link active" asp-action="Successor" asp-controller="Profile"> <i class="fas fa-user-check me-2"></i> Successor</a></li>
+                        </ul>
+                    </div><!-- /.card-header -->
+
+                    <partial name="_notify" />
+                    <div class="card-body">
+                        <div class="tab-content">
+                            <div class="active tab-pane">
+                                @if (Model.Successors != null && Model.Successors.Any())
+                                {
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-striped text-center" id="myTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Successor Name</th>
+                                                    <th>Relationship</th>
+                                                    <th>Successor Mobile</th>
+                                                    <th>Successor Email</th>
+                                                    <th>Status</th>
+
+                                                    @if (ViewBag.AdminUser != RoleList.Dependent)
+                                                    {
+                                                        <th>Actions</th>
+                                                    }
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var i in Model.Successors)
+                                                {
+                                                    <tr>
+                                                        <td>@Html.DisplayFor(modelItem => i.Name)</td>
+                                                        <td>@Html.DisplayFor(modelItem => i.Relationship)</td>
+                                                        <td>@Html.DisplayFor(modelItem => i.SuccessorTel)</td>
+                                                        <td>@Html.DisplayFor(modelItem => i.SuccessorEmail)</td>
+                                                        <td>@Html.DisplayFor(modelItem => i.Status)</td>
+                                                        @if (ViewBag.AdminUser != RoleList.Dependent)
+                                                        {
+                                                            <td>
+                                                                <button type="button" class="btn btn-warning" onclick="showEditSuccessorModal('@i.Id', '@i.Name', '@i.Relationship', '@i.SuccessorTel', '@i.SuccessorEmail', '@i.DependentId')">
+                                                                    <i class="fas fa-edit"></i> Edit
+                                                                </button>
+                                                            </td>
+                                                        }
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-danger text-center">
+                                        You have not invited any successor yet.
+                                    </div>
+                                }
+                            </div>
+                        </div><!-- /.card-body -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div style="margin-bottom: 20px;"></div>
+
+<!-- Add Successor Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addModalLabel">Invite Successor</h5>
+                <button type="button" class="close" onclick="CloseAddModal()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Successor" asp-controller="Profile" method="post" autocomplete="false" id="addForm">
+                    <div class="form-group">
+                        <label>Select Successor: <span class="text-danger">*</span></label>
+                        <select class="form-control form-select form-select-lg mb-3" asp-for="DependentId" asp-items="@(new SelectList(ViewBag.Dep, "Id", "PersonName"))">
+                            <option selected disabled>Please select</option>
+                        </select>
+                        <span asp-validation-for="DependentId" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Relationship: <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" asp-for="Relationship" placeholder="Relationship">
+                        <span asp-validation-for="Relationship" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Successor Email:<span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" asp-for="Email" placeholder="Successor Email">
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Contact Number <span class="text-danger">(Optional)</span></label>
+                        <input type="tel" class="form-control" name="SuccessorTel" placeholder="Mobile Number">
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="CloseAddModal()">Close</button>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Successor Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Edit Successor</h5>
+                <button type="button" class="close" onclick="CloseEditModal()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="UpdateSuccessor" asp-controller="Profile" method="post" autocomplete="false" id="editForm">
+                    <input type="hidden" name="Id" id="editPersonId" />
+                    <input type="hidden" id="editDepId" name="DependentId" />
+
+                    <select class="form-control form-select form-select-lg mb-3" id="editDependentId" name="DependentId">
+                        <!-- Options will be populated dynamically via JavaScript -->
+                    </select>
+
+
+                    <div class="form-group">
+                        <label>Relationship: <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="editRelationship" name="Relationship" placeholder="Relationship">
+                        <span asp-validation-for="Relationship" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Successor Email: <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="editSuccessorEmail" name="Email" placeholder="Successor Email">
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Contact Number: <span class="text-danger">(Optional)</span></label>
+                        <input type="tel" class="form-control" id="editSuccessorTel" name="SuccessorTel" placeholder="Mobile Number">
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="CloseEditModal()">Close</button>
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            $('#myTable').DataTable({
+                responsive: true
+            });
+        });
+
+        function showAddSuccessorModal() {
+            $('#addModal').modal('show');
+        }
+
+        function CloseAddModal() {
+            $('#addModal').modal('hide');
+        }
+        function showEditSuccessorModal(id, name, relationship, tel, email, dependentId) {
+            $('#editPersonId').val(id);
+            $('#editRelationship').val(relationship);
+            $('#editSuccessorTel').val(tel);
+            $('#editSuccessorEmail').val(email);
+            $('#editDepId').val(dependentId); // Hidden field to hold the dependent ID
+
+            var dependentsDropdown = $('#editDependentId');
+            dependentsDropdown.empty(); // Clear existing options
+
+            // Populate dropdown with options from ViewBag.Dep
+        @foreach (var dep in ViewBag.Dep)
+        {
+            <text>
+                        var option = new Option("@dep.PersonName", "@dep.Id");
+                        dependentsDropdown.append(option);
+            </text>
+        }
+
+                // Set the selected value based on the dependent ID from the parameter
+                dependentsDropdown.val(dependentId).prop("selected", true);
+            $('#editModal').modal('show');
+        }
+
+
+
+        function CloseEditModal() {
+            $('#editModal').modal('hide');
+        }
+    </script>
+}

@@ -1,0 +1,70 @@
+﻿@model WebOptimus.Models.ViewModel.SettingViewModel
+@{
+    ViewData["Setting"] = "Edit Setting";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Edit Setting</h1>
+            </div>
+            <div class="col-sm-6">
+                <a class="btn btn-xs btn-outline-primary float-md-right" style="width:100px;float:right; text-align: center;" onclick="@("window.location.href='" + @Url.Action("Index", "Setting") + "'");">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.content-header -->
+<!-- Main content -->
+<form method="post" asp-action="EditSetting" id="myForm">
+    <div class="row">
+        <input class="hidden" type="hidden" name="Id" asp-for="Id" />
+        <div class="card-body">
+            <!-- Setting Name Input -->
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Setting Name:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" readonly placeholder="Name" asp-for="Name">
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+            </div>
+            <!-- Minimum Age Input -->
+            @if (Model.Name == "Minimum Age Setting")
+            {
+                <!-- Minimum Age Input -->
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Minimum Age:</label>
+                    <div class="col-sm-10">
+                        <input type="number" class="form-control" asp-for="MinimumAge" placeholder="e.g. 18" min="1" />
+                        <span asp-validation-for="MinimumAge" class="text-danger"></span>
+                    </div>
+                </div>
+            }
+
+
+            <!-- IsActive Checkbox -->
+            <div class="form-group row">
+                <label class="col-sm-4 col-form-label">Is Active:</label>
+                <div class="col-sm-8">
+                    <input asp-for="IsActive" class="form-check-input" id="isActiveSwitch" />
+                    <label asp-for="IsActive" class="form-check-label" for="isActiveSwitch">Active</label>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="col-md-12 mt-4">
+                <button type="submit" class="btn btn-success w-50">Update</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+}

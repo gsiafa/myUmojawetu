@@ -1,0 +1,87 @@
+﻿@model IEnumerable<WebOptimus.Models.UploadedDocument>
+@using WebOptimus.StaticVariables
+
+@{
+    ViewData["Title"] = "Uploaded Documents";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Uploaded Documents</h1>
+            </div>
+            <div class="col-sm-6">
+                <a class="btn btn-outline-success float-md-right" asp-action="UploadPolicy" asp-controller="Home"><i class="fas fa-upload"></i> Upload New Document</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+
+@if (TempData["Info"] != null)
+{
+    <div class="alert alert-info">
+        @TempData["Info"]
+    </div>
+}
+
+<!-- Main content -->
+@if (Model.Any())
+{
+    <table class="table table-bordered" id="myTable" style="background-color:#F4F9FA">
+        <thead>
+            <tr class="text-center">
+                <th class="text-center">@Html.DisplayNameFor(model => model.First().FileName)</th>
+                <th class="text-center">Uploaded At</th>
+                <th class="text-center">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="text-center">
+            @foreach (var item in Model)
+            {
+                <tr class="text-center">
+                    <td class="text-center">@item.FileName</td>
+                    <td class="text-center">@item.UploadedAt.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                    <td style="white-space:nowrap">
+                        <a href="@Url.Action("DownloadDocument", "Home", new { id = item.Id })" class="btn btn-primary" onclick="return confirm('Are you sure you want to download this document?');">
+                            <i class="fas fa-download"></i> Download
+                        </a>
+                        <form asp-action="DeleteDocument" asp-controller="Home" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this document?');">
+                            <input type="hidden" name="id" value="@item.Id" />
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No documents uploaded yet.</p>
+}
+
+@section Scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="~/admin/js/table.js" asp-append-version="true"></script>
+}

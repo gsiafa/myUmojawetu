@@ -1,0 +1,62 @@
+﻿@{
+    ViewData["Title"] = "Poll Submitted";
+    Layout = "~/Views/Shared/_cLayout.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Thank You for Participating!</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-lg p-3 mb-5 bg-white rounded">
+                    <div class="card-body text-center">
+                        <h3 class="card-title mb-4 text-success">Your Poll Response Has Been Submitted Successfully. <br />We appreciate your valuable feedback. Your responses have been recorded.<br />Feel free to check back for more polls and surveys that help us improve!</h3><br /><br />
+
+                     
+
+                        <!-- Optional: Add call-to-action buttons -->
+                        <div class="mt-4">
+                            @* <a href="@Url.Action("PollList", "Poll")" class="btn btn-primary btn-lg mr-3">View Other Polls</a> *@
+                            <a href="@Url.Action("Dashboard", "Home")" class="btn btn-secondary btn-lg">Return to Home</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Optional: Add some custom styling to improve the aesthetics -->
+<style>
+    .content-header h1 {
+        font-weight: bold;
+        color: #28a745;
+    }
+    .card {
+        border: none;
+        background-color: #f8f9fa;
+    }
+    .card-body {
+        padding: 2rem;
+    }
+    .card-title {
+        font-weight: bold;
+    }
+    .lead {
+        font-size: 1.25rem;
+        color: #6c757d;
+    }
+    .btn-lg {
+        padding: 10px 20px;
+        font-size: 1.25rem;
+    }
+</style>

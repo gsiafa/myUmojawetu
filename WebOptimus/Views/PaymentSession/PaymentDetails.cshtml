@@ -1,0 +1,873 @@
+﻿@model WebOptimus.Models.ViewModel.PaymentSessionDetailsViewModel
+@{
+    ViewData["Title"] = "Payment Session Details";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Payment Session Details </h1>
+            </div>
+            <div class="col-sm-6">
+                <a class="btn btn-outline-primary float-md-right" style="width:100px;" href="@Url.Action("Index", "PaymentSession")">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-info">
+                    <div class="alert alert-info">
+                        <h4><i class="fas fa-info-circle"></i> How to Use This Page</h4>
+                        <p>This page provides detailed information about a specific payment session. Here’s what you can do:</p>
+                        <ul>
+                            <li><strong>View Payment Details:</strong> See the main payer’s information, amount paid, and campaign reference.</li>
+                            <li><strong>Manage Dependents:</strong> View or edit dependents who were included in this payment.</li>
+                            <li><strong>Check Completed Payments:</strong> Review all payments recorded under this session.</li>
+                            <li><strong>Modify Transactions:</strong> Use the edit or delete options if changes are needed.</li>
+                            <li><strong>Add a Payment:</strong> If necessary, you can add another payment for a different member under the same session.</li>
+                            <li><strong>Move a Payment:</strong> If a payment was assigned to the wrong member, you can move it to the correct person.</li>
+                        </ul>
+                        <p><strong>Note:</strong> Any modifications will be logged for auditing purposes.</p>
+                    </div>
+
+                    <div class="card-header">
+                        <h3 class="card-title">Payment Session Information (The member who made the trasaction): <strong>ID: @Model.PaymentSession.Id </strong></h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" id="editPaymentSession">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form id="paymentSessionForm">
+                            @Html.AntiForgeryToken()
+                         
+                            <input type="hidden" id="paymentSessionId" name="PaymentSession.Id" asp-for="PaymentSession.Id" />
+
+                            <div class="row">
+                                <!-- Left Column -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label><strong>User Id:</strong></label>
+                                        <input type="text" class="form-control editable" id="userId" name="PaymentSession.UserId" asp-for="PaymentSession.UserId" readonly>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label><strong>Our Ref#:</strong></label>
+                                        <input type="text" class="form-control editable" id="ourRef" name="PaymentSession.OurRef" asp-for="PaymentSession.OurRef" readonly>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label><strong>Reg#:</strong></label>
+                                        <input type="text" class="form-control editable" id="personRegNumber" name="PaymentSession.personRegNumber" asp-for="PaymentSession.personRegNumber" readonly>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label><strong>Payer Email:</strong></label>
+                                        <input type="email" class="form-control editable" id="payerEmail" name="PaymentSession.Email" asp-for="PaymentSession.Email" readonly>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label><strong>Campaign Ref:</strong></label>
+                                        <input type="text" class="form-control editable" id="campaignRef" name="PaymentSession.CauseCampaignpRef" asp-for="PaymentSession.CauseCampaignpRef" readonly>
+                                    </div>
+                                </div>
+
+                                <!-- Right Column -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label><strong>Amount:</strong></label>
+                                        <input type="text" class="form-control editable" id="amount" name="PaymentSession.Amount" asp-for="PaymentSession.Amount" readonly>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label><strong>Transaction Fees:</strong></label>
+                                        <input type="text" class="form-control editable" id="transactionFees" name="PaymentSession.TransactionFees" asp-for="PaymentSession.TransactionFees" readonly>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label><strong>Total Paid:</strong></label>
+                                        <input type="text" class="form-control editable" id="totalPaid" name="PaymentSession.TotalAmount" asp-for="PaymentSession.TotalAmount" readonly>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label><strong>Status:</strong></label>
+                                        <select class="form-control editable" id="isPaid" name="PaymentSession.IsPaid" asp-for="PaymentSession.IsPaid" disabled>
+                                            <option value="true">Paid</option>
+                                            <option value="false">Not Paid</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label><strong>Date Created:</strong></label>
+                                        <input type="datetime-local" class="form-control editable" id="dateCreated" name="PaymentSession.DateCreated" asp-for="PaymentSession.DateCreated" readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Save & Cancel Buttons -->
+                            <div class="mt-3">
+                                <button type="button" id="saveChanges" class="btn btn-success d-none">Save Changes</button>
+                                <button type="button" id="cancelChanges" class="btn btn-secondary d-none">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+            <!-- Dependents Checklist -->
+            <div class="col-md-12">
+                <div class="card card-warning">
+                    <div class="card-header">
+                        <h3 class="card-title">Dependents that were selected as part of this payment</h3>
+                    </div>
+                    <div class="card-body">
+                        <table class="table m-0 myTable" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th>Payment ID</th>
+                                    <th>Campaignp Ref</th>
+                                    <th>Name</th>
+                                    <th>Reg Number</th>
+                                    <th>Contribution Price</th>
+                                    <th>Custom Amount</th>
+                                    <th>Missed Payment</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var dependent in Model.DependentsChecklist)
+                                {
+                                    <tr>
+                                        <td>@dependent.PaymentSessionId</td>
+                                        <td>@dependent.CauseCampaignpRef</td>
+                                        <td>@dependent.Name</td>
+                                        <td>@dependent.PersonRegNumber</td>
+                                        <td>@dependent.Price.ToString("C")</td>
+                                        <td>@dependent.CustomAmount?.ToString("C")</td>
+                                        <td>@(dependent.MissedPayment.HasValue ? dependent.MissedPayment.Value.ToString("C") : "-")</td>
+                                        <td>
+                                            <!-- Edit Icon -->
+                                            <button class="btn btn-sm btn-warning editDependent"
+                                                    data-id="@dependent.Id"
+                                                    data-sessionid="@dependent.PaymentSessionId"
+                                                    data-campaign="@dependent.CauseCampaignpRef"
+                                                    data-name="@dependent.Name"
+                                                    data-reg="@dependent.PersonRegNumber"
+                                                    data-price="@dependent.Price"
+                                                    data-custom="@dependent.CustomAmount"
+                                                    data-missed="@dependent.MissedPayment">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+
+                                            <!-- Delete Icon -->
+                                            <button class="btn btn-sm btn-danger deleteDependent"
+                                                    data-id="@dependent.Id">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Payments Table -->
+            <div class="col-md-12">
+                <div class="card card-success">
+                    <div class="card-header">
+                        <h3 class="card-title">Payments Completed</h3>
+                     
+
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-success" id="addPaymentBtn">
+                                <i class="fas fa-plus"></i> Add Payment
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table class="table m-0 myTable" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th>User Id</th>
+                                    <th>Name</th>
+                                    <th>Reg #</th>
+                                    <th>Our Ref#</th>
+                                    <th>Amount</th>
+                                    <th>Goodwill Amount</th>
+                                    <th>Payment Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var payment in Model.Payments)
+                                {
+                                    <tr>
+                                        <td>@payment.UserId</td>
+                                        <td>@payment.MemberName</td>
+                                        <td>@payment.personRegNumber</td>
+                                        <td>@payment.OurRef</td>
+                                        <td>@payment.Amount.ToString("C")</td>
+                                        <td>@payment.GoodwillAmount.ToString("C")</td>
+                                        <td>@payment.DateCreated.ToString("dd/MM/yyyy")</td>
+                                        <td>
+                                            <!-- Edit Button -->
+                                            <button class="btn btn-warning btn-sm editPayment"
+                                                    data-id="@payment.Id"
+                                                    data-userid="@payment.UserId"
+                                                    data-reg="@payment.personRegNumber"
+                                                    data-ourref="@payment.OurRef"
+                                                    data-amount="@payment.Amount"
+                                                    data-goodwill="@payment.GoodwillAmount"
+                                                    data-date="@payment.DateCreated.ToString("yyyy-MM-ddTHH:mm")">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+
+
+                                            <!-- Delete Button -->
+                                            <button class="btn btn-danger btn-sm deletePayment" data-id="@payment.Id">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Move Payment Button -->
+            <!-- Move Payment Button -->
+            <div class="col-md-12">
+                <button type="button" class="btn btn-primary" id="movePaymentBtn">
+                    <i class="fas fa-exchange-alt"></i> Move Payment
+                </button>
+            </div>
+
+        </div>
+    </div>
+</section>
+<div class="modal fade" id="editDependentModal" tabindex="-1" role="dialog" aria-labelledby="editDependentLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editDependentLabel">Edit Dependent</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editDependentForm">
+                    <input type="hidden" id="editDependentId">
+                    <input type="hidden" id="editPaymentSessionId">
+                   
+                    <div class="form-group">
+                        <label>Campaign Ref</label>
+                        <input type="text" class="form-control" id="editCampaignRef">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" class="form-control" id="editName">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Reg Number</label>
+                        <input type="text" class="form-control" id="editRegNumber" >
+                    </div>
+
+                    <div class="form-group">
+                        <label>Contribution Price</label>
+                        <input type="number" step="0.01" class="form-control" id="editPrice">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Custom Amount</label>
+                        <input type="number" step="0.01" class="form-control" id="editCustomAmount">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Missed Payment</label>
+                        <input type="number" step="0.01" class="form-control" id="editMissedPayment">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelDependentChanges">Cancel</button>
+                <button type="button" class="btn btn-success" id="saveDependentChanges">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Edit Payment Modal -->
+<div class="modal fade" id="editPaymentModal" tabindex="-1" role="dialog" aria-labelledby="editPaymentLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editPaymentLabel">Edit Payment</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editPaymentForm">
+                    <input type="hidden" id="editPaymentId">
+
+                    <div class="form-group">
+                        <label>User ID</label>
+                        <input type="text" class="form-control" id="editUserId">
+                    </div>                   
+
+                    <div class="form-group">
+                        <label>Reg #</label>
+                        <input type="text" class="form-control" id="editpRegNumber">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Our Ref#</label>
+                        <input type="text" class="form-control" id="editOurRef">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Amount</label>
+                        <input type="number" step="0.01" class="form-control" id="editAmount">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Goodwill Amount</label>
+                        <input type="number" step="0.01" class="form-control" id="editGoodwillAmount">
+                    </div>
+                    <div class="form-group">
+                        <label>Payment Date</label>
+                        <input type="datetime-local" class="form-control" id="editPaymentDate">
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelPaymentChanges">Cancel</button>
+                <button type="button" class="btn btn-success" id="savePaymentChanges">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Move Payment Modal -->
+<div class="modal fade" id="movePaymentModal" tabindex="-1" aria-labelledby="movePaymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="movePaymentModalLabel">Select Member to Move this Payment To</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="currentPaymentSessionId" value="@Model.PaymentSession.Id" />
+                <p> The dropdown shows all member names, email and reg number. Please choose the person you want to allocate this payment to their record.</p>
+
+                <div class="form-group">
+                    <label for="memberSelect">Select Member</label>
+                    <select id="memberSelect" class="form-control select2" style="width: 100%;" required>
+                        <option value="">-- Select Member --</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-dark" data-dismiss="modal">Cancel</button>
+                <button type="button" id="confirmMovePayment" class="btn btn-success">Move Payment</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Payment Modal -->
+<div class="modal fade" id="addPaymentModal" tabindex="-1" aria-labelledby="addPaymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addPaymentModalLabel">Add Payment for a Member</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="currentPaymentSessionId" value="@Model.PaymentSession.Id" />
+                <p>Use this section to add additional member to this payment record. (Please make sure the total amount adds up)</p>
+                <div class="form-group">
+                    <label for="addPaymentMemberSelect">Select Member</label>
+                    <select id="addPaymentMemberSelect" class="form-control select2" style="width: 100%;" required>
+                        <option value="">-- Select Member --</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-dark" data-dismiss="modal">Cancel</button>
+                <button type="button" id="confirmAddPayment" class="btn btn-success">Add Payment</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Bootstrap JS & jQuery -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="~/admin/js/table.js" asp-append-version="true"> </script>
+
+
+    <!-- Include Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!-- Include Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+  
+
+    <script>
+        $(document).ready(function () {
+            let originalValues = {};
+
+            $("#editPaymentSession").click(function () {
+                $(".editable").removeAttr("readonly").addClass("border border-warning");
+                $("#isPaid").prop("disabled", false); // Enable dropdown
+                $("#saveChanges, #cancelChanges").removeClass("d-none");
+
+                $(".editable").each(function () {
+                    originalValues[$(this).attr("id")] = $(this).val();
+                });
+            });
+
+            $("#cancelChanges").click(function () {
+                $(".editable").each(function () {
+                    $(this).val(originalValues[$(this).attr("id")]);
+                });
+
+                $(".editable").attr("readonly", true).removeClass("border border-warning");
+                $("#isPaid").prop("disabled", true);
+                $("#saveChanges, #cancelChanges").addClass("d-none");
+            });
+                   if (typeof antiForgeryToken === "undefined") {
+            var antiForgeryToken = $("input[name='__RequestVerificationToken']").val();
+        }
+                   $("#saveChanges").click(function () {
+        let updatedData = {
+            Id: parseInt($("#paymentSessionId").val()),  // Ensure `Id` is an integer
+            UserId: $("#userId").val(),
+            OurRef: $("#ourRef").val(),
+            personRegNumber: $("#personRegNumber").val(),
+            Email: $("#payerEmail").val(),
+            CauseCampaignpRef: $("#campaignRef").val(),
+            Amount: parseFloat($("#amount").val().replace(/[^0-9.-]+/g, "") || "0"),
+            TransactionFees: parseFloat($("#transactionFees").val().replace(/[^0-9.-]+/g, "") || "0"),
+            TotalAmount: parseFloat($("#totalPaid").val().replace(/[^0-9.-]+/g, "") || "0"),
+            IsPaid: $("#isPaid").val() === "true",
+            DateCreated: $("#dateCreated").val()
+        };
+
+              $.ajax({
+        url: "/PaymentSession/UpdatePaymentSession",
+        type: "POST",
+        contentType: "application/json",
+        headers: {
+            "RequestVerificationToken": antiForgeryToken
+        },
+        data: JSON.stringify(updatedData), //  Ensure flat JSON structure
+        success: function (response) {
+            console.log("Success:", response);
+            alert(response.message);
+            location.reload();
+        },
+        error: function (xhr) {
+            console.error("Error Response:", xhr);
+            alert("Failed to update payment session: " + (xhr.responseJSON?.error || "Unknown error"));
+        }
+            });
+        });
+
+        });
+    </script>
+
+ <script>
+             $(document).ready(function () {
+            let antiForgeryToken = $("input[name='__RequestVerificationToken']").val();
+
+            // Open Edit Modal & Populate Fields
+            $(".editDependent").click(function () {
+                $("#editDependentId").val($(this).data("id"));
+                $("#editPaymentSessionId").val($(this).data("sessionid"));
+                $("#editCampaignRef").val($(this).data("campaign"));
+                $("#editName").val($(this).data("name"));
+                $("#editRegNumber").val($(this).data("reg"));
+                $("#editPrice").val($(this).data("price"));
+                $("#editCustomAmount").val($(this).data("custom"));
+                $("#editMissedPayment").val($(this).data("missed"));
+
+                $("#editDependentModal").modal("show"); // Open modal
+            });
+
+            // Close Modal Properly on X and Cancel
+            $(".close, #cancelDependentChanges").click(function () {
+                $("#editDependentModal").modal("hide"); // Close modal
+            });
+
+            // Save Dependent Changes
+            $("#saveDependentChanges").click(function () {
+                let updatedData = {
+                    Id: parseInt($("#editDependentId").val()),
+                    PaymentSessionId: parseInt($("#editPaymentSessionId").val()),
+                    CauseCampaignpRef: $("#editCampaignRef").val(),
+                    Name: $("#editName").val(),
+                    PersonRegNumber: $("#editRegNumber").val(),
+                    Price: parseFloat($("#editPrice").val()),
+                    CustomAmount: parseFloat($("#editCustomAmount").val()) || null,
+                    MissedPayment: parseFloat($("#editMissedPayment").val()) || null
+                };
+
+                $.ajax({
+                    url: "/PaymentSession/UpdateDependent",
+                    type: "POST",
+                    contentType: "application/json",
+                    headers: { "RequestVerificationToken": antiForgeryToken },
+                    data: JSON.stringify(updatedData),
+                    success: function (response) {
+                        alert(response.message);
+                        $("#editDependentModal").modal("hide"); // Close modal after saving
+                        location.reload(); // Reload to reflect changes
+                    },
+                    error: function (xhr) {
+                        alert("Failed to update dependent: " + (xhr.responseJSON?.error || "Unknown error"));
+                    }
+                });
+            });
+
+            // Delete Dependent
+            $(".deleteDependent").click(function () {
+                let dependentId = $(this).data("id");
+                if (!confirm("Are you sure you want to delete this dependent?")) return;
+
+                $.ajax({
+                    url: "/PaymentSession/DeleteDependent",
+                    type: "POST",
+                    contentType: "application/json",
+                    headers: { "RequestVerificationToken": antiForgeryToken },
+                    data: JSON.stringify({ Id: dependentId }),
+                    success: function (response) {
+                        alert(response.message);
+                        location.reload();
+                    },
+                    error: function (xhr) {
+                        alert("Failed to delete dependent: " + (xhr.responseJSON?.error || "Unknown error"));
+                    }
+                });
+            });
+        });
+
+ </script>
+@* 
+ //payment edit and delete *@
+<script>
+            $(document).ready(function () {
+            let antiForgeryToken = $("input[name='__RequestVerificationToken']").val();
+
+            // Open Edit Modal & Populate Fields
+                   $(".editPayment").click(function () {
+            let paymentId = $(this).data("id");
+            let userId = $(this).data("userid");
+            let regNumber = $(this).data("reg");  // Ensure it's being retrieved correctly
+            let ourRef = $(this).data("ourref");
+            let amount = parseFloat($(this).data("amount")) || 0;
+            let goodwillAmount = parseFloat($(this).data("goodwill")) || 0;
+            let paymentDate = $(this).data("date");
+
+            // Convert Date Format to "YYYY-MM-DDTHH:mm"
+            let formattedDate = "";
+            if (paymentDate) {
+                let dateObj = new Date(paymentDate);
+                formattedDate = dateObj.toISOString().slice(0, 16);
+            }
+
+            // Assign values to modal fields
+            $("#editPaymentId").val(paymentId);
+            $("#editUserId").val(userId);
+            $("#editpRegNumber").val(regNumber); // Ensure this is set correctly
+            $("#editOurRef").val(ourRef);
+            $("#editAmount").val(amount.toFixed(2));  // Format to 2 decimal places
+            $("#editGoodwillAmount").val(goodwillAmount.toFixed(2)); // Format to 2 decimal places
+            $("#editPaymentDate").val(formattedDate);
+
+            $("#editPaymentModal").modal("show"); // Open modal
+        });
+
+
+            // Close Modal Properly on X and Cancel
+            $(".close, #cancelPaymentChanges").click(function () {
+                $("#editPaymentModal").modal("hide"); // Close modal
+            });
+
+            // Save Payment Changes
+                  $("#savePaymentChanges").click(function () {
+            let updatedData = {
+                Id: parseInt($("#editPaymentId").val()),
+                UserId: $("#editUserId").val(),
+                personRegNumber: $("#editpRegNumber").val(),
+                OurRef: $("#editOurRef").val(),
+                Amount: parseFloat($("#editAmount").val().replace(/[^0-9.-]+/g, "")) || 0,
+                GoodwillAmount: parseFloat($("#editGoodwillAmount").val().replace(/[^0-9.-]+/g, "")) || 0,
+                DateCreated: $("#editPaymentDate").val()
+            };
+
+            $.ajax({
+                url: "/PaymentSession/UpdatePayment",
+                type: "POST",
+                contentType: "application/json",
+                headers: { "RequestVerificationToken": antiForgeryToken },
+                data: JSON.stringify(updatedData),
+                success: function (response) {
+                    alert(response.message);
+                    $("#editPaymentModal").modal("hide");
+
+                    if (response.payment) {
+                        let row = $("button[data-id='" + response.payment.Id + "']").closest("tr");
+                        row.find("td:eq(0)").text(response.payment.UserId); // User Id
+                        row.find("td:eq(1)").text(response.payment.MemberName); // Name
+                        row.find("td:eq(2)").text(response.payment.personRegNumber); // Reg Number
+                        row.find("td:eq(3)").text(response.payment.OurRef); // Our Ref#
+                        row.find("td:eq(4)").text(response.payment.Amount); // Amount
+                        row.find("td:eq(5)").text(response.payment.GoodwillAmount); // Goodwill Amount
+                        row.find("td:eq(6)").text(response.payment.PaymentDate); // Payment Date
+                    }
+                     location.reload(); // Reload to reflect changes
+                },
+                error: function (xhr) {
+                    alert("Failed to update payment: " + (xhr.responseJSON?.error || "Unknown error"));
+                }
+            });
+        });
+
+            // Delete Payment
+            $(".deletePayment").click(function () {
+                let paymentId = $(this).data("id");
+                if (!confirm("Are you sure you want to delete this payment?")) return;
+
+                $.ajax({
+                    url: "/PaymentSession/DeletePayment",
+                    type: "POST",
+                    contentType: "application/json",
+                    headers: { "RequestVerificationToken": antiForgeryToken },
+                    data: JSON.stringify({ Id: paymentId }),
+                    success: function (response) {
+                        alert(response.message);
+                        location.reload();
+                    },
+                    error: function (xhr) {
+                        alert("Failed to delete payment: " + (xhr.responseJSON?.error || "Unknown error"));
+                    }
+                });
+            });
+        });
+
+</script>
+
+@*Move payment*@
+<script>
+            $(document).ready(function () {
+            let antiForgeryToken = $("input[name='__RequestVerificationToken']").val();
+
+            //  Initialize Select2 globally
+            $('.select2').select2({
+                placeholder: "Search...",
+                allowClear: true,
+                width: '100%'
+            });
+
+            //  Ensure Select2 is reinitialized properly inside modals
+            $('#movePaymentModal').on('shown.bs.modal', function () {
+                $('.select2').select2({
+                    placeholder: "Search Member...",
+                    allowClear: true,
+                    dropdownParent: $('#movePaymentModal'),
+                    width: '100%'
+                });
+            });
+
+            //  Open Move Payment Modal & Fetch Dependents
+            $("#movePaymentBtn").click(function () {
+                $("#movePaymentModal").modal("show");
+
+                $.ajax({
+                    url: "/PaymentSession/GetDependents",
+                    type: "GET",
+                    success: function (data) {
+                        let select = $("#memberSelect");
+                        select.empty();
+                        select.append('<option value="">-- Select Member --</option>');
+
+                        data.forEach(member => {
+                            select.append(`<option value="${member.regNumber}">${member.name} (${member.email}, ${member.regNumber})</option>`);
+                        });
+
+                        //  Ensure Select2 is initialized AFTER populating dropdown
+                        select.select2({
+                            dropdownParent: $("#movePaymentModal"),
+                            placeholder: "Search Member...",
+                            allowClear: true,
+                            width: '100%'
+                        });
+                    },
+                    error: function (xhr) {
+                        console.error("Error fetching members:", xhr.responseText);
+                        alert("Failed to load members.");
+                    }
+                });
+            });
+
+            //  Fix Cancel and X button closing modal properly
+            $(".close, .btn-dark").click(function () {
+                $("#movePaymentModal").modal("hide");
+                $('body').removeClass('modal-open'); // Remove modal-open class
+                $('.modal-backdrop').remove(); // Remove the backdrop
+            });
+
+            //  Confirm Move Payment
+            $("#confirmMovePayment").click(function () {
+                let paymentSessionId = parseInt($("#currentPaymentSessionId").val()); // Ensure it's an integer
+                let currentPersonRegNumber = $("#memberSelect").val(); // Ensure name matches controller
+
+                if (!currentPersonRegNumber) {
+                    alert("Please select a member.");
+                    return;
+                }
+
+                console.log("Moving Payment to:", currentPersonRegNumber); //  Debug log
+
+                $.ajax({
+                    url: "/PaymentSession/MovePayment",
+                    type: "POST",
+                    contentType: "application/json",
+                    headers: { "RequestVerificationToken": antiForgeryToken },
+                    data: JSON.stringify({
+                        PaymentSessionId: paymentSessionId,
+                        CurrentPersonRegNumber: currentPersonRegNumber
+                    }),
+                    success: function (response) {
+                        alert(response.message);
+                        $("#movePaymentModal").modal("hide");
+
+                        //  Ensure modal is properly cleaned up
+                        $('body').removeClass('modal-open');
+                        $('.modal-backdrop').remove();
+                        location.reload();
+                    },
+                    error: function (xhr) {
+                        console.error("Move Payment Error:", xhr.responseText);
+                        alert("Failed to move payment: " + (xhr.responseJSON?.error || "Unknown error"));
+                    }
+                });
+            });
+        });
+
+</script>
+
+<script>
+            $(document).ready(function () {
+            let antiForgeryToken = $("input[name='__RequestVerificationToken']").val();
+
+            //  Initialize Select2 globally
+            $('.select2').select2({
+                placeholder: "Search...",
+                allowClear: true,
+                width: '100%'
+            });
+
+            //  Ensure Select2 is reinitialized inside modals
+            $('#addPaymentModal').on('shown.bs.modal', function () {
+                $('.select2').select2({
+                    placeholder: "Search Member...",
+                    allowClear: true,
+                    dropdownParent: $('#addPaymentModal'),
+                    width: '100%'
+                });
+            });
+
+            //  Open Add Payment Modal & Fetch Dependents
+            $("#addPaymentBtn").click(function () {
+                $("#addPaymentModal").modal("show");
+
+                $.ajax({
+                    url: "/PaymentSession/GetDependents",
+                    type: "GET",
+                    success: function (data) {
+                        let select = $("#addPaymentMemberSelect");
+                        select.empty();
+                        select.append('<option value="">-- Select Member --</option>');
+
+                        data.forEach(member => {
+                            select.append(`<option value="${member.regNumber}">${member.name} (${member.email}, ${member.regNumber})</option>`);
+                        });
+
+                        //  Initialize Select2 AFTER populating dropdown
+                        select.select2({
+                            dropdownParent: $("#addPaymentModal"),
+                            placeholder: "Search Member...",
+                            allowClear: true,
+                            width: '100%'
+                        });
+                    },
+                    error: function (xhr) {
+                        console.error("Error fetching members:", xhr.responseText);
+                        alert("Failed to load members.");
+                    }
+                });
+            });
+
+            //  Confirm Add Payment
+            $("#confirmAddPayment").click(function () {
+                let paymentSessionId = parseInt($("#currentPaymentSessionId").val()); // Ensure integer
+                let newPersonRegNumber = $("#addPaymentMemberSelect").val(); // Get selected member
+
+                if (!newPersonRegNumber) {
+                    alert("Please select a member.");
+                    return;
+                }
+
+                console.log("Adding Duplicate Payment for:", newPersonRegNumber); // Debug log
+
+                $.ajax({
+                    url: "/PaymentSession/AddDuplicatePayment",
+                    type: "POST",
+                    contentType: "application/json",
+                    headers: { "RequestVerificationToken": antiForgeryToken },
+                    data: JSON.stringify({
+                        PaymentSessionId: paymentSessionId,
+                        NewPersonRegNumber: newPersonRegNumber
+                    }),
+                    success: function (response) {
+                        alert(response.message);
+                        $("#addPaymentModal").modal("hide");
+                        location.reload();
+                    },
+                    error: function (xhr) {
+                        console.error("Error adding payment:", xhr.responseText);
+                        alert("Failed to add payment: " + (xhr.responseJSON?.error || "Unknown error"));
+                    }
+                });
+            });
+        });
+
+</script>
+}

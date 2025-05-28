@@ -1,0 +1,219 @@
+﻿@model WebOptimus.Models.ViewModel.OtherDonationViewModel
+@{
+    ViewData["Title"] = "Edit Donation";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Edit Fund Campaign</h1>
+                <p>Modify details for the donation campaign.</p>
+            </div>
+            <div class="col-sm-6">
+                <a class="btn btn-xs btn-outline-primary float-md-right" style="width:100px; float:right; text-align: center;" onclick="@("window.location.href='" + @Url.Action("Index", "Other") + "'");">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container-fluid">
+        <form asp-controller="Other" asp-action="Edit" method="post" >
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" /> <!-- Keep track of the donation ID -->
+            <input type="hidden" asp-for="CreatedBy" />
+            <input type="hidden" asp-for="DateCreated" />
+            <input type="hidden" asp-for="IsActive" />
+            <input type="hidden" asp-for="CauseCampaignpRef" />
+          
+            <input type="hidden" asp-for="Status" />
+            <div class="row">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger">
+                        <ul>
+                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                            {
+                                <li>@error.ErrorMessage</li>
+                            }
+                        </ul>
+                    </div>
+                }
+
+                <div class="col-md-6">
+                    <div class="card card-success">
+                        <div class="card-header">
+                            <h3 class="card-title">Funds Information</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Target Amount (£):</label>
+                                <div class="col-sm-8">
+                                    <input type="number" class="form-control" asp-for="TargetAmount" name="TargetAmount" step="0.01" min="0">
+                                    <span asp-validation-for="TargetAmount" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Minimum Amount (£):</label>
+                                <div class="col-sm-8">
+                                    <input type="number" class="form-control currency-input" asp-for="MinmumAmount" name="MinmumAmount" step="0.01" min="0">
+                                    <span asp-validation-for="MinmumAmount" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Start Date:</label>
+                                <div class="col-sm-8">
+                                    <input id="StartDate" name="StartDate" type="text" class="form-control datepicker" asp-for="StartDate">
+                                    <span asp-validation-for="StartDate" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">End Date:</label>
+                                <div class="col-sm-8">
+                                    <input id="ClosedDate" name="ClosedDate" type="text" class="form-control datepicker" asp-for="ClosedDate">
+                                    <span asp-validation-for="ClosedDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card card-dark">
+                        <div class="card-header">
+                            <h3 class="card-title">Title/Brief Summary</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Summary:</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" asp-for="Summary">
+                                    <span asp-validation-for="Summary" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title">Full Description</h3>
+                        </div>
+                 
+                        <div class="mb-3">
+                            <textarea name="Description" class="textarea" placeholder="Please enter full details so all members can read" asp-for="Description"
+                                      style="width: 100%; height: 200px; font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;"></textarea>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="card card-warning">
+                    <div class="card-header">
+                        <h3 class="card-title">Campaign Creator</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Created By:</label>
+                            <div class="col-sm-8">
+                                <input type="text" disabled class="form-control" asp-for="CreatedBy" name="CreatedBy"  />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Date Created:</label>
+                            <div class="col-sm-8">
+                                <input type="text" disabled class="form-control" value="@Model.DateCreated.ToString("dd/MM/yyyy")" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <input type="checkbox" name="IsDisplayable" asp-for="IsDisplayable">
+            <label for="IsDisplayable">
+                When Donation ends, keep results so Members can see.
+            </label>
+            <div class="col-md-12 text-center">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Update
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <!-- jQuery UI (Include This for Datepicker) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+
+
+    <!-- Include Summernote CSS/JS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote-bs4.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote-bs4.min.js"></script>
+    <script>
+               $(document).ready(function () {
+            var today = new Date();
+
+            function parseDate(str) {
+                if (!str) return null;
+                var parts = str.split("/");
+                return new Date(parts[2], parts[1] - 1, parts[0]);
+            }
+
+            function formatDate(date) {
+                if (!date) return "";
+                var dd = String(date.getDate()).padStart(2, "0");
+                var mm = String(date.getMonth() + 1).padStart(2, "0");
+                var yyyy = date.getFullYear();
+                return dd + "/" + mm + "/" + yyyy;
+            }
+
+            // Initialize Start Date
+            $("#StartDate").datepicker({
+                dateFormat: "dd/mm/yy",
+                changeMonth: true,
+                changeYear: true,
+                minDate: today,
+                onSelect: function (selectedDate) {
+                    var startDate = parseDate(selectedDate);
+                    $("#ClosedDate").datepicker("option", "minDate", startDate);
+                }
+            });
+
+            // Initialize Closed Date
+            $("#ClosedDate").datepicker({
+                dateFormat: "dd/mm/yy",
+                changeMonth: true,
+                changeYear: true,
+                beforeShow: function () {
+                    var startDate = $("#StartDate").datepicker("getDate");
+                    return {
+                        minDate: startDate ? startDate : today
+                    };
+                }
+            });
+
+            // If ClosedDate has an existing value, apply minDate
+            var existingClosedDate = $("#ClosedDate").val();
+            if (existingClosedDate) {
+                var parsedClosedDate = parseDate(existingClosedDate);
+                $("#ClosedDate").datepicker("setDate", parsedClosedDate);
+            }
+        });
+
+    </script>
+}

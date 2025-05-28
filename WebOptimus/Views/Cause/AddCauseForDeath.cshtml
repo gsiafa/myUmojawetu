@@ -1,0 +1,106 @@
+﻿@model WebOptimus.Models.ViewModel.CauseViewModel
+
+@{
+    ViewData["Title"] = "Add Cause";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Set-up new fund campaign</h1>
+                <p>Use this section to set-up a new donation campaign for the deceased. The death details are automatically filled in based on the selection.</p>
+            </div>
+            <div class="col-sm-6">
+                <a class="btn btn-xs btn-outline-primary float-md-right" style="width:100px; float:right; text-align: center;" asp-action="Index" asp-controller="Cause">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container-fluid">
+        <form asp-controller="Cause" asp-action="AddCauseofDeath" method="post" autocomplete="off">
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <!-- left column -->
+                <div class="col-md-6">
+                    <div class="card card-info">
+                        <div class="card-header">
+                            <h3 class="card-title">Deceased Information</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Name of person: </label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" readonly value="@Model.DependentName" />
+                                    <input type="hidden" asp-for="ReportedDeathId" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Registration Number: </label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" readonly value="@Model.RegistrationNumber" />
+                                </div>
+                            </div>
+                       @*      <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Year Of Birth:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" readonly value="@Model.YearOfBirth" />
+                                </div>
+                            </div> *@
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Date Joined:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" readonly value="@Model.DateJoined" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Date of Death:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" readonly value="@Model.DateOfDeath" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Death Location:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" readonly value="@Model.DeathLocation" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- right column -->
+                <div class="col-md-6">
+                    <div class="card card-success">
+                        <div class="card-header">
+                            <h3 class="card-title">Funds Information</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Target Amount (£): </label>
+                                <div class="col-sm-8">
+                                    <input type="number" class="form-control currency-input" name="TargetAmount" placeholder="Target Amount (£)" asp-for="TargetAmount" step="0.01" min="0">
+                                    <span asp-validation-for="TargetAmount" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <!-- Additional fields for fund information go here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary float-left">Submit</button>
+                <button type="button" class="btn btn-secondary float-right" asp-action="Index" asp-controller="Cause" data-dismiss="modal">Cancel</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

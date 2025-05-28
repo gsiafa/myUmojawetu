@@ -1,0 +1,51 @@
+﻿
+@model List<WebOptimus.Models.ViewModel.PollViewModel>
+
+@{
+    ViewData["Title"] = "Poll Questions";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>Poll Questions</h2>
+
+<form method="post" asp-action="SubmitPollResponse">
+    @for (int pollIndex = 0; pollIndex < Model.Count; pollIndex++)
+    {
+        var poll = Model[pollIndex];
+
+        <h4>@poll.Question</h4>
+
+        <input type="hidden" name="[@pollIndex].PollId" value="@poll.PollId" />
+
+        @if (poll.AnswerType == "radio")
+        {
+            @for (int optionIndex = 0; optionIndex < poll.Options.Count; optionIndex++)
+            {
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="[@pollIndex].SelectedAnswer" value="@poll.Options[optionIndex]" />
+                    <label class="form-check-label">@poll.Options[optionIndex]</label>
+                </div>
+            }
+        }
+        else if (poll.AnswerType == "checkbox")
+        {
+            @for (int optionIndex = 0; optionIndex < poll.Options.Count; optionIndex++)
+            {
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="[@pollIndex].SelectedAnswers" value="@poll.Options[optionIndex]" />
+                    <label class="form-check-label">@poll.Options[optionIndex]</label>
+                </div>
+            }
+        }
+        else if (poll.AnswerType == "input")
+        {
+            <input class="form-control" name="[@pollIndex].SelectedAnswer" type="text" placeholder="Enter your answer" />
+        }
+        else if (poll.AnswerType == "textarea")
+        {
+            <textarea class="form-control" name="[@pollIndex].SelectedAnswer" placeholder="Enter your answer"></textarea>
+        }
+    }
+
+    <button type="submit" class="btn btn-primary mt-3">Submit</button>
+</form>

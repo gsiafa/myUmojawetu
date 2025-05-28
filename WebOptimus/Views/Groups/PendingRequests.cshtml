@@ -1,0 +1,116 @@
+﻿@model IEnumerable<WebOptimus.Models.ViewModel.GroupMemberViewModel>
+
+@{
+    ViewData["Title"] = "Pending Requests";
+    Layout = "~/Views/Shared/_cLayout.cshtml";
+}
+<partial name="_notify" />
+<div class="container-fluid">
+    <h3 class="mb-4">Pending Requests</h3>
+
+    <!-- Requests to Approve/Decline -->
+    @if (Model.Any(m => m.CanApproveOrDecline))
+    {
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Requests to Approve/Decline</h5>
+            </div>
+            <div class="card-body">
+                <table class="table m-0 myTable" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var request in Model.Where(m => m.CanApproveOrDecline))
+                        {
+                            <tr>
+                                <td>@request.FullName</td>
+                                <td>@request.Email</td>
+                                <td>
+                                    <form method="post" asp-action="ApproveRequest" asp-route-requestId="@request.Id" class="d-inline-block">
+                                        <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                                    </form>
+                                    <form method="post" asp-action="DeclineRequest" asp-route-requestId="@request.Id" class="d-inline-block">
+                                        <button type="submit" class="btn btn-danger btn-sm">Decline</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+    <!-- Requests to Revoke -->
+    @if (Model.Any(m => m.CanRevoke))
+    {
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Your Pending Requests</h5>
+                <p> These are request you made to join a group.</p>
+            </div>
+            <div class="card-body">
+                <table class="table m-0 myTable" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Group Name</th>
+                            <th>Date Invited</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var request in Model.Where(m => m.CanRevoke))
+                        {
+                            <tr>
+                                <td>@request.GroupName</td>
+                                <td>@request.DateInvited.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    <form method="post" asp-action="RevokeRequest" asp-route-requestId="@request.Id" class="d-inline-block" onsubmit="return confirmRevoke(event)">
+                                        <button type="submit" class="btn btn-danger btn-sm text-white">Revoke</button>
+                                    </form>
+                                </td>
+
+                              
+
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    @if (!Model.Any(m => m.CanApproveOrDecline || m.CanRevoke))
+    {
+        <div class="alert alert-info">
+            <strong>No pending requests available.</strong>
+            <p>
+                Currently, there are no requests awaiting your approval.
+                This section will allow you to manage requests from other members who wish to join a group you created.
+                You can approve or decline these requests as needed.
+            </p>
+        </div>
+
+    }
+</div>
+
+    @section Scripts {
+    <!-- Bootstrap JS & jQuery -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="~/admin/js/table.js" asp-append-version="true"> </script>
+    <script>
+        function confirmRevoke(event) {
+            if (!confirm("Are you sure you want to revoke this request?")) {
+                event.preventDefault(); // Prevent form submission if user cancels
+                return false;
+            }
+            return true; // Proceed with form submission if user confirms
+        }
+    </script>
+    }

@@ -1,0 +1,119 @@
+﻿@model WebOptimus.Models.Contact
+
+@{
+    ViewData["Title"] = "Edit Announcement";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h4>Enquery Details</h4>
+<hr />
+<form method="post" asp-action="EditAnnouncement" asp-controller="Announcement" id="myForm">
+    <div class="row">
+        <input hidden asp-for="Id" />
+        <div class="col-md-12">
+            <div class="form-group">
+                <label asp-for="FullName" class="control-label">Full Name <span class="text-danger">*</span></label>
+                <input asp-for="FullName" readonly class="form-control" />
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EmailAddress" class="control-label">Email Address <span class="text-danger">*</span></label>
+                <input asp-for="EmailAddress" readonly  class="form-control" />
+                <span asp-validation-for="EmailAddress" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PhoneNumber" class="control-label">Phone Number <span class="text-danger">*</span></label>
+                <input asp-for="PhoneNumber" readonly class="form-control" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Subject" class="control-label">Phone Number <span class="text-danger">*</span></label>
+                <input asp-for="Subject" readonly class="form-control" />
+                <span asp-validation-for="Subject" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <div class="mb-3">
+                    <label asp-for="Message" class="control-label">Message <span class="text-danger">*</span></label>
+                    <textarea class="form-control" readonly asp-for="Message" name="Message" id="exampleFormControlTextarea1" rows="3"></textarea>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="DateCreated" class="control-label">Date Submitted <span class="text-danger">*</span></label>
+                <input asp-for="DateCreated" readonly class="form-control" />
+                <span asp-validation-for="DateCreated" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="DateReplied" class="control-label">Date Replied <span class="text-danger">*</span></label>
+                <input asp-for="DateReplied" readonly class="form-control" />
+                <span asp-validation-for="DateReplied" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ApprovalNote" class="control-label">Note <span class="text-danger">*</span></label>
+                <textarea class="form-control" readonly asp-for="ApprovalNote" name="ApprovalNote" id="exampleFormControlTextarea1" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="RepliedEmail" class="control-label">Reply by: <span class="text-danger">*</span></label>
+                <input asp-for="RepliedEmail" readonly class="form-control" />
+                <span asp-validation-for="RepliedEmail" class="text-danger"></span>
+            </div>
+            <div class="ml-auto mt-4">
+                <small class="btn btn-dark signInText" style="float:right;">
+                    <a class="signInText" style="cursor: pointer; color:#fff !important; text-decoration: none; float:right;" asp-action="PreviousQuries" asp-controller="Contact">Back</a>
+                </small>
+             
+            </div>
+        </div>
+    </div>
+</form>
+<form asp-action="Confirm" method="post">
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Resolution Note</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input hidden asp-for="Id" />
+
+
+                    <input asp-for="FullName" hidden class="form-control" />
+                    <input asp-for="EmailAddress" hidden class="form-control" />
+                    <input asp-for="PhoneNumber" hidden class="form-control" />
+                    <input asp-for="Subject" hidden class="form-control" />
+                    <textarea class="form-control" hidden asp-for="Message" name="Message" id="exampleFormControlTextarea1" rows="3"></textarea>
+                    <input asp-for="DateCreated" hidden class="form-control" />
+
+                    <div class="form-group row">
+                        <label class="col-sm-6 col-form-label">Your Note/Comment: </label>
+
+                        <div class="col-sm-10">
+
+                            <textarea class="form-control" asp-for="ApprovalNote" name="ApprovalNote" required id="exampleFormControlTextarea1" rows="3"></textarea>
+                            <span asp-validation-for="ApprovalNote" class="text-danger"></span>
+                        </div>
+                    </div>
+                    
+              
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+

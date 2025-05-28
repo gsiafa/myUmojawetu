@@ -1,0 +1,97 @@
+﻿@model IEnumerable<WebOptimus.Models.ViewModel.DependentPaymentsViewModel>
+
+@{
+    ViewData["Title"] = "Dependent Payments";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Dependent Payments</h1>
+            </div>
+            <div class="col-sm-6">
+           
+            </div>
+        </div>
+    </div>
+</div>
+
+<h2>All Dependent Payments Information</h2>
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+                <h1 class="card-title">Total Payments</h1>
+                <h2 class="card-text">@Model.Count()</h2> <!-- Display total payments -->
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-body">
+                <h1 class="card-title">Total Amount</h1>
+                <h2 class="card-text">@Model.Sum(x => x.TotalAmount).ToString("C")</h2> <!-- Display total amount -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model != null && Model.Any())
+{
+    <table class="table table-bordered" id="paymentsTable" style="width: 100%">
+        <thead>
+            <tr>
+                <th>Payment Date</th>
+                <th>Dependent Name</th>
+                <th>Amount</th>
+                <th>Transaction Fees</th>
+                <th>Total Amount</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var payment in Model)
+            {
+                <tr class="grey-row">
+                    <td>@payment.PaymentDate.ToString("dd/MM/yyyy")</td>
+                    <td>@payment.DependentName</td>
+                    <td>@payment.Amount.ToString("C")</td>
+                    <td>@payment.TransactionFees.ToString("C")</td>
+                    <td>@payment.TotalAmount.ToString("C")</td>
+                    <td>
+                        <a class="btn btn-sm btn-primary" asp-action="Edit" asp-controller="Payments" asp-route-id="@payment.PaymentId">
+                            <i class="fas fa-pencil-alt"></i>
+                        </a>
+                        <a class="btn btn-sm btn-danger" asp-action="Delete" asp-controller="Payments" asp-route-id="@payment.PaymentId">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No payment records found.</p>
+}
+
+<style>
+    .grey-row {
+        background-color: #007BFF;
+        color: #fff;
+    }
+</style>
+
+@section scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#paymentsTable').DataTable();
+        });
+    </script>
+}

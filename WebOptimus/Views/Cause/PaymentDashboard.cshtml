@@ -1,0 +1,241 @@
+﻿@model WebOptimus.Models.ViewModel.AdminPaymentViewModel
+@{
+    ViewData["Title"] = "Payment History";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<h2 class="mb-4">Payment Dashboard</h2>
+<p>Please be mindful inital figures may show for <strong>ALL Causes</strong> when the page first loads, you can filter by specific cause using the filter option below.</p>
+
+<!-- Summary Section -->
+<div class="row text-center">
+    <div class="col-lg-6 col-md-6 mb-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h3>@Model.TotalAmount.ToString("C")</h3>
+                <p>Total Contributions (Includes Goodwill) </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-md-6 mb-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h3>£ @Model.TotalOverPaid</h3>
+                <p> Total Goodwill Contributed</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-md-6 mb-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h3>@Model.TotalTransactionFees.ToString("C")</h3>
+                <p>Total Transaction Fees</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-md-6 mb-4">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <h3>@Model.MissedPayments.Count()</h3>
+                <p>Total Missed Payments</p>
+            </div>
+        </div>
+    </div>
+
+  
+</div>
+
+<hr />
+
+<!-- Cause Filter -->
+<form method="get" asp-action="PaymentDashboard">
+    <div class="form-group">
+        <label for="causeFilter">Filter by Cause:</label>
+        <select class="form-control" asp-for="CauseFilter" asp-items="ViewBag.CauseList">
+            <option value="">All Causes</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Apply Filter</button>
+</form>
+
+<hr />
+<div class="mt-4 text-center">
+    <a asp-action="DownloadPaidPayments" asp-controller="Cause" class="btn btn-primary btn-lg mx-2">
+        <i class="fas fa-file-download"></i> Download Paid Payments PDF
+    </a>
+ 
+</div>
+
+
+<!-- Payment Details -->
+<div class="mt-4">
+    <h3>Payment Details</h3>
+    <table class="table table-striped myTable">
+        <thead>
+            <tr>
+                <th>Payment Date</th>
+                <th>Cause Ref</th>
+                <th>Payment Ref</th>
+                <th>Payee Name</th>
+                <th>Reg #</th>
+                <th>Amount</th>
+                <th>Goodwill Amount</th>
+                <th>Transaction Fees</th>          
+                <th>Total Paid</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var payment in Model.Payments)
+            {
+                <tr>
+                    <td>@payment.DateCreated.ToString("dd/MM/yyyy")</td>
+                    <td>@payment.CauseCampaignpRef</td>
+                    <td>@payment.OurRef</td>
+                    <td>@payment.DependentName</td>
+                    <td>@payment.RegNumber</td>
+                    <td>@payment.Amount.ToString("C")</td>
+                    <td>@payment.GoodwillAmount</td>
+                    <td>@(payment.TransactionFees == 0 ? "-" : payment.TransactionFees.ToString("C"))</td>
+                    <td>@(payment.TotalAmount == 0 ? "-" : payment.TotalAmount.ToString("C"))</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<hr />
+<a asp-action="DownloadMissedPayments" asp-controller="Cause" class="btn btn-secondary btn-lg mx-2">
+    <i class="fas fa-file-download"></i> Download Missed Payments PDF
+</a>
+
+
+<div class="mt-4">
+    <h3 class="mb-4">Missed Payments</h3>
+<p>These are members who were 25 years or older when the campaign started and did not make a payment. Members who joined after the campaign closed are excluded. You can use this section to deactivate their accounts. If they have a login account, it will be automatically deactivated upon submission.</p>
+    <form asp-action="DeactivateDependents" method="post">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped text-center myTable" style="width: 100%;">
+                <thead class="thead-light">
+                    <tr>
+                        <th>
+                            <input type="checkbox" id="selectAll" onclick="toggleSelection(this)" />
+                        </th>
+                        <th>Name</th>
+                        <th>Year of Birth</th>
+                        <th>Contact #</th>
+                        <th>Reg Number</th>
+                        <th>Cause Ref</th>
+                        <th>Amount</th>
+                        <th>Closed Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.MissedPayments != null && Model.MissedPayments.Any())
+                    {
+                        @foreach (var missed in Model.MissedPayments)
+                        {
+                            <tr>
+                                <td>
+                                    <input type="checkbox" name="selectedDependents" value="@missed.DependentId" />
+                                </td>
+                                <td>@missed.DependentName</td>
+                                <td>@missed.YearOfBirth</td>
+                                <td>@missed.PhoneNumber</td>
+                                <td>@missed.RegNumber</td>
+                                <td>@missed.CauseCampaignpRef</td>
+                                <td>@missed.Amount.ToString("C")</td>
+                                <td>@missed.IsClosedDate.ToString("dd/MM/yyyy")</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center">No missed payments found!</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="form-group mt-4">
+            <label for="deactivationReason">Reason for Deactivation:</label>
+            <textarea id="deactivationReason" name="DeactivationReason" class="form-control" rows="3" required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-danger mt-3">Deactivate Selected</button>
+    </form>
+</div>
+
+
+
+<style>
+    .myTable {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+        border: 1px solid #ddd; /* Outer border */
+    }
+
+        .myTable th, .myTable td {
+            white-space: nowrap;
+            text-align: center;
+            padding: 8px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border: 1px solid #ddd; /* Vertical line between columns */
+        }
+
+
+            .myTable th:nth-child(1), .myTable td:nth-child(1) {
+                width: 12%;
+            }
+            /* Payment Date */
+            .myTable th:nth-child(2), .myTable td:nth-child(2) {
+                width: 15%;
+            }
+            /* Cause Ref */
+            .myTable th:nth-child(3), .myTable td:nth-child(3) {
+                width: 15%;
+            }
+            /* Payment Ref */
+            .myTable th:nth-child(4), .myTable td:nth-child(4) {
+                width: 20%;
+            }
+            /* Payee Name */
+            .myTable th:nth-child(5), .myTable td:nth-child(5) {
+                width: 10%;
+            }
+            /* Reg # */
+            .myTable th:nth-child(6), .myTable td:nth-child(6) {
+                width: 10%;
+            }
+            /* Amount */
+            .myTable th:nth-child(7), .myTable td:nth-child(7) {
+                width: 10%;
+            }
+            /* Goodwill */
+            .myTable th:nth-child(8), .myTable td:nth-child(8) {
+                width: 10%;
+            }
+            /* Transaction Fees */
+            .myTable th:nth-child(9), .myTable td:nth-child(9) {
+                width: 10%;
+            }
+    /* Total Paid */
+
+</style>
+
+@section scripts {
+    <script src="~/admin/js/table.js" asp-append-version="true"></script>
+
+    <script>
+        function toggleSelection(source) {
+            const checkboxes = document.querySelectorAll('input[name="selectedDependents"]');
+            checkboxes.forEach(checkbox => checkbox.checked = source.checked);
+        }
+
+
+    </script>
+
+  
+}

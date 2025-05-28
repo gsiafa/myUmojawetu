@@ -1,0 +1,86 @@
+﻿@model IEnumerable<WebOptimus.Models.ViewModel.ManageDependentsViewModel>
+
+@{
+    ViewData["Title"] = "Manage Dependents";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Manage Dependents</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p>Below are names of those that do not have account. Here, you can edit dependents details. You can also delete dependents or request their individual account.</p>
+
+@if (Model != null && Model.Any())
+{
+    <table class="table table-bordered" id="dependentsTable" style="width: 100%">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Reg#</th>
+                <th>Year of Birth</th>
+                <th>Email</th>
+                <th>Phone Number</th>       
+          
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var dependent in Model)
+            {
+                <tr>
+                    <td>@dependent.PersonName</td>
+                    <td>@dependent.RegNumber</td>
+                    <td>@dependent.YearOfBirth</td>
+                    <td>@dependent.Email</td>
+                    <td>@dependent.PhoneNumber</td>
+           
+                 
+                    <td>
+                        <a class="btn btn-sm btn-info" asp-action="EditDependent" asp-route-id="@dependent.DependentId">
+                            <i class="fas fa-pencil-alt"></i> Edit
+                        </a>
+                        <form method="post" class="d-inline">
+                            <input type="hidden" name="dependentId" value="@dependent.DependentId" />
+
+                            <!-- Delete Button -->
+                            <button formaction="@Url.Action("DeleteDependent", "Family")"
+                                    type="submit"
+                                    onclick="return confirm('Are you sure you want to delete this dependent?')"
+                                    class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash-alt"></i> Delete
+                            </button>
+
+                            <!-- Separate Button -->
+                            <a asp-action="RequestAccountDetails" asp-controller="Family" asp-route-dependentId="@dependent.DependentId" class="btn btn-primary btn-sm">
+                                <i class="fas fa-user-alt-slash"></i> Request Account
+                            </a>
+                        </form>
+
+
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No dependents without accounts found.</p>
+}
+
+@section scripts {
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#dependentsTable').DataTable();
+        });
+    </script>
+}

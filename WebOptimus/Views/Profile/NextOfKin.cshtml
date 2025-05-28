@@ -1,0 +1,347 @@
+﻿@model WebOptimus.Models.ViewModel.NextOfKinViewModels
+@using WebOptimus.StaticVariables
+@{
+    ViewData["Title"] = "Next of Kin";
+    Layout = "~/Views/Shared/_cLayout.cshtml";
+}
+
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row mb-3">
+            <div class="row mb-3">
+                <div class="col-md-8">
+                    <p class="mb-0">
+                        Please make sure to add next of kin details for yourself and each family member. Next of kin are individuals who will be contacted in case of emergencies. Providing accurate next of kin information facilitates effective communication.
+                    </p>
+                </div>
+                <div class="col-md-4 text-right">
+                       @if (ViewBag.AdminUser != RoleList.Dependent)
+                       { 
+                    <button type="button" class="btn btn-primary" onclick="showAddNextOfKinModal()">
+                        <i class="fas fa-plus"></i> Add Next of Kin
+                    </button>
+                       }
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header p-2">
+                        <ul class="nav nav-pills">
+                            <li class="nav-item"><a class="nav-link" asp-action="Index" asp-controller="Profile"> <i class="fas fa-user me-2"></i> Profile</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-action="Dependents" asp-controller="Profile"> <i class="fas fa-users me-2"></i> Family</a></li>
+                            <li class="nav-item"><a class="nav-link active" asp-action="NextOfKin" asp-controller="Profile"> <i class="fas fa-user-friends me-2"></i> Next Of Kin</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-action="Successor" asp-controller="Profile"> <i class="fas fa-user-check me-2"></i> Successor</a></li>
+                        </ul>
+                    </div>
+
+                    <partial name="_notify" />
+                    <div class="card-body">
+                        <div class="card-body" style="width: 100%; overflow-x: auto;">
+                            <table class="table m-0 myTable" style="width: 100%;">
+                                <thead>
+                                    <tr class="text-center">
+                                        <th>Next Of Kin Name</th>
+                                        <th>Next Of Kin to Family Member</th>
+                                        <th>Relationship</th>
+                                        <th>Next of Kin Mobile</th>
+                                        <th>Next of Kin Email</th>
+                                        <th>Next of Kin Address</th>
+
+                                            @if (ViewBag.AdminUser != RoleList.Dependent)
+                                            {
+                                        <th>Actions</th>
+                                            }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var i in Model.NextOfKins)
+                                    {
+                                        <tr class="text-center">
+                                            <td>@Html.DisplayFor(modelItem => i.NextOfKinName)</td>
+                                            <td>@Html.DisplayFor(modelItem => i.DepName)</td>
+                                            <td>@Html.DisplayFor(modelItem => i.Relationship)</td>
+                                            <td>@Html.DisplayFor(modelItem => i.NextOfKinTel)</td>
+                                            <td>@Html.DisplayFor(modelItem => i.NextOfKinEmail)</td>
+                                            <td>@Html.DisplayFor(modelItem => i.NextOfKinAddress)</td>
+
+                                            @if (ViewBag.AdminUser != RoleList.Dependent)
+                                            {
+                                            <td>
+                                                <a href="javascript:void(0);" class="text-primary btn-edit"
+                                                   data-id="@i.Id"
+                                                   data-name="@i.NextOfKinName"
+                                                   data-relationship="@i.Relationship"
+                                                   data-tel="@i.NextOfKinTel"
+                                                   data-email="@i.NextOfKinEmail"
+                                                   data-address="@i.NextOfKinAddress"
+                                                   data-dependent-id="@i.PersonRegNumber"
+                                                   title="Edit" style="font-size: 1.5rem; margin-right: 10px;">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                    <a href="javascript:void(0);" class="text-danger btn-delete"
+                                                       data-id="@i.Id"
+                                                       data-name="@i.NextOfKinName"
+                                                       data-family="@i.DepName"
+                                                       title="Delete" style="font-size: 1.5rem;">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </a>
+
+
+
+                                            </td>
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Delete Confirmation</h5>
+                <button type="button" class="close" onclick="CloseDeleteModal()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete <span id="deleteNextOfKinName"></span>?
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="CloseDeleteModal()">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addModalLabel">Add Next of Kin</h5>
+                <button type="button" class="close" onclick="CloseAddModal()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="NextOfKin" asp-controller="Profile" method="post" autocomplete="false" id="addForm">
+                    <div class="form-group">
+                        <label class="col-sm-12 col-form-label">Select Member Name: <span class="text-danger">*</span></label>
+                        <div class="col-sm-12 form-group">
+                            <select class="form-control form-select" asp-for="PersonRegNumber" asp-items="@(new SelectList(@ViewBag.Dep, "PersonRegNumber", "PersonName"))" required>
+                                <option value="" disabled selected>-- Please select --</option>
+                            </select>
+
+                            <span asp-validation-for="PersonRegNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Next of Kin Full Name: <span class="text-danger">*</span></label>
+                        <input name="NextOfKinName" type="text" class="form-control" asp-for="NextOfKinName" placeholder="Next Of Kin Full Name" required>
+                        <span asp-validation-for="NextOfKinName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Relationship  <span class="text-danger">*</span></label>
+                        <input asp-for="Relationship" class="form-control" placeholder="Relationship to Next of Kin" required />
+                        <span asp-validation-for="Relationship" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Next of Kin Tel  <span class="text-danger">*</span></label>
+                        <input asp-for="NextOfKinTel" class="form-control" placeholder="Next of Kin Mobile Number" required />
+                        <span asp-validation-for="NextOfKinTel" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Next of Kin Email </label>
+                        <input asp-for="NextOfKinEmail" class="form-control" placeholder="Next of Kin Email" />
+                    </div>
+                    <div class="form-group">
+                        <label>Next of Kin Address  <span class="text-danger">*</span></label>
+                        <textarea asp-for="NextOfKinAddress" class="form-control" required></textarea>
+                        <span asp-validation-for="NextOfKinAddress" class="text-danger"></span>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="CloseAddModal()">Close</button>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Edit Next of Kin</h5>
+                <button type="button" class="close" onclick="CloseEditModal()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="UpdateNextOfKin" asp-controller="Profile" method="post" autocomplete="false" id="editForm">
+                    <input type="hidden" name="Id" id="editPersonId" />
+                    <input type="hidden" name="UserId" asp-for="@Model.UserId" />
+                    <input type="hidden" id="allDependentsData" value='@Html.Raw(ViewBag.AllDependentsJson)' />
+
+                    <!-- Member Name (Readonly) -->
+                    <div class="form-group">
+                        <label>Member Name:</label>
+                        <input type="text" class="form-control" id="editDependentName" readonly>
+                        <input type="hidden" name="PersonRegNumber" id="editDependentId">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Next of Kin Full Name: <span class="text-danger">*</span></label>
+                        <input name="NextOfKinName" type="text" class="form-control" id="editNextOfKinName" placeholder="Next Of Kin Name">
+                        <span asp-validation-for="NextOfKinName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Relationship <span class="text-danger">*</span></label>
+                        <input name="Relationship" id="editRelationship" class="form-control" placeholder="Relationship to Next of Kin" />
+                        <span asp-validation-for="Relationship" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Next of Kin Tel <span class="text-danger">*</span></label>
+                        <input name="NextOfKinTel" id="editNextOfKinTel" class="form-control" placeholder="Next of Kin Mobile Number" />
+                        <span asp-validation-for="NextOfKinTel" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Next of Kin Email</label>
+                        <input name="NextOfKinEmail" id="editNextOfKinEmail" class="form-control" placeholder="Next of Kin Email" />
+                    </div>
+                    <div class="form-group">
+                        <label>Next of Kin Address <span class="text-danger">*</span></label>
+                        <textarea name="NextOfKinAddress" id="editNextOfKinAddress" class="form-control"></textarea>
+                        <span asp-validation-for="NextOfKinAddress" class="text-danger"></span>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="CloseEditModal()">Close</button>
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/admin/js/table.js" asp-append-version="true"></script>
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+            // Initialize DataTable
+            $('#myTable').DataTable();
+
+            // Edit button functionality
+            $(document).on('click', '.btn-edit', function () {
+                var id = $(this).data('id');
+                var name = $(this).data('name');
+                var relationship = $(this).data('relationship');
+                var tel = $(this).data('tel');
+                var email = $(this).data('email');
+                var address = $(this).data('address');
+                var dependentId = $(this).data('dependent-id');
+                showEditNextOfKinModal(id, name, relationship, tel, email, address, dependentId);
+
+            });
+
+            // Delete button functionality
+                    $(document).on('click', '.btn-delete', function () {
+            var id = $(this).data('id');
+            var kinName = $(this).data('name'); // Next of Kin Name
+            var familyMember = $(this).data('family'); // Dependent Name
+
+            // Update the modal message
+            $('#deleteNextOfKinName').html(`<strong>${kinName}</strong> (Next of Kin to <strong>${familyMember}</strong>)`);
+
+            $('#confirmDelete').data('id', id);
+            $('#deleteModal').modal('show');
+        });
+
+
+            // Confirm delete functionality
+            $('#confirmDelete').click(function () {
+                var id = $(this).data('id');
+                $.ajax({
+                    url: `/Profile/DeleteNextOfKin/${id}`,
+                    type: 'POST',
+                    success: function (response) {
+                        if (response.success) {
+                            $('#deleteModal').modal('hide');
+                            location.reload(); // Reload the page to reflect changes
+                        } else {
+                            alert(response.message || 'An error occurred while deleting.');
+                        }
+                    },
+                    error: function () {
+                        alert('An error occurred while deleting.');
+                    }
+                });
+            });
+        });
+
+        // Show Add Modal
+        function showAddNextOfKinModal() {
+            $('#addModal').modal('show');
+        }
+
+        // Close Add Modal
+        function CloseAddModal() {
+            $('#addModal').modal('hide');
+        }
+
+               // Show Edit Modal
+        function showEditNextOfKinModal(id, name, relationship, tel, email, address, personRegNumber) {
+            $('#editPersonId').val(id);
+            $('#editNextOfKinName').val(name);
+            $('#editRelationship').val(relationship);
+            $('#editNextOfKinTel').val(tel);
+            $('#editNextOfKinEmail').val(email);
+            $('#editNextOfKinAddress').val(address);
+
+            // Get all dependents from hidden input
+            const dependents = JSON.parse($('#allDependentsData').val()); // Fetch from hidden input
+
+            // Find the dependent name based on PersonRegNumber
+            const dependent = dependents.find(dep => dep.PersonRegNumber === personRegNumber);
+
+            if (dependent) {
+                $('#editDependentName').val(dependent.PersonName); // Display the name
+            } else {
+                $('#editDependentName').val('Unknown'); // Fallback if not found
+            }
+
+            $('#editDependentId').val(personRegNumber); // Keep the ID for form submission
+
+            $('#editModal').modal('show');
+        }
+
+        // Close Edit Modal
+        function CloseEditModal() {
+            $('#editModal').modal('hide');
+        }
+
+        // Close Delete Modal
+        function CloseDeleteModal() {
+            $('#deleteModal').modal('hide');
+        }
+    </script>
+}
+

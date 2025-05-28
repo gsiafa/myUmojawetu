@@ -1,0 +1,48 @@
+﻿@model WebOptimus.Models.ViewModel.NewDependentViewModel
+
+@{
+    ViewData["Title"] = "Add New Family";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>Add New Family</h2>
+
+<form asp-action="AddFamily" method="post">
+    <div class="form-group">
+        <label asp-for="UserId">Select User</label>
+        <select asp-for="UserId" class="form-control" asp-items="Model.Users"></select>
+        <span asp-validation-for="UserId" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label>Family Member Full Name</label>
+        <input asp-for="PersonName" class="form-control" />
+        <span asp-validation-for="PersonName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label>Year of Birth</label>
+        <input asp-for="PersonYearOfBirth" class="form-control datepicker" />
+        <span asp-validation-for="PersonYearOfBirth" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary float-left">Submit</button>
+    <a asp-action="Index" asp-controller="Family" class="btn btn-dark float-right">Back</a>
+</form>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.datepicker').datepicker({
+                format: "yyyy",
+                viewMode: "years",
+                minViewMode: "years",
+                autoclose: true,
+                todayHighlight: true
+            });
+        });
+    </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

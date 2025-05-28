@@ -1,0 +1,363 @@
+﻿@model IEnumerable<WebOptimus.Models.PaymentGroup>
+
+@{
+    ViewData["Title"] = "Manage Groups";
+    Layout = "~/Views/Shared/_cLayout.cshtml";
+}
+
+<!-- Content Header -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-md-6 col-sm-12">
+                <h1 class="m-0">Welcome to Groups</h1>
+            </div>
+            <div class="col-md-6 col-sm-12 d-flex justify-content-md-end justify-content-sm-center">
+                <!-- Buttons -->
+                <div class="btn-group mt-2 mt-md-0" role="group" aria-label="Group Actions">
+                    <button type="button" class="btn btn-primary custom-gap" data-toggle="modal" data-target="#joinGroupModal">
+                        <i class="fas fa-users"></i> Join Existing Group
+                    </button>
+                    <button class="btn btn-success custom-gap ml-2" data-toggle="modal" data-target="#createGroupModal">
+                        <i class="fas fa-users"></i> Create New Group
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <p>
+            Group allow you to:
+        </p>
+        <ul>
+            <li>Invite other members who are not in your family.</li>
+            <li>Make payments on behalf of someone else as long as you're in the same group.</li>
+            <li>Streamline your family contributions.</li>
+        </ul>
+        <hr />
+        <p>
+            <strong>How It Works:</strong>
+        </p>
+        <ul>
+            <li>If you want to start a new group, click on 'Create New Group' and provide a group name.</li>
+            <li>To join an existing group, simply click on 'Join Existing Group' and enter the group's name.</li>
+            <li>Once a group is created, you can invite members using their email or registration number.</li>
+            <li>Once members accept your invites, you'll be able to pay for them during donation campaigns.</li>
+        </ul>
+    </div>
+</div>
+
+
+
+
+<!-- Main Content -->
+<partial name="_notify" />
+<div class="row">
+    <div class="col-12">
+        @if (!Model.Any(m => m.IsConfirmedMember))
+        {
+            <div class="card-body">
+                <p>
+                    <strong>You are not a confirmed member of any group.</strong> If a member has already created a group and you'd like to join, simply click on 'Join Existing Group' and enter the group's name, or create your own group and invite other members.
+                </p>
+            </div>
+        }
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <!-- Pending Requests Card -->
+        @if (Model.Any(m => m.PendingRequests > 0 && m.IsAdmin))
+        {
+            <div class="alert alert-warning mb-4">
+                <h5 class="alert-heading">
+                    <i class="fas fa-user-clock"></i> Pending Requests
+                </h5>
+                <p>
+                    You have <strong>@Model.Where(g => g.IsAdmin).Sum(m => m.PendingRequests)</strong> pending member requests.
+                </p>
+                @foreach (var group in Model.Where(g => g.PendingRequests > 0 && g.IsAdmin))
+                {
+                    <a asp-action="PendingRequests" asp-route-groupId="@group.Id" class="btn btn-warning btn-sm">
+                        <i class="fas fa-eye"></i> View Pending Requests for @group.GroupName
+                    </a>
+                }
+            </div>
+        }
+
+        @if (Model.Any(m => m.IsConfirmedMember))
+        {
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title text-center"><strong>Your Groups</strong></h3>
+                </div>
+                <div class="card-body p-0">
+                    <div class="card-body" style="width: 100%; overflow-x: auto;">
+                        <table class="table m-0 myTable" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th>Group Name</th>
+                                    <th>Total Members</th>
+                                    <th>Pending Requests</th>
+                                    <th>Created By</th>
+                                    <th>Date Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var group in Model.Where(g => g.IsConfirmedMember).OrderByDescending(g => g.DateCreated))
+                                {
+                                    <tr>
+                                        <td>@group.GroupName
+                                            @if (group.IsCreator)
+                                            {
+                                                <a href="javascript:void(0);"
+                                                   data-toggle="modal"
+                                                   data-target="#editGroupModal"
+                                                   data-groupid="@group.Id"
+                                                   data-groupname="@group.GroupName"
+                                                   class="text-dark">
+                                                    <i class="fas fa-pencil-alt"></i>
+                                                </a>
+
+
+                                            }
+                                        
+                                        </td>
+                                        <td>@group.TotalMembers</td>
+                                        <td>@group.PendingRequests</td>
+                                        <td>@group.CreatedBy</td>
+                                        <td>@group.DateCreated.ToString("dd/MM/yyyy")</td>
+                                        <td>
+                                            <a asp-action="GroupMembers" asp-route-groupId="@group.Id" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-eye"></i> View Members
+                                            </a>
+                                            @if (group.IsAdmin)
+                                            {
+                                                <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#inviteMemberModal" data-groupid="@group.Id">
+                                                    <i class="fas fa-envelope"></i> Invite Member
+                                                </button>
+                                            }
+                                            @if (group.IsCreator)
+                                            {
+
+                                                <button class="btn btn-danger btn-sm"
+                                                        data-toggle="modal"
+                                                        data-target="#deleteGroupModal"
+                                                        data-groupid="@group.Id"
+                                                        data-groupname="@group.GroupName">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+        
+
+      
+
+    </div>
+</div>
+
+<!-- Modals -->
+<!-- Create Group Modal -->
+<div class="modal fade" id="createGroupModal" tabindex="-1" role="dialog" aria-labelledby="createGroupModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            
+                <h5 class="modal-title" id="createGroupModalLabel">Create New Group</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <hr />
+          
+            <form method="post" asp-action="CreateGroup">
+               
+                <div class="modal-body">
+                    <p> Once you create a new Group, you'll be able to invite other member(s).</p>
+                    <div class="form-group">
+                        <label for="groupName">Group Name</label>
+                        <input type="text" id="groupName" name="groupName" class="form-control" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Group Modal -->
+<div class="modal fade" id="editGroupModal" tabindex="-1" role="dialog" aria-labelledby="editGroupModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editGroupModalLabel">Edit Group Name</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" asp-action="EditGroupName">
+                <div class="modal-body">
+                    <input type="hidden" id="editGroupId" name="groupId" />
+                    <div class="form-group">
+                        <label for="editGroupName">Group Name</label>
+                        <input type="text" id="editGroupName" name="groupName" class="form-control" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Delete Group Modal -->
+<div class="modal fade" id="deleteGroupModal" tabindex="-1" role="dialog" aria-labelledby="deleteGroupModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteGroupModalLabel">Delete Group</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" asp-action="DeleteGroup">
+                <div class="modal-body">
+                    <p>Are you sure you want to delete the group <strong id="deleteGroupName"></strong> and all its members?</p>
+                    <input type="hidden" id="deleteGroupId" name="groupId" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<!--Invite -->
+<!-- Invite Member Modal -->
+<div class="modal fade" id="inviteMemberModal" tabindex="-1" role="dialog" aria-labelledby="inviteMemberModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="inviteMemberModalLabel">Invite Member</h5> <br />
+               
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" asp-action="InviteMember">
+                <p> Please enter the member's email or Registration number (we will send them an invite which they must confirm before being part of this group.)</p>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="memberEmailOrRegNumber">Member Email or Registration Number</label>
+                        <input type="text" id="memberEmailOrRegNumber" name="memberEmailOrRegNumber" class="form-control" required>
+                    </div>
+                  
+                    <div class="form-check">
+                      
+                        <input type="checkbox" class="form-check-input" id="includeFamily" name="includeFamily" value="true">
+                        <label class="form-check-label" for="includeFamily">Invite along with their family</label>
+                    </div>
+
+
+                    <input type="hidden" id="groupId" name="groupId" />
+
+                    <input type="hidden" name="includeFamily" value="false" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Send Invite</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="joinGroupModal" tabindex="-1" role="dialog" aria-labelledby="joinGroupModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="joinGroupModalLabel">Join Existing Group</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" asp-action="RequestToJoinGroup">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="groupName">Group Name</label>
+                        <input type="text" id="groupName" name="groupName" class="form-control" placeholder="Enter group name" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Send Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .custom-gap + .custom-gap {
+        margin-left: 10px; /* Adds a gap between adjacent buttons */
+    }
+</style>
+
+@section Scripts {
+    <script>
+        // Populate Edit Group Modal
+            // Populate Edit Group Modal
+        $('#editGroupModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget); // Button that triggered the modal
+            var groupId = button.data('groupid'); // Extract group ID
+            var groupName = button.data('groupname'); // Extract group name
+
+            console.log("Editing Group: ", groupId, groupName); // Debugging logs
+
+            // Set the values in the modal
+            $('#editGroupId').val(groupId); // Populate hidden field
+            $('#editGroupName').val(groupName); // Populate input field
+        });
+             // Populate groupId in the modal
+        $('#inviteMemberModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var groupId = button.data('groupid');
+            $('#groupId').val(groupId);
+        });
+
+            $('#deleteGroupModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget); // Button that triggered the modal
+            var groupId = button.data('groupid'); // Extract group ID
+            var groupName = button.data('groupname'); // Extract group name
+
+            // Debugging logs
+            console.log("Group ID: ", groupId);
+            console.log("Group Name: ", groupName);
+
+            // Set values in the modal
+            $('#deleteGroupId').val(groupId); // Set hidden input value
+            $('#deleteGroupName').text(groupName); // Set group name text
+        });
+
+     
+    </script>
+
+    <script src="~/admin/js/table.js" asp-append-version="true"></script>
+}

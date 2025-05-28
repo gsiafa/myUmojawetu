@@ -1,0 +1,351 @@
+﻿@model WebOptimus.Models.ViewModel.CauseViewModel
+@{
+    ViewData["Title"] = "Add Cause";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Set-up new fund campaign</h1>
+                <p>Use this section to set-up new donation campaign for members who have passed away. You will need to report the death first before completing this section. <a asp-action="ReportedDeaths" asp-controller="Family">Report Death</a></p>
+                <p>For none death related Campaigns please change the Cause Type dropdown to 'General' and create the campaign without death related information.</p>
+            </div>
+            <div class="col-sm-6">
+                <a class="btn btn-xs btn-outline-primary float-md-right" style="width:100px; float:right; text-align: center;" onclick="@("window.location.href='" + @Url.Action("ApprovedDeaths", "Cause") + "'");"><i class="fas fa-arrow-left"></i>  Back </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <!-- Total Members -->
+    <div class="col-lg-4 col-md-6 col-sm-12">
+        <div class="small-box bg-info">
+            <div class="inner">
+                <h3>@Model.totalmembers</h3>
+                <p>Total Members</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-users"></i>
+            </div>
+        </div>
+    </div>
+    <!-- Members Under 25 -->
+    <div class="col-lg-4 col-md-6 col-sm-12">
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3>@Model.under18DependentsCount</h3>
+                <p>Members Under 25</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-user-alt"></i>
+            </div>
+        </div>
+    </div>
+    <!-- Members 25 and Over -->
+    <div class="col-lg-4 col-md-6 col-sm-12">
+        <div class="small-box bg-warning">
+            <div class="inner">
+                <h3>@Model.over18DependentsCount</h3>
+                <p>Members 25 and Over</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-user-friends"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container-fluid">
+        <form asp-controller="Cause" asp-action="AddCause" method="post" autocomplete="off">
+            @Html.AntiForgeryToken()
+        @*     <div class="form-group">
+                <label class="col-form-label">Cause Type:</label>
+                <select class="form-control" id="causeType" name="IsDeathRelated" asp-for="IsDeathRelated">
+                    <option value="true">Death-Related</option>
+                    <option value="false">General</option>
+                </select>
+            </div> *@
+
+            <div class="row">
+                <!-- left column -->
+                @if (Model.ReportedDeathId > 0)
+                {
+                    <div id="deathRelatedFields">
+                        <div class="col-md-12">
+                            <div class="card card-danger">
+                                <div class="card-header">
+                                    <h3 class="card-title">Deceased Information</h3>
+                                </div>
+                                <div class="card-body">
+                                    <input type="hidden" asp-for="ReportedDeathId" />
+                                    <div class="form-group row">
+                                        <label class="col-sm-4 col-form-label">Deceased Name: </label>
+                                        <div class="col-sm-8">
+                                            <input asp-for="DependentName" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-4 col-form-label">Registration Number: </label>
+                                        <div class="col-sm-8">
+                                            <input asp-for="RegistrationNumber" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-4 col-form-label">Year Of Birth:</label>
+                                        <div class="col-sm-8">
+                                            <input asp-for="YearOfBirth" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                  
+                                    <div class="form-group row">
+                                        <label class="col-sm-4 col-form-label">Date of Death:</label>
+                                        <div class="col-sm-8">
+                                            <input asp-for="DateOfDeathAsString" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-4 col-form-label">Date Joined:</label>
+                                        <div class="col-sm-8">
+                                            <input asp-for="DateJoinedAsString" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+
+              
+
+                <div class="col-md-6">
+                    <div class="card card-success">
+                        <div class="card-header">
+                            <h3 class="card-title">New Campaign Information</h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Start Date: </label>
+                                <div class="col-sm-8">
+                                    <input id="StartDate" name="StartDate" type="text" class="form-control datepicker" asp-for="StartDate" placeholder="Please select Start Date">
+                                    <span asp-validation-for="StartDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">End Date: </label>
+                                <div class="col-sm-8">
+                                    <input id="ClosedDate" name="EndDate" type="text" class="form-control datepicker" asp-for="EndDate" placeholder="Please select Start Date First">
+                                    <span asp-validation-for="EndDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Target Amount (£): </label>
+                                <div class="col-sm-8">
+                                    <input type="number" class="form-control currency-input" name="TargetAmount" placeholder="Target Amount (£)" asp-for="TargetAmount" step="0.01" min="0">
+                                    <span asp-validation-for="TargetAmount" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Full Members To Pay (£): </label>
+                                <div class="col-sm-8">
+                                    <input type="number" class="form-control currency-input" name="FullMemberAmount" placeholder="Full Member Amount (£)" asp-for="FullMemberAmount" step="0.01" min="0" >
+                                    <span asp-validation-for="FullMemberAmount" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Miss Payment Amount (£): </label>
+                                <div class="col-sm-8">
+                                    <input type="number" class="form-control currency-input" name="MissPaymentAmount" placeholder="Target Amount (£)" asp-for="MissPaymentAmount" step="0.01" min="0" value="10.00">
+                                    <span asp-validation-for="MissPaymentAmount" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <hr />
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Under Age Limit: </label>
+                                <div class="col-sm-8">
+                                    <input type="number" name="UnderAge" class="form-control" placeholder="Under Age Limit" asp-for="UnderAge" min="0" max="99" maxlength="2">
+                                    <span asp-validation-for="UnderAge" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Under Age to Pay(£): </label>
+                                <div class="col-sm-8">
+                                    <input type="number" class="form-control currency-input" name="UnderAgeAmount" placeholder="Under Age Amount (£)" asp-for="UnderAgeAmount" step="0.01" min="0" >
+                                    <span asp-validation-for="UnderAgeAmount" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="card card-dark">
+                        <div class="card-header">
+                            <h3 class="card-title">Title/Brief Summary (For example: Donation of John Smith)</h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Summary: </label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="Summary" class="form-control" placeholder="Summary" asp-for="Summary">
+                                    <span asp-validation-for="Summary" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title">Full Description (This is what members will see)</h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body pad">
+                            <div class="mb-3">
+                                <textarea name="Description" class="textarea" placeholder="Please enter full details so all members can read" asp-for="Description"
+                                          style="width: 100%; height: 200px; font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;"></textarea>
+                              
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <input type="checkbox" id="lessorOrGroup" name="IsActive">
+                    <label for="lessorOrGroup">
+                        Please check to make this donation active to members (leaving it unchecked will NOT make the donation visible).
+                    </label>
+                    <span asp-validation-for="IsActive" class="text-danger"></span>
+                </div>
+
+            </div>
+     
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary float-left">Submit</button>
+               
+            </div>
+        </form>
+    </div>
+</section>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+  
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <!-- jQuery UI (Include This for Datepicker) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+
+
+    <!-- Include Summernote CSS/JS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote-bs4.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote-bs4.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            function recalculateAmounts() {
+                var targetAmount = parseFloat($('input[name="TargetAmount"]').val()) || 0;
+                var underAge = parseInt($('input[name="UnderAge"]').val()) || 25;
+
+                var over18Dependents = @Model.over18DependentsCount;
+                var under18Dependents = @Model.under18DependentsCount;
+
+                var fullMemberTotal = targetAmount;
+                var underAgeTotal = 0;
+
+                var fullMemberAmount = over18Dependents > 0 ? (fullMemberTotal / over18Dependents).toFixed(2) : 0;
+                var underAgeAmount = under18Dependents > 0 ? (underAgeTotal / under18Dependents).toFixed(2) : 0;
+
+                //$('input[name="FullMemberAmount"]').val(fullMemberAmount);
+                $('input[name="UnderAgeAmount"]').val(underAgeAmount);
+            }
+
+            // Adjust the calculations when the TargetAmount or UnderAge inputs change
+            $('input[name="TargetAmount"]').on('input', recalculateAmounts);
+            $('input[name="UnderAge"]').on('input', recalculateAmounts);
+
+            // Ensure currency input is formatted to 2 decimal places
+            $('.currency-input').on('input', function () {
+                this.value = parseFloat(this.value).toFixed(2);
+            }).on('blur', function () {
+                this.value = parseFloat(this.value).toFixed(2);
+            });
+
+            // Initial calculation
+            recalculateAmounts();
+        });
+    </script>
+
+    <script>
+                          $(document).ready(function () {
+            var today = new Date();
+
+            function parseDate(str) {
+                if (!str) return null;
+                var parts = str.split("/");
+                return new Date(parts[2], parts[1] - 1, parts[0]); // Convert DD/MM/YYYY to Date object
+            }
+
+            function formatDate(date) {
+                if (!date) return "";
+                var dd = String(date.getDate()).padStart(2, "0");
+                var mm = String(date.getMonth() + 1).padStart(2, "0");
+                var yyyy = date.getFullYear();
+                return dd + "/" + mm + "/" + yyyy;
+            }
+
+            // Initially disable the End Date field
+            $("#ClosedDate").prop("disabled", true);
+
+            // Initialize Start Date Picker
+            $("#StartDate").datepicker({
+                dateFormat: "dd/mm/yy",  // Ensure DD/MM/YYYY format
+                changeMonth: true,
+                changeYear: true,
+                minDate: today, // Prevent past dates
+                onSelect: function (selectedDate) {
+                    var startDate = parseDate(selectedDate);
+                    $("#ClosedDate").prop("disabled", false); // Enable the End Date field when Start Date is selected
+                    $("#ClosedDate").datepicker("option", "minDate", startDate); // Set minDate dynamically
+                    $("#ClosedDate").val(""); // Clear the End Date to force user selection again
+                }
+            });
+
+            // Initialize End Date Picker
+            $("#ClosedDate").datepicker({
+                dateFormat: "dd/mm/yy",  // Ensure DD/MM/YYYY format
+                changeMonth: true,
+                changeYear: true,
+                beforeShow: function () {
+                    var startDate = $("#StartDate").datepicker("getDate");
+                    if (startDate) {
+                        $(this).datepicker("option", "minDate", startDate); // Ensure End Date starts from Start Date
+                    }
+                }
+            });
+        });
+
+
+
+
+    </script>
+
+
+}

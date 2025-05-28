@@ -1,0 +1,61 @@
+﻿@model WebOptimus.Models.ViewModel.UnverifiedUserDetailsViewModel
+@using WebOptimus.StaticVariables
+@{
+    ViewData["Title"] = "Unverified User";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+<div class="container">
+    <h2>User Details</h2>
+    <hr />
+    <h4>Unverified User</h4>
+    <p><strong>Full Name:</strong> @Model.User.FirstName @Model.User.Surname</p>
+    <p><strong>Email:</strong> @Model.User.Email</p>
+    <p><strong>Year of Birth:</strong> @Model.User.PersonYearOfBirth</p>
+    <p><strong>Outward Postcode:</strong> @Model.User.OutwardPostcode</p>
+
+    <h4>Possible Matches</h4>
+    @if (Model.PossibleMatches.Any())
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Year of Birth</th>
+                    <th>Outward Postcode</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var match in Model.PossibleMatches)
+                {
+                    <tr>
+                        <td>@match.FirstName @match.Surname</td>
+                        <td>@match.Email</td>
+                        <td>@match.PersonYearOfBirth</td>
+                        <td>@match.OutwardPostcode</td>
+                        <td>
+                            <a asp-action="ApproveUser" asp-route-personRegNumber="@Model.User.PersonRegNumber" class="btn btn-success btn-sm">Approve</a>
+                            <a asp-action="DeclineUser" asp-route-personRegNumber="@Model.User.PersonRegNumber" class="btn btn-danger btn-sm">Decline</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No possible matches found for this user.</p>
+    }
+</div>
+
+
+@section scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js "></script>
+    <script src="~/admin/js/table.js" asp-append-version="true"></script>
+}

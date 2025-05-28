@@ -1,0 +1,23 @@
+﻿@using WebOptimus.StaticVariables
+@if (TempData[SD.Success] != null)
+{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script type="text/javascript">
+        toastr.success('@TempData[SD.Success]', { timeOut: 30000 });
+    </script>
+}
+@if (TempData[SD.Error] != null)
+{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script type="text/javascript">
+        toastr.error('@TempData[SD.Error]', { timeout: 100000 });
+    </script>
+}
+
+@if (TempData[SD.Warning] != null)
+{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script type="text/javascript">
+        toastr.warning('@TempData[SD.Warning]', { timeout: 100000 });
+    </script>
+}

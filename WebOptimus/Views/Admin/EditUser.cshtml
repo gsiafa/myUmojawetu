@@ -1,0 +1,378 @@
+﻿@model WebOptimus.Models.ViewModel.Admin.AdminUserViewModel
+@using WebOptimus.StaticVariables
+@using WebOptimus.Extensions
+@{
+    ViewData["Title"] = "Edit User";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row col-sm-12">
+            <div class="col-sm-6">
+                <h1 class="m-0">Edit Details for @Model.FullName</h1>
+            </div>
+            <div class="col-sm-6">
+                <a class="btn btn-xs btn-outline-primary float-md-right" style="width:100px; float:right; text-align:center;" href="@Url.Action("Users", "Admin")"><i class="fas fa-arrow-left"></i> Back</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <form asp-action="EditUser" method="post" autocomplete="off" id="theForm">
+        <div asp-validation-summary="All" class="text-danger"></div>
+        @Html.AntiForgeryToken()
+        <input hidden asp-for="UserId" value="@Model.UserId" />
+        <div class="container-fluid">
+            <div class="row">
+                <!-- left column -->
+                <div class="col-md-6">
+                    <!-- general form elements -->
+                    <div class="card card-info">
+                        <div class="card-header">
+                            <h3 class="card-title">About The Person</h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- form start -->
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Title: </label>
+                                <div class="col-sm-8">
+                                    <select class="intro form-control form-select form-select-lg mb-3" asp-for="Title" asp-items="@(new SelectList(ViewBag.Ttile, "Id", "Name"))">
+                                        <option selected disabled="disabled">Please Select Title</option>
+                                    </select>
+                                    <span asp-validation-for="Title" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">First Name: </label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" asp-for="FirstName" placeholder="Forename(s)">
+                                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Last Name: </label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" asp-for="Surname" placeholder="Last Name">
+                                    <span asp-validation-for="Surname" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Region: </label>
+                                <div class="col-sm-8">
+                                    <select class="intro form-control form-select form-select-lg mb-3" asp-for="RegionId" onchange="GetCity(this.value)" asp-items="@(new SelectList(ViewBag.RegionId, "Id", "Name"))">
+                                        <option selected>Please select Region</option>
+                                    </select>
+                                    <span asp-validation-for="RegionId" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">City: </label>
+                                <div class="col-sm-8">
+                                    <select asp-for="CityId" id="cityId" class="city intro form-control form-select form-select-lg mb-3" asp-items="@(new SelectList(ViewBag.CityId, "Id", "Name"))">
+                                        <option selected disabled="disabled">Please select City</option>
+                                    </select>
+                                    <span asp-validation-for="CityId" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Outward Postcode: </label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" asp-for="OutwardPostcode" placeholder="Outward Postcode">
+                                    <span asp-validation-for="OutwardPostcode" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Phone Number: </label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" asp-for="PhoneNumber" placeholder="Mobile Number">
+                                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- left column -->
+                <div class="col-md-6">
+                    <!-- general form elements -->
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title">ABOUT THEIR REFEREES/WITNESSES</h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div> <br />
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Referee Member Name: </label>
+                            <div class="col-sm-8">
+                                <input asp-for="SponsorsMemberName" class="form-control" />
+                                <span asp-validation-for="SponsorsMemberName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Member Number: </label>
+                            <div class="col-sm-8">
+                                <input asp-for="SponsorsMemberNumber" class="form-control" />
+                                <span asp-validation-for="SponsorsMemberNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Local Admin Name: </label>
+                            <div class="col-sm-8">
+                                <input asp-for="SponsorLocalAdminName" class="form-control" />
+                                <span asp-validation-for="SponsorLocalAdminName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Local Admin Number: </label>
+                            <div class="col-sm-8">
+                                <input asp-for="SponsorLocalAdminNumber" class="form-control" />
+                                <span asp-validation-for="SponsorLocalAdminNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- right column -->
+                <div class="col-md-6">
+                    <div class="card card-warning">
+                        <div class="card-header">
+                            <h3 class="card-title">ABOUT THEIR NEW ACCOUNT</h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Email: </label>
+                            <div class="col-sm-8">
+                                <input type="email" class="form-control" asp-for="Email" placeholder="Email">
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Role: </label>
+                            <div class="col-sm-8">
+                                <select asp-for="SelectedRole" class="form-control" asp-items="Model.Roles"></select>
+                                <span asp-validation-for="SelectedRole" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-10 offset-sm-2">
+                                <input type="checkbox" name="ForcePasswordChange" value="true" />
+                                <strong>Forced password change at first logon?</strong>
+                                <span asp-validation-for="ForcePasswordChange" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- left column -->
+                <div class="col-md-6">
+                    <div class="card card-dark">
+                        <div class="card-header">
+                            <h3 class="card-title">ABOUT THEIR FAMILY</h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="dependents" class="card-body">
+                            @for (int i = 0; i < Model.Dependents.Count; i++)
+                            {
+                                <div class="dependent">
+                                    <div class="dependent">
+                                        <div class="form-group row">
+                                            <label class="col-sm-4 col-form-label">Title: </label>
+                                            <div class="col-sm-8">
+                                                <select class="form-control" asp-for="Dependents[i].Title" asp-items="@(new SelectList(ViewBag.DTtile, "Id", "Name", Model.Dependents[i].Title))">
+                                                    <option selected disabled="disabled">Please Select Title</option>
+                                                </select>
+                                                <span asp-validation-for="Dependents[i].Title" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-sm-4 col-form-label">Gender: </label>
+                                            <div class="col-sm-8">
+                                                <select class="form-control" asp-for="Dependents[i].Gender" asp-items="@(new SelectList(ViewBag.DGender, "Id", "GenderName", Model.Dependents[i].Gender))">
+                                                    <option selected disabled="disabled">Please Select Gender</option>
+                                                </select>
+                                                <span asp-validation-for="Dependents[i].Gender" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-sm-4 col-form-label">Name: </label>
+                                            <div class="col-sm-8">
+                                                <input asp-for="Dependents[i].PersonName" class="form-control" />
+                                                <span asp-validation-for="Dependents[i].PersonName" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-sm-4 col-form-label">Year of Birth: </label>
+                                            <div class="col-sm-8">
+                                                <input asp-for="Dependents[i].PersonYearOfBirth" class="form-control" />
+                                                <span asp-validation-for="Dependents[i].PersonYearOfBirth" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-sm-4 col-form-label">Phone Number: </label>
+                                            <div class="col-sm-8">
+                                                <input asp-for="Dependents[i].PhoneNumber" class="form-control" />
+                                                <span asp-validation-for="Dependents[i].PhoneNumber" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-sm-4 col-form-label">Email: </label>
+                                            <div class="col-sm-8">
+                                                <input asp-for="Dependents[i].Email" class="form-control" />
+                                                <span asp-validation-for="Dependents[i].Email" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-sm-4 col-form-label">Registration Number: </label>
+                                            <div class="col-sm-8">
+                                                <input asp-for="Dependents[i].PersonRegNumber" class="form-control" />
+                                                <span asp-validation-for="Dependents[i].PersonRegNumber" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-danger remove-dependent submitBnt btn btn-success float-right">Remove</button>
+                                    </div>
+                                    <button type="button" class="btn btn-danger remove-dependent submitBnt btn btn-success float-right">Remove</button>
+
+                                    <fieldset class="mt-3">
+                                        <legend>Next of Kin</legend>
+                                        <div class="row">
+                                            @if (Model.Dependents[i].NextOfKins == null || !Model.Dependents[i].NextOfKins.Any())
+                                            {
+                                                <p class="text-danger">No next of kin added</p>
+                                            }
+                                            else
+                                            {
+                                                @for (int j = 0; j < Model.Dependents[i].NextOfKins.Count; j++)
+                                                {
+                                                    <div class="form-group col-md-6">
+                                                        <label asp-for="Dependents[i].NextOfKins[j].NextOfKinName">Name</label>
+                                                        <input asp-for="Dependents[i].NextOfKins[j].NextOfKinName" class="form-control" />
+                                                        <span asp-validation-for="Dependents[i].NextOfKins[j].NextOfKinName" class="text-danger"></span>
+                                                    </div>
+                                                    <div class="form-group col-md-6">
+                                                        <label asp-for="Dependents[i].NextOfKins[j].Relationship">Relationship</label>
+                                                        <input asp-for="Dependents[i].NextOfKins[j].Relationship" class="form-control" />
+                                                        <span asp-validation-for="Dependents[i].NextOfKins[j].Relationship" class="text-danger"></span>
+                                                    </div>
+                                                    <div class="form-group col-md-6">
+                                                        <label asp-for="Dependents[i].NextOfKins[j].NextOfKinTel">Tel</label>
+                                                        <input asp-for="Dependents[i].NextOfKins[j].NextOfKinTel" class="form-control" />
+                                                        <span asp-validation-for="Dependents[i].NextOfKins[j].NextOfKinTel" class="text-danger"></span>
+                                                    </div>
+                                                    <div class="form-group col-md-6">
+                                                        <label asp-for="Dependents[i].NextOfKins[j].NextOfKinEmail">Email</label>
+                                                        <input asp-for="Dependents[i].NextOfKins[j].NextOfKinEmail" class="form-control" />
+                                                        <span asp-validation-for="Dependents[i].NextOfKins[j].NextOfKinEmail" class="text-danger"></span>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-5">
+                <div class="col-12 mt-4">
+                    <input type="submit" id="submit" name="send" class="submitBnt btn btn-success float-left" value="Submit">
+                    <a asp-action="Users" asp-controller="Admin" class="btn btn-default float-right"><i class="fas fa-arrow-alt-circle-left"></i> Back</a>
+                </div>
+            </div>
+        </div>
+    </form>
+</section>
+<!-- Scripts -->
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            $('#add-dependent').click(function () {
+                var index = $('#dependents .dependent').length;
+                var dependentTemplate = `
+                            <div class="dependent">
+                                <div class="form-group">
+                                    <label for="Dependents_${index}__PersonName">Name</label>
+                                    <input id="Dependents_${index}__PersonName" name="Dependents[${index}].PersonName" class="form-control" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="Dependents_${index}__PersonYearOfBirth">Year of Birth</label>
+                                    <input id="Dependents_${index}__PersonYearOfBirth" name="Dependents[${index}].PersonYearOfBirth" class="form-control" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="Dependents_${index}__PersonRegNumber">Registration Number</label>
+                                    <input id="Dependents_${index}__PersonRegNumber" name="Dependents[${index}].PersonRegNumber" class="form-control" />
+                                </div>
+                                <button type="button" class="btn btn-danger remove-dependent"><i class="fas fa-user-minus"></i> Remove Member</button>
+                                <fieldset class="mt-3">
+                                    <legend>Next of Kin</legend>
+                                    <div class="row">
+                                        <div class="form-group col-md-6">
+                                            <label for="Dependents_${index}__NextOfKins_0__Name">Name</label>
+                                            <input id="Dependents_${index}__NextOfKins_0__Name" name="Dependents[${index}].NextOfKins[0].Name" class="form-control" />
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="Dependents_${index}__NextOfKins_0__Relationship">Relationship</label>
+                                            <input id="Dependents_${index}__NextOfKins_0__Relationship" name="Dependents[${index}].NextOfKins[0].Relationship" class="form-control" />
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="Dependents_${index}__NextOfKins_0__Tel">Tel</label>
+                                            <input id="Dependents_${index}__NextOfKins_0__Tel" name="Dependents[${index}].NextOfKins[0].Tel" class="form-control" />
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="Dependents_${index}__NextOfKins_0__Email">Email</label>
+                                            <input id="Dependents_${index}__NextOfKins_0__Email" name="Dependents[${index}].NextOfKins[0].Email" class="form-control" />
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>`;
+                $('#dependents').append(dependentTemplate);
+            });
+
+            $(document).on('click', '.remove-dependent', function () {
+                $(this).closest('.dependent').remove();
+            });
+        });
+
+        function GetCity(id) {
+            var getcity = "<option value='0'>please wait...</option>";
+            $("#cityId").html(getcity).show();
+            var url = '@Url.Action("GetCityByRegion", "Account")';
+            $.ajax({
+                url: url,
+                data: { Id: id },
+                cache: false,
+                type: "GET",
+                success: function (data) {
+                    var markup = "<option value='0'>Please select City</option>";
+                    $(".city").css("border", "");
+                    for (var x = 0; x < data.length; x++) {
+                        markup += '<option value="' + data[x].value + '">' + data[x].text + '</option>';
+                    }
+                    $("#cityId").html(markup).show();
+                },
+                error: function (response) {
+                    alert("error" + response);
+                }
+            });
+        }
+    </script>
+}

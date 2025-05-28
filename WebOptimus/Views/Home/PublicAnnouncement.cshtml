@@ -1,0 +1,62 @@
+﻿@model WebOptimus.Models.ViewModel.AnnouncementViewModel
+
+@{
+    ViewData["Title"] = "Announcement";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="slider-section"
+     style="background-image: url('/assets/img/Flag-of-Tanzania.png'); background-repeat: no-repeat; background-position: center; background-size: cover; width: 100%; height: 400px; margin: 0; padding: 0; position: relative;">
+    <div class="slider-container" style="width: 100%; height: 100%;">
+        <div class="slider-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0;">
+
+            <h1 class="animated-text" style="color: #fff!important">Important Updates</h1>
+        </div>
+    </div>
+</div>
+
+<!-- Announcement Section Start -->
+<div class="section section-padding">
+    <div class="container">
+        <div class="row mb-n5 justify-content-center">
+            @if (ViewBag.news == "no")
+            {
+                <!-- News Bulletin Wrap Start -->
+                <div class="col-12 mb-5">
+                    <div class="card shadow-lg animate__animated animate__fadeInUp">
+                        <div class="card-body text-center">
+                            <h4 class="card-title">No Announcement</h4>
+                            <p class="card-text">Please check back later...</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- News Bulletin Wrap End -->
+            }
+            else
+            {
+                @foreach (var announcement in Model.News)
+                {
+                    <div class="col-12 mb-5 animate__zoomIn">
+                        <!-- News Article Card Start -->
+                        <div class="card shadow-lg animate__animated animate__fadeInUp">
+                            <div class="card-body">
+                                <h5 class="card-title">@announcement.Title</h5>
+                                <ul class="meta list-inline mb-3">
+                                    <li class="list-inline-item"><strong>Admin</strong></li>
+                                    <li class="list-inline-item"><i class="fa fa-calendar"></i> @announcement.Date.ToString("dd/MM/yyyy")</li>
+                                </ul>
+                                <p class="card-text">@Html.Raw(announcement.Content)</p>
+                            </div>
+                            <div class="card-footer text-muted text-end">
+                                Published on: @announcement.Date.ToString("dd/MM/yyyy")
+                            </div>
+                        </div>
+                        <!-- News Article Card End -->
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+<!-- Announcement Section End -->

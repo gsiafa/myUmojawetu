@@ -1,0 +1,250 @@
+﻿@model List<WebOptimus.Models.ViewModel.CancelledUserViewModel>
+
+@{
+    ViewData["Title"] = "Cancellation Requests";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="content-header">
+    <!-- Row with 2 side-by-side columns -->
+    <div class="mb-3">
+        <a asp-action="Users" asp-controller="Admin" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Users
+        </a>
+    </div>
+    <div class="row">
+        <!-- First box: Unverified Users -->
+        <div class="col-6 col-md-3">
+            <div class="small-box bg-primary">
+                <div class="inner">
+                    <h3>@ViewBag.unverifyUser</h3>
+                    <p>Unverified Users</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <a asp-action="Users" asp-controller="Admin" asp-route-filter="unverified" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+
+        <!-- Second box: Register New Member (button already inside) -->
+        <div class="col-6 col-md-3">
+            <div class="small-box bg-danger">
+                <div class="inner">
+                    <h3>@ViewBag.deactivatedUserCount</h3>
+                    <p>Deactivated Members</p>
+
+                </div>
+                <div class="icon">
+                    <i class="fas fa-user-slash"></i>
+                </div>
+                <a class="small-box-footer" asp-action="DeactivatedUsers" asp-controller="Admin">More info<i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+
+     
+
+    </div>
+
+</div>
+
+<!-- Notification Partial -->
+<partial name="_notify" />
+
+@if (Model.Any())
+{
+    <section class="col-lg-12 connectedSortable">
+        <div class="card">
+            <div class="card-header border-transparent">
+                <h3 class="card-title text-center"><strong>Pending Cancellation Requests</strong></h3>
+                <br />
+                <p>These are members who have requested to leave UmojaWetu.</p>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="card-body" style="width: 100%; overflow-x: auto;">
+                    <table class="table m-0 myTable" style="width: 100%;">
+                        <thead class="text-center">
+                            <tr>
+                                <th>Name</th>
+                                <th>Reg #</th>
+                                <th>Requested On</th>
+                                <th>Leave With Family?</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr class="text-center">
+                                    <td>@item.FullName</td>
+                                    <td>@item.User.PersonRegNumber</td>
+                                    <td>@item.User.DateRequested.ToString("dd-MM-yyyy HH:mm")</td>
+                                    <td>@(item.User.CancelWithFamilyMembers ? "Yes" : "No")</td>
+                                    <td style="white-space: nowrap;">
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-info btn-sm text-white"
+                                                    data-toggle="modal"
+                                                    data-target="#viewFamilyModal-@item.User.PersonRegNumber">
+                                                <i class="fas fa-eye"></i> View More
+                                            </button>
+
+                                            <button type="button" class="btn btn-success btn-sm"
+                                                    data-toggle="modal"
+                                                    data-target="#approveModal-@item.User.PersonRegNumber">
+                                                <i class="fas fa-check"></i> Approve
+                                            </button>
+
+                                            <button type="button" class="btn btn-danger btn-sm"
+                                                    data-toggle="modal"
+                                                    data-target="#declineModal-@item.User.PersonRegNumber">
+                                                <i class="fas fa-times"></i> Decline
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- View More Modal -->
+                                <div class="modal fade" id="viewFamilyModal-@item.User.PersonRegNumber" tabindex="-1" role="dialog" aria-labelledby="familyModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-info text-white">
+                                                <h5 class="modal-title">
+                                                    <i class="fas fa-users"></i> Cancellation Request Details
+                                                </h5>
+                                                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <h5><i class="fas fa-user"></i> Member Details</h5>
+                                                    <p><strong>Full Name:</strong> @item.FullName</p>
+                                                    <p><strong>Person Reg Number:</strong> @item.User.PersonRegNumber</p>
+                                                    <p><strong>Phone Number:</strong> @item.Phone</p>
+                                                    <p><strong>Email:</strong> @item.Email</p>
+                                                    <p><strong>Outward Postcode:</strong> @item.OutwardPostcode</p>
+                                                    <p><strong>Date Joined:</strong> @item.DateJoined.ToString("dd-MM-yyyy")</p>
+                                                </div>
+
+                                                <div class="mb-3 alert alert-warning">
+                                                    <h5><i class="fas fa-exclamation-circle"></i> Cancellation Request</h5>
+                                                    <p><strong>Reason:</strong> @item.User.CancellationReason</p>
+                                                    <p>
+                                                        <strong>Requested to cancel related family members:</strong>
+                                                        <span class="badge @(item.User.CancelWithFamilyMembers ? "badge-danger" : "badge-secondary")">
+                                                            @(item.User.CancelWithFamilyMembers ? "Yes" : "No")
+                                                        </span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <h5><i class="fas fa-users"></i> Related Family Members</h5>
+                                                    @if (item.FamilyMembers.Any())
+                                                    {
+                                                        <ul class="list-group">
+                                                            @foreach (var member in item.FamilyMembers)
+                                                            {
+                                                                <li class="list-group-item">
+                                                                    <i class="fas fa-user"></i> <strong>@member.PersonName</strong> (@member.PersonRegNumber)
+                                                                </li>
+                                                            }
+                                                        </ul>
+                                                    }
+                                                    else
+                                                    {
+                                                        <p class="text-muted">No related family members found.</p>
+                                                    }
+                                                </div>
+                                            </div>
+
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Approve Modal -->
+                                <div class="modal fade" id="approveModal-@item.User.PersonRegNumber" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-success text-white">
+                                                <h5 class="modal-title"><i class="fas fa-check"></i> Approve Cancellation</h5>
+                                                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+                                            </div>
+                                            <form method="post" asp-action="ApproveCancellation" asp-controller="Account">
+                                                <div class="modal-body">
+                                                    <input type="hidden" name="requestId" value="@item.User.Id" />
+                                                    <label>Reason for Approval:</label>
+                                                    <textarea name="approvalReason" class="form-control" required placeholder="Enter reason..."></textarea>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                    <button type="submit" class="btn btn-success">Approve</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Decline Modal -->
+                                <div class="modal fade" id="declineModal-@item.User.PersonRegNumber" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-danger text-white">
+                                                <h5 class="modal-title"><i class="fas fa-times"></i> Decline Cancellation</h5>
+                                                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+                                            </div>
+                                            <form method="post" asp-action="DeclineCancellation" asp-controller="Account">
+                                                <div class="modal-body">
+                                                    <input type="hidden" name="requestId" value="@item.User.Id" />
+                                                    <label>Reason for Declining:</label>
+                                                    <textarea name="declineReason" class="form-control" required placeholder="Enter reason..."></textarea>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                    <button type="submit" class="btn btn-danger">Decline</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+}
+else
+{
+    <p>No pending cancellation requests.</p>
+}
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="~/admin/js/table.js" asp-append-version="true"> </script>
+    <script>
+        $(document).ready(function () {
+            $('.myTable').DataTable({
+                "order": [[2, "desc"]],
+                "pageLength": 10
+            });
+        });
+    </script>
+
+    <style>
+        .small-box .icon {
+            top: 10px;
+            font-size: 50px;
+            color: rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-group .btn {
+            margin-right: 5px; /* Adds spacing between buttons */
+        }
+    </style>
+}

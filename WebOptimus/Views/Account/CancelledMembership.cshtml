@@ -1,0 +1,232 @@
+﻿@model List<WebOptimus.Models.DeletedUsers>
+
+@{
+    ViewData["Title"] = "Cancelled Membership";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="content-header">
+    <!-- Row with 2 side-by-side columns -->
+    <div class="mb-3">
+        <a asp-action="Users" asp-controller="Admin" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Users
+        </a>
+    </div>
+    <div class="row">
+        <!-- First box: Unverified Users -->
+        <div class="col-6 col-md-3">
+            <div class="small-box bg-primary">
+                <div class="inner">
+                    <h3>@ViewBag.unverifyUser</h3>
+                    <p>Unverified Users</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <a asp-action="Users" asp-controller="Admin" asp-route-filter="unverified" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+
+        <!-- Second box: Register New Member (button already inside) -->
+        <div class="col-6 col-md-3">
+            <div class="small-box bg-danger">
+                <div class="inner">
+                    <h3>@ViewBag.deactivatedUserCount</h3>
+                    <p>Deactivated Members</p>
+
+                </div>
+                <div class="icon">
+                    <i class="fas fa-user-slash"></i>
+                </div>
+                <a class="small-box-footer" asp-action="DeactivatedUsers" asp-controller="Admin">More info<i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+        </div>           
+
+        <!--  New Card: Cancellation Requests -->
+        <div class="col-6 col-md-3">
+            <div class="small-box bg-warning">
+                <div class="inner">
+                    <h3>@ViewBag.pendingCancellationCount</h3>
+                    <p>Pending Cancellation Requests</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-user-times"></i>
+                </div>
+                <a class="small-box-footer" asp-action="CancellationRequests" asp-controller="Account">
+                    View Requests <i class="fas fa-arrow-circle-right"></i>
+                </a>
+            </div>
+        </div>
+
+
+    </div>
+
+</div>
+
+<!-- Notification Partial -->
+<partial name="_notify" />
+
+@if (Model.Any())
+{
+    <section class="col-lg-12 connectedSortable">
+        <div class="card">
+           
+            <div class="card-header border-transparent">
+                <h3 class="card-title text-center"><strong>Cancelled Members</strong></h3>
+                <br /><p>These are list of members who requested to leave Umojawetu and their membership was cancelled or had their account deleted. You can click on View for more details or restor their account back.</p>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="card-body" style="width: 100%; overflow-x: auto;">
+                    <table class="table m-0 myTable" style="width: 100%;">
+                        <thead class="text-center">
+                            <tr>
+                                <th>Member Name</th>
+                                <th>Person Reg Number</th>
+                                <th>Email</th>
+                                <th>Date Joined</th>
+                                <th>Cancelled On</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in Model)
+                            {
+                                <tr class="text-center">
+                                    <td>@user.FirstName @user.Surname</td>
+                                    <td>@user.PersonRegNumber</td>
+                                    <td>@user.Email</td>
+                                    <td>@user.DateCreated.ToString("dd-MM-yyyy HH:mm")</td>
+                                    <td>@user.DateDeleted.ToString("dd-MM-yyyy HH:mm")</td>
+                                    <td style="white-space:nowrap">
+                                        <button type="button" class="btn btn-info btn-sm me-2 text-white" data-toggle="modal" data-target="#viewDetailsModal-@user.PersonRegNumber" title="View Details">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+
+                                        <!--  Restore Button -->
+                                        <form method="post" asp-action="RestoreMembership" asp-controller="Account" class="d-inline">
+                                            <input type="hidden" name="PersonRegNumber" value="@user.PersonRegNumber" />
+                                            <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#restoreModal-@user.PersonRegNumber">
+                                                <i class="fas fa-undo"></i> Restore
+                                            </button>
+                                        </form>
+
+                                        <!--  Modal for Viewing Full Details -->
+                                        <div class="modal fade" id="viewDetailsModal-@user.PersonRegNumber" tabindex="-1" role="dialog" aria-labelledby="viewDetailsLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-lg" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header bg-info text-white">
+                                                        <h5 class="modal-title" id="viewDetailsLabel">
+                                                            <i class="fas fa-user"></i> User Details
+                                                        </h5>
+                                                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <table class="table table-bordered">
+                                                            <tbody>
+                                                                <tr><th>Full Name</th><td>@user.FirstName @user.Surname</td></tr>
+                                                                <tr><th>Person Reg Number</th><td>@user.PersonRegNumber</td></tr>
+                                                                <tr><th>Email</th><td>@user.Email</td></tr>
+                                                                <tr><th>Title</th><td>@user.Title</td></tr>
+                                                                <tr><th>Application Status</th><td>@user.ApplicationStatus</td></tr>
+                                                                <tr><th>Successor ID</th><td>@user.SuccessorId</td></tr>
+                                                                <tr><th>Approval Decliner Name</th><td>@user.ApprovalDeclinerName</td></tr>
+                                                                <tr><th>Approval Decliner Email</th><td>@user.ApprovalDeclinerEmail</td></tr>
+                                                                <tr><th>Note</th><td>@user.Note</td></tr>
+                                                                <tr><th>Note Date</th><td>@user.NoteDate?.ToString("dd-MM-yyyy HH:mm")</td></tr>
+                                                                <tr><th>Region</th><td>@user.RegionId</td></tr>
+                                                                <tr><th>City</th><td>@user.CityId</td></tr>
+                                                                <tr><th>Outward Postcode</th><td>@user.OutwardPostcode</td></tr>
+                                                                <tr><th>Reason for Deleting</th><td>@user.Reason</td></tr>
+                                                                <tr><th>Date Created</th><td>@user.DateCreated.ToString("dd-MM-yyyy HH:mm")</td></tr>
+                                                                <tr><th>Deleted On</th><td>@user.DateDeleted.ToString("dd-MM-yyyy HH:mm")</td></tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!--  End Modal -->
+                                        <!--  Restore Modal -->
+                                        <div class="modal fade" id="restoreModal-@user.PersonRegNumber" tabindex="-1" role="dialog" aria-labelledby="restoreModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header bg-success text-white">
+                                                        <h5 class="modal-title" id="restoreModalLabel">
+                                                            <i class="fas fa-user-check"></i> Confirm Restore
+                                                        </h5>
+                                                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+
+                                                    <div class="modal-body">
+                                                        <p><strong>Are you sure you want to restore this member?</strong></p>
+                                                        <p>Please provide a reason for restoring:</p>
+
+                                                        <!--  Restore Form -->
+                                                        <form method="post" asp-action="RestoreMembership" asp-controller="Account" id="restoreForm-@user.PersonRegNumber">
+                                                            <input type="hidden" name="PersonRegNumber" value="@user.PersonRegNumber" />
+                                                            <div class="form-group">
+                                                                <textarea class="form-control" name="RestoreReason" rows="3" required placeholder="Enter reason for restoring"></textarea>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <div class="custom-control custom-checkbox">
+                                                                    <input type="checkbox" class="custom-control-input" id="restoreWithFamily-@user.PersonRegNumber" name="RestoreWithFamily" value="true">
+                                                                    <label class="custom-control-label" for="restoreWithFamily-@user.PersonRegNumber">
+                                                                        Restore with all related family members (if any)
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                                <button type="submit" class="btn btn-success">Confirm Restore</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+else
+{
+    <p>No cancelled memberships found.</p>
+}
+
+@section Scripts {
+   
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="~/admin/js/table.js" asp-append-version="true"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('.myTable').DataTable({
+                "order": [[3,4, "asc"]],
+                "pageLength": 10
+            });
+        });
+    </script>
+}

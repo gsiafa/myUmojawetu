@@ -1,0 +1,145 @@
+﻿@model WebOptimus.Models.ViewModel.FinesViewModel
+@{
+    ViewData["Title"] = "Make Payment";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Background Banner -->
+<div class="slider-section"
+     style="background-image: url('/assets/img/Flag-of-Tanzania.png'); background-repeat: no-repeat; background-position: center; background-size: cover; width: 100%; height: 400px; margin: 0; padding: 0; position: relative;">
+    <div class="slider-container" style="width: 100%; height: 100%;">
+        <div class="slider-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0;">
+            <h2 class="animated-text" style="color: #fff!important">Make Payments</h2>
+        </div>
+    </div>
+</div>
+
+<section class="contact-page-wrap section-padding">
+    <div class="container">
+        <div class="row justify-content-center">
+            <!-- Left Column: Payment Information -->
+            <div class="col-12 col-lg-6">
+                <h2 class="contact-title">Outstanding Payment(s)</h2>
+                <p> Use this form to check for any outstanding payments and proceed with payment. Please enter your <strong>registration number</strong> to continue, or log in for more options, such as paying for a family member or group. <br /><br /> <strong>If you don’t remember your registration number, log in with your email to continue payment. If you have trouble logging in, feel free to contact us for assistance.</strong> </p>
+            </div>
+
+            <!-- Right Column: Fine Payment Form -->
+            <div class="col-12 col-lg-6">
+                <div class="fine-form-wrapper p-4 p-md-5 rounded">
+                    <h3 class="text-center text-white mb-4">Find Your Account Details</h3>
+                    <partial name="_notify" />
+                    <form method="post" asp-action="MakePayment" asp-controller="Payments" id="fineSearchForm">
+                        <div class="mb-4">
+                            <label for="identifier" class="form-label text-white">Enter Your Registration Number:</label>
+                            <input type="text" class="form-control form-control-lg" id="identifier" name="identifier" required placeholder="Enter Reg Number">
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-warning fw-bold btn-lg">
+                                Continue <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        @if (Model != null && Model.Amount > 0)
+        {
+            <hr>
+            <h5 class="text-secondary text-center">Outstanding Payment(s) for <strong>@Model.PersonName</strong></h5>
+
+            <div class="row justify-content-center">
+                <div class="col-12 col-lg-8">
+                    <div class="fine-summary p-4 rounded">
+                        <div class="form-group">
+                            <label class="form-label">Total Payment (£):</label>
+                            <input type="text" class="form-control form-control-lg" id="fineAmount" value="@Model.Amount" readonly />
+                        </div>
+
+                        <div class="form-group d-none">
+                            <label class="form-label">Transaction Fee (Stripe) (£):</label>
+                            <input type="text" class="form-control form-control-lg" id="transactionFee" readonly />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Total Payment (£):</label>
+                            <input type="text" class="form-control form-control-lg" id="totalPayment" readonly />
+                        </div>
+
+                        <form method="post" asp-action="ProcessFinePayment" asp-controller="Payments" id="finePaymentForm">
+                            <input type="hidden" name="UserId" value="@Model.UserId" />
+                            <input type="hidden" name="DependentId" value="@Model.DependentId" />
+                            <input type="hidden" name="Amount" id="fineAmountHidden" value="@Model.Amount" />
+                            <input type="hidden" name="TransactionFees" id="hiddenTransactionFee" />
+                            <input type="hidden" name="TotalAmount" id="hiddenTotalAmount" />
+                            <input type="hidden" name="PersonName" value="@Model.PersonName" />
+                            <input type="hidden" name="Email" value="@Model.Email" />
+                            <input type="hidden" name="PersonRegNumber" value="@Model.PersonRegNumber" />
+
+                            <div class="text-center mt-3">
+                                <button type="submit" class="btn btn-success btn-lg px-5">Proceed to Payment</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+<!--  Improved Styling -->
+<style>
+    /* Background for the Fine Payment Section */
+    .fine-payment-section {
+        background: url('/assets/img/fines-bg.jpg') no-repeat center center/cover;
+        padding: 60px 0;
+    }
+
+    /* Enlarged Form Wrapper */
+    .fine-form-wrapper {
+        background: rgba(0, 0, 0, 0.85); /* Darker Transparent Background */
+        padding: 40px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+        /* Form Inputs & Labels */
+        .fine-form-wrapper label {
+            font-weight: bold;
+            color: white;
+        }
+
+        .fine-form-wrapper input {
+            border-radius: 5px;
+            padding: 12px;
+            font-size: 18px;
+        }
+
+    /* Enlarged Summary Section */
+    .fine-summary {
+        background: #f8f9fa;
+        border: 1px solid #ddd;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Button Styling */
+    .fine-form-wrapper .btn-warning {
+        background-color: #ffc107;
+        color: #000;
+        padding: 12px 20px;
+        border-radius: 5px;
+        font-size: 18px;
+    }
+
+        .fine-form-wrapper .btn-warning:hover {
+            background-color: #e0a800;
+            color: white;
+        }
+</style>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+        }

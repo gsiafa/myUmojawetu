@@ -1,0 +1,440 @@
+﻿  @using Microsoft.AspNetCore.Http
+    @inject IHttpContextAccessor HttpContextAccessor
+    @using Microsoft.AspNetCore.Identity
+    @using WebOptimus.Controllers
+    @using WebOptimus.StaticVariables
+    @inject SignInManager<User> SignInManager
+    @inject UserManager<User> UserManager
+
+@inject IHttpContextAccessor HttpContextAccessor
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewData["Title"]</title>
+    <link rel="shortcut icon" href="~/assets/img/favicon.png">
+    <!-- Google Font: Source Sans Pro -->
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="~/admin/plugins/fontawesome-free/css/all.min.css" asp-append-version="true">
+    @*     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet">
+    *@
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" asp-append-version="true">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/js/all.min.js"></script>
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- Tempusdominus Bootstrap 4 -->
+    <link rel="stylesheet" href="~/Admin/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" asp-append-version="true">
+    <!-- iCheck -->
+    <link rel="stylesheet" href="~/Admin/plugins/icheck-bootstrap/icheck-bootstrap.min.css" asp-append-version="true">
+    <!-- JQVMap -->
+    <!-- Theme style -->
+    <link rel="stylesheet" href="~/Admin/dist/css/adminlte.min.css" asp-append-version="true">
+    <!-- overlayScrollbars -->
+    <link rel="stylesheet" href="~/Admin/plugins/overlayScrollbars/css/OverlayScrollbars.min.css" asp-append-version="true">
+    <!-- Daterange picker -->
+    <link rel="stylesheet" href="~/Admin/plugins/daterangepicker/daterangepicker.css" asp-append-version="true">
+    <!-- summernote -->
+    <link rel="stylesheet" href="~/Admin/plugins/summernote/summernote-bs4.min.css" asp-append-version="true">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/js/all.min.js"></script>
+    <link href="~/css/admincustom.css" rel="stylesheet" asp-append-version="true" />
+    <link href="~/admin/css/clayout.css" rel="stylesheet" />
+
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" crossorigin="anonymous" />
+
+</head>
+<body class="hold-transition sidebar-mini">
+    <!-- Site wrapper -->
+    <div class="wrapper">
+
+        <!-- Preloader -->
+        <div class="preloader flex-column justify-content-center align-items-center">
+            <img src="~/admin/dist/img/loading.gif" alt="AdminLTELogo" height="60" width="60" />
+        </div>
+        <!-- Navbar -->
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+            <!-- Left navbar links -->
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                </li>
+                @*     <li class="nav-item d-none d-sm-inline-block">
+                <a asp-action="Index" asp-controller="Home" class="nav-link">Home</a>
+                </li> *@
+            </ul>
+            <h1>Hi, @HttpContextAccessor.HttpContext.Session.GetString("userFirstName")</h1>
+            <!-- Right navbar links -->
+            <ul class="navbar-nav ml-auto">
+                <!-- Navbar Search -->
+
+
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+                        <i class="fas fa-expand-arrows-alt"></i>
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+        <!-- /.navbar -->
+        <!-- Main Sidebar Container -->
+        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+            <div class="top-left">
+
+                @if (@HttpContextAccessor.HttpContext.Session.GetString("OriginalUserId") != null)
+                {
+                    <a asp-controller="Account" asp-action="StopImpersonation" class="btn btn-danger">Stop Impersonation</a>
+                }
+
+                else
+                {
+                    @if (@HttpContextAccessor.HttpContext.Session.GetString("adminuser") == RoleList.GeneralAdmin || @HttpContextAccessor.HttpContext.Session.GetString("adminuser") == RoleList.RegionalAdmin || @HttpContextAccessor.HttpContext.Session.GetString("adminuser") == RoleList.LocalAdmin)
+                    {
+                        <a asp-controller="Admin" asp-action="Index" class="btn btn-danger">Admin Dashboard</a>
+                    }
+                }
+            </div>
+            <a asp-action="Dashboard" asp-controller="Home" class="brand-link">
+                @*        <img src="~/assets/logo/WebOptimuslogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+                <span class="brand-text font-weight-light">WebOptimus</span> *@
+                <h2>Umoja Wetu</h2>
+            </a>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Sidebar user (optional) -->
+                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                    <div class="image">
+                        @* <img src="../../dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image"> *@
+                    </div>
+                    <div class="info">
+                        <a href="#" class="d-block">Hi, @HttpContextAccessor.HttpContext.Session.GetString("userFirstName")</a>
+                    </div>
+                </div>
+
+
+
+                <!-- Sidebar Menu -->
+                <nav class="mt-2">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                        <li class="nav-item">
+                            <a asp-action="Dashboard" asp-controller="Home" class="nav-link">
+                                <i class="fas fa-home"></i>
+                                <p>
+                                    Home
+                                   
+                                </p>
+                            </a>
+                           
+                        </li>
+
+                        <li class="nav-item">
+                            <a asp-action="SpecialAnnouncement" asp-controller="Home" class="nav-link">
+                                <i class="fas fa-bullhorn"></i>
+                                <p>Announcements</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a asp-action="Donation" asp-controller="Home" class="nav-link">
+                                <i class="fas fa-hand-holding-heart"></i>
+                                <p>Ongoing Donation</p>
+                            </a>
+                        </li>
+                        <!-- Separate Payment History Navigation -->
+                        <li class="nav-item">
+                            <a asp-action="PaymentHistory" asp-controller="Donation" class="nav-link">
+                                <i class="fas fa-wallet nav-icon"></i>
+                                <p>Payment History</p>
+                            </a>
+                        </li>
+                    @*     <li class="nav-item">
+                            <a asp-action="Index" asp-controller="Groups" class="nav-link">
+                                <i class="fas fa-users"></i>
+                                <p>
+                                    Groups
+                                    <span class="badge badge-danger">New</span>
+                                </p>
+                            </a>
+                        </li> *@
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-users"></i>
+                                <p>
+                                    Groups
+                                    <span class="badge badge-danger">New</span>
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                               @*  <li class="nav-item">
+                                    <a asp-action="GroupOverview" asp-controller="Groups" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Groups Overview</p>
+                                    </a>
+                                </li> *@
+                                <li class="nav-item">
+                                    <a asp-action="Index" asp-controller="Groups" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>My Groups</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-action="PendingRequests" asp-controller="Groups" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Pending Requests</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+
+
+                        <li class="nav-item">
+                            <a asp-action="ShowPolls" asp-controller="Poll" class="nav-link" id="pollMenu" style="display: none;">
+                                <i class="fas fa-poll"></i>
+                                <p>Poll</p>
+                            </a>
+                        </li>
+                      
+                        <!-- Manage Section -->
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-cogs"></i>
+                                <p>
+                                    Manage
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a asp-action="Index" asp-controller="Profile" class="nav-link">
+                                        <i class="far fa-user nav-icon"></i>
+                                        <p>Profile</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-action="Dependents" asp-controller="Profile" class="nav-link">
+                                        <i class="fas fa-users nav-icon"></i>
+                                        <p>Family</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-action="NextOfKin" asp-controller="Profile" class="nav-link">
+                                        <i class="fas fa-user-friends nav-icon"></i>
+                                        <p>Next of Kins</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-action="Successor" asp-controller="Profile" class="nav-link">
+                                        <i class="fas fa-user-shield nav-icon"></i>
+                                        <p>Successor</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                     
+
+                   
+                        @if (@HttpContextAccessor.HttpContext.Session.GetString("OpenVotes") == "true")
+                        {
+                            
+
+                                <li class="nav-item has-treeview">
+                                    <a href="#" class="nav-link">
+                                        <i class="fas fa-vote-yea"></i>
+                                        <p>
+                                            Elections
+                                            <span style="color: red; font-weight: bold;"> (New)</span> <!-- Red 'New' label -->
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
+
+                                
+                                <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a asp-action="Index" asp-controller="Vote" class="nav-link">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>Vote Now</p>
+                                            </a>
+                                        </li>
+                                
+                                    </ul>
+                                </li>
+                            
+                        }
+                    
+
+                                    @if (@HttpContextAccessor.HttpContext.Session.GetString("shareElection") == "true")
+                                    {
+
+
+
+                                        <li class="nav-item">
+                                            <a asp-action="ElectionResults" asp-controller="Vote" class="nav-link">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>Election Results</p>
+                                            </a>
+                                        </li>
+
+                                    }
+                            
+
+                       
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="fas fa-user"></i>
+                                <p>
+                                    Hello, @HttpContextAccessor.HttpContext.Session.GetString("userFirstName")
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a asp-action="Index" asp-controller="Account" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Account</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-action="Logout" asp-controller="Account" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Log Out</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                </nav>
+                <!-- /.sidebar-menu -->
+            </div>
+            <!-- /.sidebar -->
+        </aside>
+
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+
+            <section class="content">
+
+                <!-- Default box -->
+                <div class="card">
+                
+                    <div class="card-body">
+                        <partial name="_Notifications" />
+                        @RenderBody()
+                    </div>
+
+                </div>
+                <!-- /.card -->
+
+            </section>
+            <!-- /.content -->
+        </div>
+        <!-- /.content-wrapper -->
+
+        <footer class="main-footer bg-dark">
+            <div class="float-right d-none d-sm-block">
+            </div>
+            <strong>Copyright &copy; @DateTime.UtcNow.Year | Umoja Wetu | All rights reserved.</strong>
+            <p class="mb-0">
+                <a class="text-white text-decoration-underline" asp-action="Privacy" asp-controller="Home" target="_blank">
+                    Privacy Statement
+                </a>
+                &nbsp;|&nbsp;
+                Website developed by
+                <a href="https://gncwebsolutions.com" class=" text-decoration-underline" target="_blank">
+                    GNCWebSolutions
+                </a>
+            </p>
+        </footer>
+
+        <script src="~/Admin/plugins/jquery/jquery.min.js"></script>
+
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+        <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js "></script>
+
+        <script src="~/js/site.js"></script>
+        <!-- jQuery -->
+        <!-- Bootstrap 4 -->
+
+        <script src="~/Admin/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <!-- ChartJS -->
+        <!-- jQuery Knob Chart -->
+        <!-- daterangepicker -->
+        <script src="~/Admin/plugins/moment/moment.min.js"></script>
+        <script src="~/Admin/plugins/daterangepicker/daterangepicker.js"></script>
+        <!-- Tempusdominus Bootstrap 4 -->
+        <script src="~/Admin/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+        <!-- Summernote -->
+        <script src="~/Admin/plugins/summernote/summernote-bs4.min.js"></script>
+        <!-- overlayScrollbars -->
+        <script src="~/Admin/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+        <!-- AdminLTE App -->
+        <script src="~/Admin/dist/js/adminlte.js"></script>
+        <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+        <script src="~/Admin/dist/js/pages/dashboard.js"></script>
+
+        @*         <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+        *@ <script async src="https://www.googletagmanager.com/gtag/js?id=G-HLMJG4WRE1"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag('js', new Date());
+
+            gtag('config', 'G-HLMJG4WRE1');
+        </script>
+        <script>
+            $(document).ready(function () {
+
+                $.ajax({
+                    url: '@Url.Action("IsPollActiveAndNotCompleted", "Setting")',
+                    method: 'GET',
+                    success: function (response) {
+                        if (response.isPollActive && !response.hasCompletedPoll) {
+                            $('#pollMenu').show(); // Show the poll menu if it's active and not completed
+                        }
+                    }
+                });
+            });
+        </script>
+
+        <script>
+            $(document).ready(function () {
+                var modals = $('div[id^="notificationModal_"]');
+                function showModal(index) {
+                    if (index >= modals.length) return; // End if no more modals
+                    var currentModal = $(modals[index]);
+                    currentModal.modal('show');
+
+                    currentModal.on('hidden.bs.modal', function () {
+                        showModal(index + 1); // Show next modal when current one is closed
+                    });
+                }
+                showModal(0);             
+
+            });
+        </script>
+
+        @RenderSection("Scripts", required: false)
+
+
+    </div>
+</body>
+</html>

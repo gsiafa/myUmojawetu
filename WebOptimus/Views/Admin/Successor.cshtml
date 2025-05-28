@@ -1,0 +1,96 @@
+﻿@model WebOptimus.Models.ViewModel.SuccessorListViewModel
+@using WebOptimus.StaticVariables
+
+@{
+    ViewData["Title"] = "Manage Successors";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Manage Successors</h1>
+                <p>In the event an account holder is confirmed dead, you can grant any of their dependents 'Grant Takeover' status and they'll be able to manage the deceased account, including making payments for the remaining families memebers.</p>
+            </div>
+       
+        </div>
+    </div>
+</div>
+
+<partial name="_notify" />
+@if (Model.Successors.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-bordered text-center" id="successorTable">
+            <thead>
+                <tr>
+                    <th>Successor Name</th>
+                    <th>Successor To</th>
+                    <th>Relationship</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var successor in Model.Successors)
+                {
+                    <tr>
+                        <td>@successor.Name</td>
+                        <td>@successor.SuccessorTo</td>
+                        <td>@successor.Relationship</td>
+                        <td>@successor.Email</td>
+                        <td>@successor.SuccessorTel</td>
+                        <td>@successor.Status</td>
+                        <td>
+                            @if (!successor.IsTakeOver)
+                            {
+                                <form asp-action="GrantTakeOver" method="post" class="d-inline">
+                                    <input type="hidden" name="successorId" value="@successor.Id" />
+                                    <button type="submit" onclick="return confirm('Are you sure you want to grant takeover status to this successor?')" class="btn btn-success btn-sm" title="Grant Takeover" data-toggle="tooltip">
+                                        <i class="fas fa-user-shield"></i> <br />
+                                    </button>
+                                </form>
+                            } 
+                            @if (successor.Status == SuccessorStatus.AwaitingEmailConfirmation)
+                            {
+                                <form asp-action="ResendVerificationEmail" method="post" class="d-inline">
+                                    <input type="hidden" name="successorId" value="@successor.Id" />
+                                    <button type="submit" onclick="return confirm('Are you sure you want to resend the verification email to this successor?')" class="btn btn-warning btn-sm" title="Resend Verification Email" data-toggle="tooltip">
+                                        <i class="fas fa-envelope"></i> 
+                                    </button>
+                                </form>
+                            }
+                          
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <p>No successors found.</p>
+}
+
+@section Scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#successorTable').DataTable({
+                "paging": true,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                responsive: true
+            });
+        });
+    </script>
+}

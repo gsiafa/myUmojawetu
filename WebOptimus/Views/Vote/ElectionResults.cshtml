@@ -1,0 +1,145 @@
+﻿@model WebOptimus.Models.ViewModel.ElectionResultsViewModel
+
+@{
+    ViewData["Title"] = "Election Results";
+    Layout = "~/Views/Shared/_cLayout.cshtml";
+}
+
+<div class="container mt-5">
+    <h2 class="text-center">Election Results</h2>
+
+    <!-- Results Table -->
+    <table class="table table-striped mt-4">
+        <thead>
+            <tr>
+                <th>Candidate</th>
+                <th>Position</th>
+                <th>Vote Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var candidateVote in Model.CandidateVotesList)
+            {
+                <tr>
+                    <td>@candidateVote.CandidateName</td>
+                    <td>@candidateVote.ElectionName</td>
+                    <td>@candidateVote.VoteCount</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="row">
+        <!-- Bar Chart on the left -->
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-chart-bar mr-1"></i>
+                        Vote Count (Bar Chart)
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="voteBarChart" style="height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pie Chart on the right -->
+        <div class="col-lg-5">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-chart-pie mr-1"></i>
+                        Vote Distribution (Pie Chart)
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="votePieChart" style="height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Table -->
+        <!-- Donor List Table -->
+        <div class="col-12 mt-5">
+            <h3 class="text-center">Voter Details</h3>
+            <div class="table-responsive">
+                <table class="table table-bordered text-center datatable">
+                    <thead>
+                        <tr>
+                            <th>Registration Number</th>
+                            <th>Chosen Candidate</th>
+                            <th>Position</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var voter in Model.VoterDetails)
+                        {
+                            <tr>
+                                <td>@voter.RegNumber</td>
+                                <td>@voter.CandidateName</td>
+                                <td>@voter.Position</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+      
+    
+    </div>
+
+    @section Scripts {
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+        <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+        <script src="~/admin/js/donation.js" asp-append-version="true"></script>
+        <script>
+            // Prepare data for charts
+            var candidates = @Html.Raw(Json.Serialize(Model.CandidateVotesList.Select(cv => cv.CandidateName).ToArray()));
+            var voteCounts = @Html.Raw(Json.Serialize(Model.CandidateVotesList.Select(cv => cv.VoteCount).ToArray()));
+
+            // Bar Chart
+            var ctxBar = document.getElementById('voteBarChart').getContext('2d');
+            new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: candidates,
+                    datasets: [{
+                        label: 'Vote Count',
+                        data: voteCounts,
+                        backgroundColor: '#2196f3',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Pie Chart
+            var ctxPie = document.getElementById('votePieChart').getContext('2d');
+            new Chart(ctxPie, {
+                type: 'pie',
+                data: {
+                    labels: candidates,
+                    datasets: [{
+                        label: 'Vote Distribution',
+                        data: voteCounts,
+                        backgroundColor: ['#4caf50', '#2196f3', '#f44336', '#ff9800', '#9c27b0'],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        </script>
+    }

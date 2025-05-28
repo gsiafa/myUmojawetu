@@ -1,0 +1,139 @@
+﻿@model IEnumerable<WebOptimus.Models.Contact>
+@{
+    ViewData["Title"] = "replied queries";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<!-- Content Wrapper. Contains page content -->
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Replied Quries</h1>
+            </div><!-- /.col -->
+          
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+<!-- /.content-header -->
+<!-- Main content -->
+<div class="col-sm-12">
+    <a class="btn btn-xs btn-outline-primary float-md-right" style="width:100px;float:right; text-align: center;" onclick="@("window.location.href='" + @Url.Action("Index", "Contact") + "'");"><i class="fas fa-arrow-left"></i>  Back </a>
+
+</div><!-- /.col -->
+
+@if (Model.Count() > 0)
+{
+    <table class="table table-bordered" id="myTable" style="background-color:#F4F9FA">
+        <thead>
+            <tr class="text-center">
+                <th class="text-center">
+                    @Html.DisplayNameFor(model => model.FullName)
+                </th>
+                <th class="text-center">
+                    @Html.DisplayNameFor(model => model.EmailAddress)
+                </th>
+            
+                <th class="text-center">
+                    @Html.DisplayNameFor(model => model.PhoneNumber)
+                </th>
+                <th class="text-center">
+                    @Html.DisplayNameFor(model => model.Subject)
+                </th>
+                <th class="text-center">
+                    @Html.DisplayNameFor(model => model.Message)
+                </th>
+                <th class="text-center">
+                    @Html.DisplayNameFor(model => model.Status)
+                </th>
+                <th class="text-center">
+                    Date Approved
+                </th>
+             
+                @* <th class="text-center">
+                    Actions
+                </th> *@
+            </tr>
+        </thead>
+        <tbody class="text-center">
+
+            @foreach (var item in Model)
+            {
+                <tr class="text-center">
+
+                    <td class="text-center">
+                        @Html.DisplayFor(modelItem => item.FullName)
+                    </td>
+                    <td class="text-center">
+                        @Html.DisplayFor(modelItem => item.EmailAddress)
+                    </td>
+                
+                    <td class="text-center">
+                        @Html.DisplayFor(modelItem => item.PhoneNumber)
+                    </td>
+                 
+                    <td class="text-center">
+                        @Html.DisplayFor(modelItem => item.Subject)
+                    </td>
+                    <td class="text-center">
+                        @Html.DisplayFor(modelItem => item.Message)
+                    </td>
+                    <td class="text-center">
+                        @Html.DisplayFor(modelItem => item.Status)
+                    </td>
+                    <td class="text-center">
+                        @Html.DisplayFor(modelItem => item.DateReplied)
+                    </td>
+              
+                </tr>
+            }
+        </tbody>
+    </table>
+    <br />
+    <br />
+}
+else
+{
+    <p>No record exists...</p>
+}
+
+<style>
+    table td {
+        word-break: break-word;
+        white-space: normal !important;
+    }
+
+    .centerme {
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+</style>
+
+
+<style>
+    #myTable_wrapper {
+        background-color: #F4F9FA;
+    }
+
+    #gform_wrapper_1 {
+        background-color: #F4F9FA !important;
+    }
+
+    .delete {
+        color: red;
+    }
+
+    .lock {
+        color: green;
+    }
+
+    .unlock {
+        color: red;
+    }
+</style>
+
+@section scripts{
+    <script src="~/admin/js/table.js" asp-append-version="true"></script>   
+
+
+}

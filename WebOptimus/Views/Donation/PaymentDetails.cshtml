@@ -1,0 +1,157 @@
+﻿@using WebOptimus.Models.ViewModel
+@model WebOptimus.Models.ViewModel.PaymentHistoryDetailsViewModel
+
+@{
+    ViewData["Title"] = "Payment Details";
+    Layout = "~/Views/Shared/_cLayout.cshtml";
+}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="invoice p-3 mb-3">
+                    <!-- Title Row -->
+                    <div class="row">
+                        <div class="col-12">
+                            <h4>
+                                <i class="">Umojawetu</i> Payment Details
+                                <small class="float-right">
+                                    Date: @Model.PaymentSessions.FirstOrDefault()?.DateCreated.ToString("dd/MM/yyyy")
+                                </small>
+                            </h4>
+                        </div>
+                    </div>
+
+                    <!-- Info Row -->
+                    <div class="row invoice-info">
+                        <div class="col-sm-6">
+                            <h5>Payment made:</h5>
+                            <ul>
+                                @foreach (var session in Model.PaymentSessions)
+                                {
+                                    <li>
+                                        <strong>Payment Reference:</strong> @session.OurRef<br />
+                                        <strong>Campaign Ref:</strong> @session.CauseCampaignpRef<br />
+                                        <strong>Your Note/Comment:</strong> @(string.IsNullOrEmpty(session.Reason) ? "N/A" : session.Reason)<br />
+                                        <strong>Payment Date:</strong> @session.DateCreated.ToString("dd/MM/yyyy")
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Death-Related Payments Section (ONLY IF AVAILABLE) -->
+                    @if (ViewBag.HasDeathRelatedPayments)
+                    {
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h5>Death-Related Contributions:</h5>
+                                <div class="table-responsive">
+                                    <!-- Added wrapper -->
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>                                            
+                                            <th>Member Name</th>
+                                            <th>Contribution</th>
+                                            <th>Goodwill</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.PaymentItems)
+                                        {
+                                            var matchingPayment = Model.Payments.FirstOrDefault(p => p.personRegNumber == item.PersonRegNumber)?.GoodwillAmount ?? 0.00m;
+                                            <tr>                                               
+                                                <td>@item.Name</td>
+                                                <td>@item.Price.ToString("C")</td>
+                                                <td>@matchingPayment.ToString("C")</td>
+                                                   
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                                </div> <!-- End table-responsive -->
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Non-Death-Related Contributions Section (ONLY IF AVAILABLE) -->
+                    @if (ViewBag.HasNonDeathPayments)
+                    {
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h5>Non-Death-Related Contributions:</h5>
+                                <div class="table-responsive">
+                                    <!-- Added wrapper -->
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Contribution</th>
+                                            <th>Payment Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var donation in Model.OtherDonationPayments)
+                                        {
+                                            <tr>
+                                                <td>@donation.CreatedBy</td>
+                                                <td>@donation.Amount.ToString("C")</td>
+                                                <td>@donation.DateCreated.ToString("dd/MM/yyyy")</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                                </div> <!-- End table-responsive -->
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Summary Section -->
+                    <div class="row mt-4 d-flex justify-content-center">
+                        <div class="col-12">
+                            <div class="summary-section p-3 bg-light rounded text-center">
+                                <table class="table text-center">
+                                    <tbody>
+                                      
+
+                                     
+                                        <tr>
+                                            <th class="text-right">Late Payment Fees:</th>
+                                            <td>@ViewBag.LatePaymentFees.ToString("C")</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="text-right">Transaction Fees:</th>
+                                            <td>@ViewBag.TransactionFees.ToString("C")</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="text-right">Total Amount Paid:</th>
+                                            <td>@ViewBag.TotalAmountPaid.ToString("C")</td>
+                                        </tr>
+                                        <hr />
+                                        <tr>
+                                            <th class="text-right">Total Received (minus transaction fees):</th>
+                                            <td>@ViewBag.NetReceived.ToString("C")</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="row no-print mt-4">
+                        <div class="col-12">
+                            <a asp-action="DownloadPaymentDetails" asp-controller="Donation" asp-route-paymentId="@Model.PaymentSessions.FirstOrDefault()?.OurRef" class="btn btn-primary float-right">
+                                <i class="fas fa-download"></i> Download PDF
+                            </a>
+                            <a href="@Url.Action("PaymentHistory", "Donation")" class="btn btn-secondary float-right mr-2">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

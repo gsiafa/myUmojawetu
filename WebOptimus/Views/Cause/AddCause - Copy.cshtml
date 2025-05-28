@@ -1,0 +1,214 @@
+﻿@model WebOptimus.Models.ViewModel.CauseViewModel
+@{
+    ViewData["Title"] = "Add Cause";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Set-up new fund campaign</h1>
+                <p>Use this section to set-up new donation campaign for members who have passed away. You will need to report the death first before completing this section. <a asp-action="ReportedDeaths" asp-controller="Family">Report Death</a></p>
+            </div>
+            <div class="col-sm-6">
+                <a class="btn btn-xs btn-outline-primary float-md-right" style="width:100px; float:right; text-align: center;" onclick="@("window.location.href='" + @Url.Action("Index", "Cause") + "'");"><i class="fas fa-arrow-left"></i>  Back </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container-fluid">
+        <form asp-controller="Cause" asp-action="AddCauseofDeath" method="post" autocomplete="off">
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <!-- left column -->
+                <div class="col-md-6">
+                    <div class="card card-info">
+                        <div class="card-header">
+                            <h3 class="card-title">Deceased Information</h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Name of deceased: </label>
+                                <div class="col-sm-8">
+                                    <select class="intro form-control form-select form-select-lg mb-3" id="ddlReportedDeaths" asp-for="ReportedDeathId" asp-items="Model.ReportedDeaths">
+                                        <option selected disabled="disabled">Please select</option>
+                                    </select>
+                                    <span asp-validation-for="ReportedDeathId" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Registration Number: </label>
+                                <div class="col-sm-8">
+                                    <input id="regNum" class="form-control" readonly />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Year Of Birth:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" id="yr1" disabled class="form-control" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Date Joined:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" id="datejoined" disabled class="form-control" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Date of Death:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" id="dateofdeath" disabled class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card card-success">
+                        <div class="card-header">
+                            <h3 class="card-title">Funds Information</h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Target Amount (£): </label>
+                                <div class="col-sm-8">
+                                    <input type="number" class="form-control currency-input" name="TargetAmount" placeholder="Target Amount (£)" asp-for="TargetAmount" step="0.01" min="0">
+                                    <span asp-validation-for="TargetAmount" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Full Members To Pay (£): </label>
+                                <div class="col-sm-8">
+                                    <input type="number" class="form-control currency-input" name="FullMemberAmount" placeholder="Full Member Amount (£)" asp-for="FullMemberAmount" step="0.01" min="0">
+                                    <span asp-validation-for="FullMemberAmount" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Under Age Limit: </label>
+                                <div class="col-sm-8">
+                                    <input type="number" name="UnderAge" class="form-control" placeholder="Under Age Limit" asp-for="UnderAge" min="0" max="99" maxlength="2">
+                                    <span asp-validation-for="UnderAge" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Under Age to Pay(£): </label>
+                                <div class="col-sm-8">
+                                    <input type="number" class="form-control currency-input" name="UnderAgeAmount" placeholder="Under Age Amount (£)" asp-for="UnderAgeAmount" step="0.01" min="0">
+                                    <span asp-validation-for="UnderAgeAmount" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card card-dark">
+                        <div class="card-header">
+                            <h3 class="card-title">Title/Brief Summary (For example: Donation of John Smith)</h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Summary: </label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="Title" class="form-control" placeholder="Summary" asp-for="Summary">
+                                    <span asp-validation-for="Summary" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title">Full Description (This is what members will see)</h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body pad">
+                            <div class="mb-3">
+                                <textarea name="Description" class="textarea" placeholder="Please enter full details so all members can read" asp-for="Description"
+                                          style="width: 100%; height: 200px; font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;"></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <input type="checkbox" id="lessorOrGroup" name="IsActive" asp-for="IsActive">
+                    <label class="container2"> Please check to make this donation active to members (leaving it unchecked will NOT make the donation visible). </label> <br />
+                    <span asp-validation-for="IsActive" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary float-left">Submit</button>
+                <button type="button" class="btn btn-secondary float-right" asp-action="Index" asp-controller="Cause" data-dismiss="modal">Cancel</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="~/Admin/plugins/summernote/summernote-bs4.min.css" asp-append-version="true">
+    <script>
+        function updateReportedDeathDetails() {
+            var selectedReportedDeathId = document.getElementById("ddlReportedDeaths").value;
+
+            $.ajax({
+                url: '/Cause/GetReportedDeathDetails/' + selectedReportedDeathId,
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    $('#regNum').val(data.deceasedRegNumber);
+                    $('#yr1').val(data.deceasedYearOfBirth);
+                    $('#datejoined').val(moment(data.dateJoined).format('DD/MM/YYYY'));
+                    $('#dateofdeath').val(moment(data.dateOfDeath).format('DD/MM/YYYY'));
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error: " + error);
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            $("#ddlReportedDeaths").on("change", function () {
+                updateReportedDeathDetails();
+            });
+
+            // Ensure currency input is formatted to 2 decimal places
+            $('.currency-input').on('input', function () {
+                this.value = parseFloat(this.value).toFixed(2);
+            }).on('blur', function () {
+                this.value = parseFloat(this.value).toFixed(2);
+            });
+
+            // Restrict Under Age Limit input to 2 digits
+            $('input[name="UnderAge"]').on('input', function () {
+                if (this.value.length > 2) {
+                    this.value = this.value.slice(0, 2);
+                }
+            });
+        });
+    </script>
+}

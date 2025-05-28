@@ -1,0 +1,114 @@
+﻿@model WebOptimus.Models.ViewModel.UserRoleViewModel
+@using WebOptimus.Extensions
+@using WebOptimus.StaticVariables
+@{
+
+    ViewData["Title"] = "Registration Details";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- Content Header (Page header) -->
+<!-- Content Wrapper. Contains page content -->
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row col-sm-12">
+            <div class="col-sm-6">
+                <h1>Access Control for <strong> @Model.FirstName  @Model.LastName</strong>  </h1>
+        
+            </div>
+
+                  
+        </div>
+       
+    </div><!-- /.container-fluid -->
+  
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <form method="post" asp-action="EditUserRole" asp-controller="Admin">
+            <div class="row">
+            <!-- left column -->
+
+            <div class="col-md-6">
+                <!-- general form elements -->
+                <div class="card card-info">
+                  
+                    <div class="card-header">
+                        <h3 class="card-title">Account Information</h3>
+
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /.card-header -->
+                    <!-- form start -->
+                      
+                    <div class="card-body">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <input hidden name="UserId" asp-for="@Model.UserId" />
+                            <input hidden name="PersonRegNumber" asp-for="@Model.PersonRegNumber" />
+                            <div class="form-group">
+                                <label asp-for="Email" class="control-label"></label>
+                                <input asp-for="Email" class="form-control" readonly />
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label">Current Role</label>
+                                <input type="text" class="form-control" value="@Model.OldRole" readonly />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="SelectedRole" class="control-label">Select New Role</label>
+                                <select asp-for="SelectedRole" asp-items="@(new SelectList(Model.Roles))" class="form-control"></select>
+                            </div>
+                            <div class="ml-auto mt-4 ">
+                                <small class="btn btn-dark signInText" style="float:right;"><a class="signInText" style="cursor: pointer; color:#fff !important;  text-decoration: none;  float:right;" asp-action="Users" asp-controller="Admin">Back</a></small>
+                                <small> <button type="submit" class="btn btn-success justify-content-end signInText" style="cursor: pointer; color:#fff !important;  text-decoration: none;"> Update Role</button></small>
+                            </div>
+          
+                    </div>
+
+                </div>
+                <!-- /.card -->
+
+
+            </div>
+            <!--/.col (left) -->
+                <div class="col-md-6">
+                    <!-- general form elements -->
+                    <div class="card card-info">
+
+                     
+                        <!-- /.card-header -->
+                        <!-- form start -->
+
+                        <a asp-action="ChangeUserPassword" asp-controller="Admin" asp-route-personRegNumber="@Model.PersonRegNumber" class="btn btn-primary btn-lg btn-block">Change Password</a>
+
+                    </div>
+                    <!-- /.card -->
+
+
+                </div>
+            <!-- left column -->
+       
+        </div>
+        </form>
+    </div><!-- /.container-fluid -->
+</section>
+<!-- /.content -->
+
+
+<style>
+    .textarea {
+        pointer-events: none;
+    }
+</style>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+   
+}

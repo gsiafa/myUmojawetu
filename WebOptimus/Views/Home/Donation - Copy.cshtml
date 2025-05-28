@@ -1,0 +1,238 @@
+﻿@model WebOptimus.Models.ViewModel.DonorVM
+@{
+    ViewData["Title"] = "Donation";
+    Layout = "~/Views/Shared/_cLayout.cshtml";
+}
+
+
+@if ((ViewBag.ActiveCauses != null && ViewBag.ActiveCauses.Count > 0) ||
+   (ViewBag.EndedCauses != null && ViewBag.EndedCauses.Count > 0))
+{
+        <!-- Active Causes Section -->
+    @if (ViewBag.ActiveCauses != null && ViewBag.ActiveCauses.Count > 0)
+    {
+                <div class="col-12 col-xl-8 offset-xl-2 text-center">
+                    <div class="section-title">
+                        <h2 class="section-title text-primary">Live Ongoing Donations</h2>
+                        <p class="lead text-muted">Your help can make a difference – please donate generously.</p>
+                    </div>
+                </div>
+
+        @foreach (var cause in ViewBag.ActiveCauses)
+        {
+            @* Only display causes where IsDisplayable = true *@
+            @if (cause.IsDisplayable)
+            {
+                                <div class="col-12">
+                                    <div class="appeal card shadow-lg mb-5 animate__animated animate__fadeInUp">
+                                        <div class="content card-body">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <h4 class="card-title text-success">@cause.Summary <br />Ref# @cause.CauseCampaignpRef</h4>
+                                                <small class="text-muted">Published: @cause.DateCreated.ToString("dd/MM/yyyy")</small>
+                                            </div>
+                            @if (!string.IsNullOrEmpty(cause.DeceasedPhotoPath))
+                            {
+                                                    <div class="text-center mb-3">
+                                                        <img src="@Url.Content($"~/{cause.DeceasedPhotoPath}")" alt="Deceased Photo" class="img-thumbnail" style="max-width: 200px;" />
+                                                    </div>
+                            }
+                                            <p class="card-text">@Html.Raw(cause.Description)</p>
+                                            <div class="col-sm-12">
+                                                <div class="fund-item-text d-flex justify-content-between align-items-center p-3 mb-4 bg-light rounded">
+                                                    <div class="col">
+
+                                                        <strong class="text-danger">TARGET: @cause.TargetAmount.ToString("C", new System.Globalization.CultureInfo("en-GB"))</strong>
+                                                    </div>
+                                                    <div class="col text-center">
+                                                        <strong class="text-info">Goodwill: @cause.Goodwill?.ToString("C", new System.Globalization.CultureInfo("en-GB"))</strong>
+                                                    </div>
+                                                    <div class="col text-end">
+                                                        <strong class="text-success">Amount Raised: @cause.AmountRaised.ToString("C", new System.Globalization.CultureInfo("en-GB"))</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="progress-container">
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="text-muted">Raised: @cause.AmountRaised.ToString("C", new System.Globalization.CultureInfo("en-GB"))</span>
+                                                    <span class="text-muted">Target: @cause.TargetAmount.ToString("C", new System.Globalization.CultureInfo("en-GB"))</span>
+                                                </div>
+                                                <div class="progress" style="height: 25px;">
+                                                    <div class="progress-bar" role="progressbar"
+                                                         style="width: @(cause.AmountRaised / cause.TargetAmount * 100)%;"
+                                                         aria-valuenow="@(cause.AmountRaised / cause.TargetAmount * 100)"
+                                                         aria-valuemin="0" aria-valuemax="100">
+                                        @Math.Round((cause.AmountRaised / cause.TargetAmount * 100), 2)%
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 text-center mt-3">
+                                                <a class="btn btn-success btn-lg" asp-action="Index" asp-controller="Donation" asp-route-Id="@cause.CauseCampaignpRef">
+                                                    <i class="fas fa-hand-holding-usd"></i> Donate Now
+                                                </a>
+                                            </div>
+                                            <!-- Donor List for Active Causes -->
+                                            <div class="col-12 mt-5">
+
+                                                    <h3 class="text-center">Names of Contributors</h3>
+                                                    <p class="text-center text-muted">We extend our heartfelt gratitude to everyone who has contributed to this cause.</p>
+                                                <div class="table-responsive">
+                                                    <table class="table table-bordered text-center datatable">
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="text-center">Donor Name</th>
+                                                                <th class="text-center">Amount</th>
+                                                                <th class="text-center">Goodwill Amount</th>
+                                                                <th class="text-center">Date</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                            @foreach (var donor in Model.Donors.Where(d => d.CauseCampaignpRef == cause.CauseCampaignpRef))
+                                            {
+                                                                    <tr>
+                                                                        <td>@donor.CreatedBy</td>
+                                                                        <td>@donor.Amount.ToString("C", new System.Globalization.CultureInfo("en-GB"))</td>
+                                                                        <td>
+                                                        @if (donor.GoodwillAmount > 0)
+                                                        {
+                                                            @donor.GoodwillAmount.ToString("C", new System.Globalization.CultureInfo("en-GB"))
+                                                        }
+                                                        else
+                                                        {
+                                                                                    <span>-</span>
+                                                        }
+                                                                        </td>
+                                                                        <td>@donor.DateCreated.ToString("dd/MM/yyyy")</td>
+                                                                    </tr>
+                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+            }
+        }
+    }
+
+        <!-- Ended Causes Section -->
+    @if (ViewBag.EndedCauses != null && ViewBag.EndedCauses.Count > 0)
+    {
+                <div class="col-12 col-xl-8 offset-xl-2 text-center">
+                    <div class="section-title">
+                        <h2 class="section-title text-warning">Ended Donations</h2>
+                        <p class="lead text-muted">Donation ended. Thank you for your contributions!</p>
+                    </div>
+                </div>
+
+        @foreach (var cause in ViewBag.EndedCauses)
+        {
+            @if (cause.IsDisplayable)
+            {
+                                <div class="col-12">
+                                    <div class="appeal card shadow-lg mb-5 animate__animated animate__fadeInUp">
+                                        <div class="content card-body">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <h4 class="card-title text-danger">@cause.Summary <br />Ref# @cause.CauseCampaignpRef</h4>
+                                                <small class="text-muted">Published: @cause.DateCreated.ToString("dd/MM/yyyy")</small>
+                                            </div>
+                                            <p class="card-text">@Html.Raw(cause.Description)</p>
+                                            <div class="col-12 text-center mt-3">
+                                                <span class="alert alert-warning d-block">
+                                                    <strong>Donation has now ended.</strong> If you missed payment, please check your <a href="@Url.Action("PaymentHistory", "Donation")" class="text-primary">Payment History</a>.
+                                                </span>
+                                            </div>
+                                            <!-- Donor List for Active Causes -->
+                                            <div class="col-12 mt-5">
+                                                <h3 class="text-center">Donation Report</h3>
+                                                <div class="col-sm-12">
+                                                    <div class="fund-item-text d-flex justify-content-between align-items-center p-3 mb-4 bg-light rounded">
+                                                        <div class="col">
+                                                            <strong class="text-danger">TARGET: @cause.TargetAmount.ToString("C", new System.Globalization.CultureInfo("en-GB"))</strong>
+                                                        </div>
+                                                        <div class="col text-center">
+                                                            <strong class="text-info">Goodwill: @cause.Goodwill?.ToString("C", new System.Globalization.CultureInfo("en-GB"))</strong>
+                                                        </div>
+                                                        <div class="col text-end">
+                                                            <strong class="text-success">Amount Raised: @cause.AmountRaised.ToString("C", new System.Globalization.CultureInfo("en-GB"))</strong>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <h3 class="text-center">Names of those who contributed</h3>
+                                                <div class="table-responsive">
+                                                    <table class="table table-bordered text-center datatable">
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="text-center">Donor Name</th>
+                                                                <th class="text-center">Amount</th>
+                                                                <th class="text-center">Goodwill Amount</th>
+                                                                <th class="text-center">Date</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                            @foreach (var donor in Model.Donors.Where(d => d.CauseCampaignpRef == cause.CauseCampaignpRef))
+                                            {
+                                                                    <tr>
+                                                                        <td>@donor.CreatedBy</td>
+                                                                        <td>@donor.Amount.ToString("C", new System.Globalization.CultureInfo("en-GB"))</td>
+                                                                        <td>
+                                                        @if (donor.GoodwillAmount > 0)
+                                                        {
+                                                            @donor.GoodwillAmount.ToString("C", new System.Globalization.CultureInfo("en-GB"))
+                                                        }
+                                                        else
+                                                        {
+                                                                                    <span>-</span>
+                                                        }
+                                                                        </td>
+                                                                        <td>@donor.DateCreated.ToString("dd/MM/yyyy")</td>
+                                                                    </tr>
+                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+            }
+        }
+    }
+}
+else
+{
+        <div class="col-12 col-xl-8 offset-xl-2 text-center">
+            <div class="section-title">
+                <h2>No ongoing donation yet.</h2>
+            </div>
+        </div>
+}
+
+
+
+@section scripts {
+        <style>
+            .progress-container {
+                margin-top: 15px;
+                margin-bottom: 15px;
+            }
+
+            .progress-bar {
+                background-color: #28a745; /* Green color for the filled portion */
+                color: white; /* Text color */
+                text-align: center;
+                font-weight: bold; /* Make the font bold */
+                font-size: 1.5em; /* Increase the font size (adjust value as needed) */
+                line-height: 25px; /* Match the height of the progress bar */
+            }
+
+        </style>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+        <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+        <script src="~/admin/js/donation.js" asp-append-version="true"></script>
+}
+
+

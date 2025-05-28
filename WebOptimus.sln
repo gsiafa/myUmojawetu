@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34622.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebOptimus", "WebOptimus\WebOptimus.csproj", "{CFD36590-529A-4072-88E1-F502D2D03DFE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CFD36590-529A-4072-88E1-F502D2D03DFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFD36590-529A-4072-88E1-F502D2D03DFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFD36590-529A-4072-88E1-F502D2D03DFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFD36590-529A-4072-88E1-F502D2D03DFE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D1719D2C-BD9F-4340-AD25-B21AC003D694}
+	EndGlobalSection
+EndGlobal

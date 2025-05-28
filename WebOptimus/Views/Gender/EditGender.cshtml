@@ -1,0 +1,49 @@
+﻿@model WebOptimus.Models.ViewModel.GenderViewModel
+@{
+    ViewData["Gender"] = "Edit Gender";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Edit Gender</h1>
+            </div><!-- /.col -->
+            <div class="col-sm-6">
+                <a class="btn btn-xs btn-outline-primary float-md-right" style="width:100px;float:right; text-align: center;" onclick="@("window.location.href='" + @Url.Action("Index", "Gender") + "'");"><i class="fas fa-arrow-left"></i>  Back </a>
+
+            </div><!-- /.col -->
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+<!-- /.content-header -->
+<!-- Main content -->
+
+
+<form method="post" asp-action="EditGender" id="myForm">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group position-relative">
+                <label>Gender Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" placeholder="Name" asp-for="GenderName">
+                <span asp-validation-for="GenderName" class="text-danger"></span>
+            </div>
+
+        </div>
+        <div class="col-md-12">
+            <button type="submit" class="btn btn-success w-5">Update</button>
+
+        </div>
+
+
+    </div>
+</form>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+   
+}

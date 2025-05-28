@@ -1,0 +1,211 @@
+﻿@using WebOptimus.Models.ViewModel
+@model IEnumerable<WebOptimus.Models.ViewModel.PaymentHistoryViewModel>
+@{
+    ViewData["Title"] = "Payment History";
+    Layout = "~/Views/Shared/_cLayout.cshtml";
+}
+
+<section class="content">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <p style="margin-top: 6px;">
+                    These are all your payment records. Please review them carefully, and contact admin if you notice any discrepancies or issues.
+                </p>
+            </div>
+            <br />
+
+            <!-- Total Contributions Card -->
+            <div class="col-lg-6 col-md-6 mb-4">
+                <div class="small-box bg-success text-center text-white">
+                    <div class="inner">
+                        <h3>@ViewBag.TotalContribution.ToString("C")</h3>
+                        <p>Total Payments You've Made</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- Total Missed Payments Card -->
+            <div class="col-lg-6 col-md-6 mb-4">
+                <div class="small-box bg-danger text-center text-white">
+                    <div class="inner">
+                        <h3>@ViewBag.TotalMissedPayments.ToString("C")</h3>
+                        <p>Total Missed Payments</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- Payment History Section -->
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header p-2">
+                        <h3>Payment History</h3>
+                    </div>
+
+                    <partial name="_notify" />
+                    <!-- Death-Related Payment History -->
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header p-2">
+                                <h3>Death-Related Payment History</h3>
+                            </div>
+                            <div class="card-body">
+                                @if (Model.Any())
+                                {
+                                    <table class="table m-0 myTable text-center" style="width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th>Payment Date</th>
+                                                <th>Campaign Ref</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var payment in Model)
+                                            {
+                                                <tr>
+                                                    <td data-order="@payment.DateCreated.ToString("yyyy-MM-dd")">
+                                                        @payment.DateCreated.ToString("dd/MM/yyyy")
+                                                    </td>
+
+                                                    <td>@payment.CauseCampaignpRef</td>
+                                                    <td>
+                                                        <a asp-action="PaymentDetails" asp-controller="Donation" asp-route-paymentId="@payment.OurRef" class="btn btn-info btn-sm">
+                                                            View More
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-danger text-center">No payment records available yet.</div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Non-Death-Related Payment History -->
+                    <div class="col-md-12 mt-5">
+                        <div class="card">
+                            <div class="card-header p-2 bg-info">
+                                <h3>Non-Death-Related Contribution History</h3>
+                            </div>
+                            <div class="card-body">
+                                @if (ViewBag.OtherDonationPayments != null && ViewBag.OtherDonationPayments.Count > 0)
+                                {
+                                    <table class="table m-0 myTable text-center" style="width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th>Payment Date</th>
+                                                <th>Campaign Ref</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var donation in ViewBag.OtherDonationPayments)
+                                            {
+                                                <tr>
+                                                    <td>@donation.DateCreated.ToString("dd/MM/yyyy")</td>
+                                                    <td>@donation.CauseCampaignpRef</td>
+                                                    <td>
+                                                        <a asp-action="PaymentDetails" asp-controller="Other" asp-route-paymentId="@donation.OurRef" class="btn btn-info btn-sm">
+                                                            View More
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-info text-center">No non-death-related contributions yet.</div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+             
+            </div>
+            </div>
+            </div>
+            <!-- Missed Payments Section -->
+            <div class="col-md-12 mt-5">
+                <div class="card">
+                    <div class="card-header p-2 bg-danger">
+                        <h3>Missed Payments</h3>
+                    </div>
+
+                    <div class="card-body">
+                        @if (ViewBag.MissedPayments != null && ((List<PaymentHistoryViewModel>)ViewBag.MissedPayments).Count > 0)
+                        {
+                            <div class="card-body" style="width: 100%; overflow-x: auto;">
+                                <table class="table m-0 myTable text-center" style="width: 100%;">
+                                    <thead>
+                                        <tr class="text-center">
+                                            <th>Payee Name</th>
+                                            <th>Year of Birth</th>
+                                            <th>Reg Number</th>
+                                            <th>Deceased Ref</th>
+                                            <th>Amount</th>
+                                            <th>Due On</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var missedPayment in (List<PaymentHistoryViewModel>)ViewBag.MissedPayments)
+                                        {
+                                            <tr class="text-center">
+                                                <td>@missedPayment.DependentName</td>
+                                                <td>@missedPayment.YearOfBirth</td>
+                                                <td>@missedPayment.RegNumber</td>
+                                                <td>@missedPayment.CauseCampaignpRef</td>
+                                                <td>@missedPayment.Amount.ToString("C")</td>
+                                                <td>@missedPayment.EndDate</td>
+                                                <td>
+                                                <a class="btn btn-primary" asp-action="MissedPayment" asp-controller="Other" asp-route-Id="@missedPayment.CauseCampaignpRef">Pay Now</a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-success text-center">
+                                No missed payments!
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+</section>
+@section scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="https://cdn.datatables.net/plug-ins/1.13.4/sorting/datetime-moment.js"></script>
+
+
+
+    <script>
+                  $(document).ready(function () {
+            $.fn.dataTable.moment('DD/MM/YYYY'); // Define date format for sorting
+            $('.myTable').DataTable({
+                "order": [[0, "desc"]], // Sort by Payment Date (newest first)
+                "pageLength": 10,
+                "lengthMenu": [10, 25, 50, 100],
+                "autoWidth": false,
+                "responsive": true
+            });
+        });
+
+
+    </script>
+}

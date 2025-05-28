@@ -1,0 +1,15 @@
+﻿@{
+    ViewData["Title"] = "Constitution Document - Strictly Private and Confidential";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<br />
+<h1 class="text-center">@ViewData["Title"]</h1>
+
+<!-- File Upload Form -->
+<form method="post" asp-action="UploadPolicy" asp-controller="Home" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="policyFile">Please upload new document to update the current one - must be in PDF format:</label>
+        <input type="file" class="form-control" id="policyFile" name="policyFile" accept=".pdf" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Upload</button>
+</form>

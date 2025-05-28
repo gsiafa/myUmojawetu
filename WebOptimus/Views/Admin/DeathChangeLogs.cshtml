@@ -1,0 +1,79 @@
+﻿@model IEnumerable<WebOptimus.Models.ViewModel.Admin.DeathChangeLogsVM>
+@{
+    ViewData["Title"] = "Reported Death Change Log";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Reported Death Change Log</h1>
+            </div>
+            <div class="col-sm-6">
+                <a class="btn btn-xs btn-outline-primary float-md-right" style="width:100px; float:right; text-align: center;" onclick="@("window.location.href='" + @Url.Action("Index", "Admin") + "'");"><i class="fas fa-arrow-left"></i> Back</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+
+<table class="table table-bordered" id="changeLogTable" style="width: 100%">
+    <thead>
+        <tr>
+            <th>User ID</th>
+            <th>Death ID</th>
+            <th>Field Changed</th>
+            <th>Old Value</th>
+            <th>New Value</th>
+            <th>Change Date</th>
+            <th>Changed By</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var log in Model)
+        {
+            <tr>
+                <td>@log.UserId</td>
+                <td>@log.ReportedDeathId</td>
+                <td>@log.FieldName</td>
+                <td>@log.OldValue</td>
+                <td>@log.NewValue</td>
+                <td>@log.ChangeDate.ToString("g")</td>
+                <td>@log.ChangedBy</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts{
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js "></script>
+    <script>
+        $(document).ready(function () {
+            $('#changeLogTable').DataTable({
+                "paging": true,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]]
+            });
+        });
+    </script>
+}
+

@@ -1,0 +1,229 @@
+﻿@model WebOptimus.Models.ViewModel.LoginViewModel
+@using WebOptimus.StaticVariables
+@{
+    ViewData["Title"] = "Login";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!--  Background Banner -->
+<div class="slider-section"
+     style="background-image: url('/assets/img/Flag-of-Tanzania.png'); background-repeat: no-repeat; background-position: center; background-size: cover; width: 100%; height: 400px; margin: 0; padding: 0; position: relative;">
+    <div class="slider-container" style="width: 100%; height: 100%;">
+        <div class="slider-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0;">
+            <h1 class="animated-text text-white">Welcome to Umoja Wetu</h1>
+        </div>
+    </div>
+</div>
+
+<!--  Login Section -->
+<section class="login-section section-padding">
+    <div class="container">
+        <div class="row justify-content-center">
+
+            <!--  Left Column: Login Info -->
+            <div class="col-12 col-lg-6">
+                <h2 class="title mb-4">Login</h2>
+                <p>
+                    Please login using your <strong>registered email address. </strong>
+                    If you are  <u>not </u> a member and wish to join, please register <a asp-action="Register"><u>here</u></a>.
+                </p>
+            </div> <br />
+
+            <!--  Right Column: Login Form -->
+            <div class="col-12 col-lg-6">
+                <div class="login-form-wrapper p-4 p-md-5 rounded">
+                    <h3 class="text-center text-white mb-4">Login to Your Account</h3>
+
+                    <partial name="_notify" />
+
+                    <form asp-action="Login" asp-controller="Account" method="post" autocomplete="off" id="login-form">
+                        <div class="mb-4">
+                            <label for="email" class="form-label text-white">Email Address</label>
+                            <input type="email" class="form-control form-control-lg" id="email" name="Email" asp-for="Email" placeholder="Enter your email" required>
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <div class="input-group">
+                                <input type="password" class="form-control password-input" id="password" name="Password" asp-for="Password" placeholder="Password">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-primary password-toggler" onclick="togglePasswordVisibility('password', this)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+
+
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-warning btn-lg fw-bold">Login <i class="fas fa-sign-in-alt"></i></button>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between flex-wrap text-nowrap">
+                                <small>
+                                    <a asp-action="ForgetPassword" asp-controller="Account"
+                                       class="signInText fw-bold"
+                                       style="cursor: pointer; text-decoration: underline; font-size: 1.1rem;">
+                                        Forgot Password?
+                                    </a>
+                                </small>
+                                <small>
+                                    Not a member?
+                                    <a asp-action="Register" asp-controller="Account"
+                                       class="signInText fw-bold"
+                                       style="cursor: pointer; text-decoration: underline; font-size: 1.1rem;">
+                                        Register
+                                    </a>
+                                </small>
+                            </div>
+                        </div>
+
+
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!--  Improved Styling -->
+<style>
+    /* Background for the Login Section */
+    .login-section {
+        background: url('/assets/img/login-bg.jpg') no-repeat center center/cover;
+        padding: 60px 0;
+    }
+
+    /* Enlarged Form Wrapper */
+    .login-form-wrapper {
+        background: rgba(0, 0, 0, 0.85);
+        padding: 40px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+        /* Form Inputs & Labels */
+        .login-form-wrapper label {
+            font-weight: bold;
+            color: white;
+        }
+
+        .login-form-wrapper input {
+            border-radius: 5px;
+            padding: 12px;
+            font-size: 18px;
+        }
+
+    /* Enlarged Info Section */
+    .login-info-wrapper {
+        background: #f8f9fa;
+        border: 1px solid #ddd;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Button Styling */
+    .login-form-wrapper .btn-warning {
+        background-color: #ffc107;
+        color: #000;
+        padding: 12px 20px;
+        border-radius: 5px;
+        font-size: 18px;
+    }
+
+        .login-form-wrapper .btn-warning:hover {
+            background-color: #e0a800;
+            color: white;
+        }
+
+    /* Password Toggle Button */
+    .toggle-password {
+        border-left: none;
+    }
+
+    .signInText {
+        color: #fff !important;
+        font-size: 0.8rem !important; /* Adjust the size */
+        font-weight: bold;
+    }
+
+        .signInText:hover {
+            text-decoration: underline;
+            color: #0d6efd !important; /* Blue hover effect */
+        }
+
+    small {
+        color: #fff !important;
+        font-size: 0.8rem !important; /* Increase size */
+    }
+
+    /* Ensure button matches input height */
+    .input-group .password-input {
+        height: 45px; /* Adjust height as needed */
+        font-size: 16px;
+    }
+
+    /* Make toggler button the same height as input */
+    .input-group-append .password-toggler {
+        height: 45px; /* Same as input */
+        width: 50px; /* Adjust width */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-left: 0;
+        font-size: 18px; /* Adjust icon size */
+    }
+
+    /* Blue color for the toggler button */
+    .password-toggler {
+        background-color: #fff;
+        color: #0d6efd;
+        border: 1px solid #0d6efd;
+        border-radius: 0 5px 5px 0;
+    }
+
+        /* Hover effect */
+        .password-toggler:hover {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+    /* Ensure text stays on the same line */
+    .d-flex.justify-content-between {
+        flex-wrap: nowrap !important; /* Prevent wrapping */
+        white-space: nowrap; /* Prevent text break */
+        gap: 4px; /* Add space between the two */
+    }
+
+  
+
+    .d-flex.justify-content-between a {
+        padding: 0; /* Add small padding for better click area */
+    }
+
+    
+</style>
+
+@section Scripts {
+
+ 
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        //  Function to toggle password visibility
+        function togglePasswordVisibility(id, button) {
+            var input = document.getElementById(id);
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.innerHTML = '<i class="fas fa-eye-slash"></i>';
+            } else {
+                input.type = 'password';
+                button.innerHTML = '<i class="fas fa-eye"></i>';
+            }
+        }
+    </script>
+}
