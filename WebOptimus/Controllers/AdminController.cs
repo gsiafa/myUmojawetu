@@ -1074,6 +1074,7 @@ namespace WebOptimus.Controllers
 
             return RedirectToAction(nameof(Details), new { PersonRegNumber = existingDependant.PersonRegNumber });
         }
+       
         [HttpPost]
         [Authorize(Roles = RoleList.GeneralAdmin + "," + RoleList.LocalAdmin + "," + RoleList.RegionalAdmin)]
         public async Task<IActionResult> AddNextOfKin(DependentWithKinViewModel nextOfKin, CancellationToken ct)
@@ -1942,8 +1943,9 @@ namespace WebOptimus.Controllers
                         user.PasswordHash = passwordHasher.HashPassword(user, newPassword.Password);
                         await _db.SaveChangesAsync();
                         user.ForcePasswordChange = false;
-                        user.UserName = newPassword.EmailAddress;
-                        user.NormalizedUserName = newPassword.EmailAddress.ToUpper();
+                        user.UserName = emailTodecrypt;
+                        user.NormalizedUserName = emailTodecrypt.ToUpper();
+
                         user.UpdateOn = DateTime.UtcNow;
                         user.LastPasswordChangedDate = DateTime.UtcNow;
                         _db.Users.Update(user);
