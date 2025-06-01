@@ -207,12 +207,14 @@ namespace WebOptimus.Controllers
 
 
                 //  Compute Non-Death Donations (Grouped by CauseCampaignpRef)
-                var donationPaymentDetails = otherPayments
-                    .GroupBy(p => p.CauseCampaignpRef)
-                    .ToDictionary(
-                        g => g.Key,
-                        g => g.Sum(p => p.Amount)
-                    );
+                var donationPaymentDetails = await _db.PaymentSessions
+     .Where(ps => ps.IsPaid)
+     .GroupBy(ps => ps.CauseCampaignpRef)
+     .ToDictionaryAsync(
+         g => g.Key,
+        g => g.Sum(ps => ps.TotalAmount - ps.TransactionFees)
+     );
+
 
                 //  Replace CreatedBy with the Dependant Name for Death-Related Donations
                 foreach (var payment in causePayments)

@@ -9,24 +9,37 @@
 
 <!-- Summary Section -->
 <div class="row text-center">
-    <div class="col-lg-6 col-md-6 mb-4">
+    <div class="col-lg-4 col-md-4 mb-4">
         <div class="card bg-success text-white">
             <div class="card-body">
                 <h3>@Model.TotalAmount.ToString("C")</h3>
-                <p>Total Contributions </p>
+                <p>Total Paid (Gross)</p>
             </div>
         </div>
     </div>
   
-    <div class="col-lg-6 col-md-6 mb-4">
+    <div class="col-lg-4 col-md-4 mb-4">
         <div class="card bg-info text-white">
             <div class="card-body">
                 <h3>@Model.TotalTransactionFees.ToString("C")</h3>
-                <p>Total Transaction Fees</p>
+                <p>Transaction Fees</p>
             </div>
         </div>
     </div>
   
+    <div class="col-lg-4 col-md-4 mb-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h3>@((Model.TotalAmount - Model.TotalTransactionFees).ToString("C"))</h3>
+                <p>Total Received (Net of Fees)</p>
+            </div>
+        </div>
+    </div>
+
+  
+
+ 
+
 
   
 </div>

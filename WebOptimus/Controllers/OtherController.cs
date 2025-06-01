@@ -862,7 +862,7 @@ namespace WebOptimus.Controllers
                 var totalAmount = selectedItems.Sum(i => i.CustomAmount.GetValueOrDefault());
                 var totalAmountInCents = Convert.ToInt32(Math.Round(totalAmount * 100));
                 var ourRef = $"{_data.CauseCampaignpRef}{new Random().Next(0, 9999999):D5}";
-
+                var estimatedStripeFee = Math.Round(totalAmount * 0.015m + 0.20m, 2);
                 // Prepare Stripe session
                 StripeConfiguration.ApiKey = _stripeSetting.SecretKey;
                 var options = new SessionCreateOptions
@@ -903,7 +903,7 @@ namespace WebOptimus.Controllers
                     DependentId = currentUser.DependentId,
                     personRegNumber = currentUser.PersonRegNumber,
                     CauseCampaignpRef = _data.CauseCampaignpRef,
-                    TransactionFees = 0, // No longer used
+                    TransactionFees = estimatedStripeFee,
                     TotalAmount = totalAmount,
                     IsPaid = false,
                     OurRef = ourRef,
@@ -1036,6 +1036,8 @@ namespace WebOptimus.Controllers
                 return RedirectToAction("Index", "Home");
             }
         }
+        
+        
         [HttpGet]
         [Authorize(Roles = RoleList.GeneralAdmin)]
         public async Task<IActionResult> PaymentDashboard(string causeFilter, CancellationToken ct)
@@ -1050,24 +1052,27 @@ namespace WebOptimus.Controllers
 
                 var currentUser = await _userManager.FindByEmailAsync(email);
 
-                // Fetch only PaymentSessions related to Non-Death Donations
+                // Get paid sessions for valid causes
                 var paymentSessions = await _db.PaymentSessions
                     .Where(ps => ps.IsPaid == true &&
                                  _db.DonationForNonDeathRelated.Any(d => d.CauseCampaignpRef == ps.CauseCampaignpRef) &&
                                  (string.IsNullOrEmpty(causeFilter) || ps.CauseCampaignpRef == causeFilter))
                     .ToListAsync(ct);
 
-                // Fetch Non-Death Payments
+                // Ensure fees are present: infer if missing
+                foreach (var session in paymentSessions.Where(s => s.TransactionFees <= 0 && s.TotalAmount > s.Amount))
+                {
+                    session.TransactionFees = session.TotalAmount - session.Amount;
+                }
+
                 var payments = await _db.OtherDonationPayment
                     .Where(p => string.IsNullOrEmpty(causeFilter) || p.CauseCampaignpRef == causeFilter)
                     .ToListAsync(ct);
 
-                // Fetch Active Dependents
                 var dependents = await _db.Dependants
                     .Where(a => a.IsActive == true || a.IsActive == null)
                     .ToListAsync(ct);
 
-                // Populate ViewBag.CauseList with only Non-Death Causes
                 var causeList = await _db.DonationForNonDeathRelated
                     .Select(d => new { Value = d.CauseCampaignpRef, Text = d.CauseCampaignpRef })
                     .Distinct()
@@ -1076,16 +1081,16 @@ namespace WebOptimus.Controllers
 
                 ViewBag.CauseList = new SelectList(causeList, "Value", "Text");
 
-                // Calculate totals from PaymentSessions (only for filtered causes)
-                var totalAmount = paymentSessions.Sum(ps => ps.TotalAmount);
+                // Totals
+                var totalGrossAmount = paymentSessions.Sum(ps => ps.TotalAmount);
                 var totalTransactionFees = paymentSessions.Sum(ps => ps.TransactionFees);
-                var netTotalAmount = totalAmount - totalTransactionFees;
+                var netTotalAmount = paymentSessions.Sum(ps => ps.Amount); // Net = what was actually donated
+
                 var displayedSessions = new HashSet<string>();
-               
-                // Match payments with their respective sessions
+
                 var paymentDetails = payments.Select(p =>
                 {
-                    bool isFirstForSession = displayedSessions.Add(p.OurRef); // Adds & checks if already exists
+                    bool isFirstForSession = displayedSessions.Add(p.OurRef);
 
                     var session = paymentSessions.FirstOrDefault(ps => ps.OurRef == p.OurRef);
 
@@ -1094,7 +1099,7 @@ namespace WebOptimus.Controllers
                         Id = p.Id,
                         CauseCampaignpRef = p.CauseCampaignpRef,
                         Amount = p.Amount,
-                        TransactionFees = isFirstForSession ? (session?.TransactionFees ?? 0m) : 0m, // Show only once
+                        TransactionFees = isFirstForSession ? (session?.TransactionFees ?? 0m) : 0m,
                         TotalAmount = isFirstForSession ? (session?.TotalAmount ?? 0m) : 0m,
                         DateCreated = p.DateCreated,
                         DependentName = dependents.FirstOrDefault(d => d.PersonRegNumber == p.PersonRegNumber && d.IsActive == true)?.PersonName ?? "Unknown",
@@ -1102,12 +1107,11 @@ namespace WebOptimus.Controllers
                     };
                 }).ToList();
 
-                // Populate AdminPaymentViewModel
                 var adminDashboardViewModel = new AdminPaymentViewModel
                 {
                     Payments = paymentDetails,
                     CauseFilter = causeFilter,
-                    TotalAmount = netTotalAmount, // Subtract transaction fees from total
+                    TotalAmount = totalGrossAmount,
                     TotalTransactionFees = totalTransactionFees
                 };
 
@@ -1750,7 +1754,6 @@ namespace WebOptimus.Controllers
         //            return Json(new { success = false, message = "Payment failed." });
         //        }
         //    }
-
         [HttpGet]
         public async Task<IActionResult> Confirmation(string session_id, CancellationToken ct)
         {
@@ -1778,7 +1781,6 @@ namespace WebOptimus.Controllers
                         return RedirectToAction("Index", "Home");
                     }
 
-                    //  Fetch all dependents that were part of this payment
                     var paymentItems = await _db.DependentChecklistItems
                         .Where(d => d.SessionId == session_id && d.IsSelected)
                         .ToListAsync(ct);
@@ -1794,7 +1796,16 @@ namespace WebOptimus.Controllers
                     decimal netAmount = 0;
                     decimal actualAmountReceived = paymentSession.TotalAmount;
 
-                    //  Retrieve Stripe Fees & Net Amount
+                    // Default estimated fee using Stripe UK standard formula (1.5% + £0.20)
+                    decimal estimatedFee = Math.Round(paymentSession.Amount * 0.015m + 0.20m, 2);
+                    stripeFee = estimatedFee;
+                    if (paymentSession.TransactionFees == 0)
+                    {
+                        paymentSession.TransactionFees = stripeFee;
+                    }
+
+                    netAmount = paymentSession.Amount;
+
                     if (!string.IsNullOrEmpty(paymentIntentId))
                     {
                         var chargeService = new ChargeService();
@@ -1808,30 +1819,26 @@ namespace WebOptimus.Controllers
 
                             if (balanceTransaction != null)
                             {
-                                stripeFee = balanceTransaction.Fee / 100m; // Convert from cents to GBP
+                                stripeFee = balanceTransaction.Fee / 100m;
                                 netAmount = actualAmountReceived - stripeFee;
                             }
                         }
                     }
 
-                    //  Save each paid dependent/group member into the `Payment` table
+                    // Save payment records
                     foreach (var item in paymentItems)
                     {
-                        var existingPayment = await _db.Payment
+                        var exists = await _db.Payment
                             .AnyAsync(p => p.OurRef == paymentSession.OurRef && p.personRegNumber == item.PersonRegNumber, ct);
-
-                        if (existingPayment)
-                        {
-                            continue; // Skip duplicate payment records
-                        }
+                        if (exists) continue;
 
                         decimal effectiveAmountPaid = item.CustomAmount.GetValueOrDefault();
-                        decimal totalCharge = item.Price + item.MissedPayment ?? 0; 
+                        decimal totalCharge = item.Price + item.MissedPayment ?? 0;
                         decimal goodwill = (effectiveAmountPaid > totalCharge)
                             ? effectiveAmountPaid - totalCharge
-                            : 0; 
+                            : 0;
 
-                        var paymentRecord = new Payment
+                        _db.Payment.Add(new Payment
                         {
                             UserId = item.UserId,
                             DependentId = item.DependentId,
@@ -1844,25 +1851,24 @@ namespace WebOptimus.Controllers
                             DateCreated = DateTime.UtcNow,
                             CreatedBy = paymentSession.Email,
                             OurRef = paymentSession.OurRef
-                        };
-
-                        _db.Payment.Add(paymentRecord);
+                        });
                     }
 
-                    await _db.SaveChangesAsync(ct); //  Save all payment records in one batch
+                    await _db.SaveChangesAsync(ct);
 
-                    //  Mark the PaymentSession as paid
+                    // Final session update
                     paymentSession.StripeActualFees = stripeFee;
                     paymentSession.StripeNetAmount = netAmount;
+                    paymentSession.TransactionFees = stripeFee;
                     paymentSession.IsPaid = true;
-                    _db.PaymentSessions.Update(paymentSession);
-                    await _db.SaveChangesAsync(ct); //  Ensure this save executes
 
-                    //  Pass payment details to the confirmation view
+                    _db.PaymentSessions.Update(paymentSession);
+                    await _db.SaveChangesAsync(ct);
+
                     ViewBag.Ref = paymentSession.OurRef;
                     ViewBag.TotalPaid = paymentSession.TotalAmount;
                     ViewBag.TransactionFees = paymentSession.TransactionFees;
-                    ViewBag.PaidItems = paymentItems; // Pass paid items to view
+                    ViewBag.PaidItems = paymentItems;
 
                     await RecordAuditAsync(null, _requestIpHelper.GetRequestIp(), "DonationConfirmation",
                         $"Donation payment confirmed for sessionId: {session_id}", ct);

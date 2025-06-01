@@ -1923,6 +1923,8 @@
                         user.PasswordHash = passwordHasher.HashPassword(user, newPassword.Password);
 
                         user.ForcePasswordChange = false;
+                        user.UserName = newPassword.EmailAddress;
+                        user.NormalizedUserName = newPassword.EmailAddress.ToUpper();
                         user.UpdateOn = DateTime.UtcNow;
                         user.LastPasswordChangedDate = DateTime.UtcNow;
                         _db.Users.Update(user);
@@ -2415,6 +2417,8 @@
                 {
                     user.PasswordHash = passwordHasher.HashPassword(user, newPassword.Password);
                     user.ForcePasswordChange = false;
+                    user.UserName = newPassword.EmailAddress;
+                    user.NormalizedUserName = newPassword.EmailAddress.ToUpper();
                     user.UpdateOn = DateTime.UtcNow;
                     user.LastPasswordChangedDate = DateTime.UtcNow;
                     _db.Users.Update(user);
@@ -2521,6 +2525,8 @@
                     user.PasswordHash = passwordHasher.HashPassword(user, newPassword.Password);
                     user.ForcePasswordChange = false;
                     user.UpdateOn = DateTime.UtcNow;
+                    user.UserName = newPassword.Email;
+                    user.NormalizedUserName = newPassword.Email.ToUpper();
                     user.LastPasswordChangedDate = DateTime.UtcNow;
                     _db.Users.Update(user);
                     await _db.SaveChangesAsync(ct);

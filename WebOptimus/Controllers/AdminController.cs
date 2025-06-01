@@ -1942,6 +1942,8 @@ namespace WebOptimus.Controllers
                         user.PasswordHash = passwordHasher.HashPassword(user, newPassword.Password);
                         await _db.SaveChangesAsync();
                         user.ForcePasswordChange = false;
+                        user.UserName = newPassword.EmailAddress;
+                        user.NormalizedUserName = newPassword.EmailAddress.ToUpper();
                         user.UpdateOn = DateTime.UtcNow;
                         user.LastPasswordChangedDate = DateTime.UtcNow;
                         _db.Users.Update(user);
