@@ -19,9 +19,7 @@ namespace WebOptimus.Models.ViewModel
         public string ConfirmPassword { get; set; } = string.Empty;
 
         public string EmailAddress { get; set; } = string.Empty;
-        public string? GuidId { get; set; } = string.Empty;
-        public int? DependentId { get; set; }
-        public bool RememberMe { get; set; }
-	
+        public string? PersonRegNumber { get; set; } = string.Empty;
+        public bool RememberMe { get; set; } = false;
 	}
 }

@@ -15,6 +15,7 @@
     <Content Remove="Views\Home\Index - Copy.cshtml" />
     <Content Remove="Views\Shared\_changePasswordLayout.cshtml" />
     <Content Remove="Views\Shared\_PaymentOption.cshtml" />
+    <Content Remove="Views\Shared\_PChangeLayout.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -109,6 +110,7 @@
     <None Include="Views\Home\Privacy.cshtml" />
     <None Include="Views\Shared\Error.cshtml" />
     <None Include="Views\Shared\_changePasswordLayout.cshtml" />
+    <None Include="Views\Shared\_PChangeLayout.cshtml" />
     <None Include="Views\Shared\_Layout.cshtml" />
     <None Include="Views\Shared\_PaymentOption.cshtml" />
     <None Include="Views\Shared\_LoginPartial.cshtml" />
@@ -178,6 +180,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="Views\Account\ForcePasswordChange.cshtml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Update="Views\Account\Index.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
@@ -449,6 +450,7 @@ namespace WebOptimus.Controllers
         {
             try
             {
+
                 var currentUserEmail = HttpContext.Session.GetString("loginEmail");
 
                 if (string.IsNullOrEmpty(currentUserEmail))
@@ -464,12 +466,17 @@ namespace WebOptimus.Controllers
 				{
 					minimumage = 18;
 				}
-				var currentUser = await _userManager.FindByEmailAsync(currentUserEmail);
+				var currentUser = await _db.Users.FirstOrDefaultAsync(a=>a.Email == currentUserEmail);
                 if (currentUser == null)
                 {
                     return RedirectToAction("Login", "Account");
                 }
-
+                if (currentUser.ForcePasswordChange == true)
+                {
+                    TempData[SD.Warning] = "You must change your password before accessing your dashboard.";
+                    var encryptedReg = protector.Protect(currentUser.PersonRegNumber);
+                    return RedirectToAction("ForcePasswordChange", "Account", new { reg = encryptedReg });
+                }
                 //  Fetch all dependents in the system for total statistics
                 var allDependentsInDb = await _db.Dependants
                     .Where(d => d.IsActive == true || d.IsActive == null)

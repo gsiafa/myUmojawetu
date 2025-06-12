@@ -1,0 +1,369 @@
+﻿﻿    @using Microsoft.AspNetCore.Http
+    @inject IHttpContextAccessor HttpContextAccessor
+    @using Microsoft.AspNetCore.Identity
+    @using WebOptimus.Controllers
+    @using WebOptimus.StaticVariables
+    @inject SignInManager<User> SignInManager
+    @inject UserManager<User> UserManager
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>@ViewData["Title"]</title>
+    <meta name="robots" content="noindex, follow" />
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="~/assets2/images/favicon.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.7/css/responsive.dataTables.min.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- CSS
+
+    ============================================ -->
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="~/assets2/css/vendor/bootstrap.min.css">
+
+    <!-- Icon Font CSS -->
+    <link rel="stylesheet" href="~/assets2/css/vendor/font-awesome.min.css">
+    <link rel="stylesheet" href="~/assets2/css/vendor/flaticon.css">
+
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" href="~/assets2/css/plugins/slick.css">
+
+    <!-- Main Style CSS -->
+    <link rel="stylesheet" href="~/assets2/css/style.css">
+
+</head>
+
+
+<body>
+    @*    <div id="preloader" class="preloader">
+    <div class="animation-preloader">
+        <div class="spinner"></div>
+        <div class="txt-loading">
+            <span data-text-preloader="U" class="letters-loading">U</span>
+            <span data-text-preloader="M" class="letters-loading">M</span>
+            <span data-text-preloader="O" class="letters-loading">O</span>
+            <span data-text-preloader="J" class="letters-loading">J</span>
+            <span data-text-preloader="A" class="letters-loading">A</span>
+            <span data-text-preloader="W" class="letters-loading">W</span>
+            <span data-text-preloader="E" class="letters-loading">E</span>
+            <span data-text-preloader="T" class="letters-loading">T</span>
+            <span data-text-preloader="U" class="letters-loading">U</span>
+        </div>
+        <p class="text-center">Loading</p>
+    </div>
+    <div class="loader">
+        <div class="row">
+            <div class="col-3 loader-section section-left">
+                <div class="bg"></div>
+            </div>
+            <div class="col-3 loader-section section-left">
+                <div class="bg"></div>
+            </div>
+            <div class="col-3 loader-section section-right">
+                <div class="bg"></div>
+            </div>
+            <div class="col-3 loader-section section-right">
+                <div class="bg"></div>
+            </div>
+        </div>
+    </div>
+</div>
+ *@
+
+    <header class="header">
+        <div class="container">
+            <div class="row justify-content-between align-items-center">
+              
+                <!-- Header Logo Start -->
+                <div class="col">
+                    <div class="header-logo">
+                        @*  <a href="index.html"><img src="assets/images/logo/logo-light.png" alt="Site Logo"></a> *@
+                        <h2 class="title" style="color:white !important;">UMOJA WETU</h2>
+                    </div>
+                </div><!-- Header Logo End -->
+                <!-- Offcanvas Toggle Start -->
+                <div class="col-auto d-lg-none d-flex align-items-center">
+                    <button class="offcanvas-toggle">
+                        <span></span>
+                    </button>
+                </div>
+                <!-- Login Users -->
+             
+                
+                    <!-- Header Links Start -->
+                    <div class="header-links col-auto order-lg-3">
+                        <a asp-action="Login" asp-controller="Account" class="theme-btn">Login</a>
+
+                        <span>or</span>
+                        <a asp-action="Register" asp-controller="Account">Sign up</a>
+                    </div>
+
+                    <!-- Header Links End -->
+                    <!-- Header Menu Start -->
+                    <nav id="main-menu" class="main-menu col-lg-auto order-lg-2">
+                        <ul>
+                            <li class="has-children">
+                                <a asp-action="Index" asp-controller="Home">Home</a>
+                            </li>
+
+                            <li class="has-children">
+                                <a asp-action="About" asp-controller="Home">About Us</a>
+
+                            </li>
+                            <li><a asp-action="Contact" asp-controller="Home">Contact</a></li>
+                            @if (@ViewBag.HasPublicAnnouncements == true)
+                            {
+                                <li><a asp-action="PublicAnnouncement" asp-controller="Home">Announcements</a></li>
+                            }
+                            <li>
+                                <form asp-action="MakePayment" asp-controller="Payments" method="get">
+                                    <button type="submit" class="btn btn-warningsty btn-lg">
+                                        <i class="fas fa-credit-card"></i> Make a Payment
+                                    </button>
+                                </form>
+                            </li>
+
+                        </ul>
+                    </nav>
+                    <!-- Header Menu End -->
+                 </div>
+
+        </div>
+    </header>
+
+    <!--Offcanvas Section Start-->
+    <div id="offcanvas" class="offcanvas-section">
+        <button class="offcanvas-close" data-bs-target="#offcanvas">&times;</button>
+        <div class="offcanvas-wrap">
+            <div class="inner">
+
+
+                <!-- Offcanvas Menu Start -->
+                <div class="offcanvas-menu">
+
+                    <nav>
+                       
+                            <div class="offcanvas-user">
+                                <a asp-action="Login" asp-controller="Account">Login</a>
+                                <span>or</span>
+                                <a asp-action="Register" asp-controller="Account">Sign up</a>
+                            </div>
+                            <ul>
+                                <li class="has-children">
+                                    <a asp-action="Index" asp-controller="Home">Home</a>
+                                </li>
+                                <li class="has-children">
+                                    <a asp-action="About" asp-controller="Home">About Us</a>
+
+                                </li>
+                                <li><a asp-action="Contact" asp-controller="Home">Contact</a></li>
+                                @if (@ViewBag.HasPublicAnnouncements == true)
+                                {
+                                    <li><a asp-action="PublicAnnouncement" asp-controller="Home">Announcements</a></li>
+                                }
+                                <li>
+                                    <a asp-action="MakePayment" asp-controller="Payments" class="btn btn-warning">
+                                        <i class="fas fa-credit-card"></i> Make a Payment
+                                    </a>
+
+                                </li>
+                            </ul>
+                        
+                    </nav>
+
+
+                </div>
+                <!-- Offcanvas Menu End -->
+
+            </div>
+        </div>
+    </div>
+    <!--Offcanvas Section End-->
+    <partial name="_Notifications" />
+
+    @RenderBody()
+
+
+    <div class="footer-top-section section">
+        <div class="container">
+            <div class="footer-widget-wrap row justify-content-center text-center text-white">
+                <div class="col-md-6">
+                    <h4>Contact Us</h4>
+                    <p class="text-white">Email: <a href="mailto:info@umojawetu.com">info@umojawetu.com</a></p>
+                    <p class="text-white">Phone: <a href="tel:+447516816723">+44 7516 816723</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Footer Top Section End -->
+    <!-- Footer Bottom Section Start -->
+    <div class="footer-bottom-section section py-3">
+        <div class="container">
+            <div class="row text-center text-white">
+
+                <div class="col-12">
+                    <p class="mb-1">
+                        &copy; @DateTime.UtcNow.Year <strong>Umoja Wetu</strong>, All Rights Reserved.
+                    </p>
+
+                    <p class="mb-0">
+                        <a class="text-white text-decoration-underline" asp-action="Privacy" asp-controller="Home" target="_blank">
+                            Privacy Statement
+                        </a>
+                        &nbsp;|&nbsp;
+                        Website developed by
+                        <a href="https://gncwebsolutions.com" class="text-white text-decoration-underline" target="_blank">
+                            GNCWebSolutions
+                        </a>
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Bottom Section End -->
+    <!-- JS
+    ============================================ -->
+    <!-- Toastr -->
+    <!-- Toastr --> <!-- jQuery -->
+
+    <style>
+        .btn-warningsty {
+            display: inline-block;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            border-radius: 5px;
+            text-decoration: none;
+            color: white;
+            background-color: blue;
+            border: none;
+            cursor: pointer;
+        }
+
+            .btn-warningsty:hover {
+                background-color: #e0a800;
+            }
+
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- Bootstrap -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.3/umd/popper.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.min.js" crossorigin="anonymous"></script>
+    <!-- DataTables -->
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.2.7/js/dataTables.responsive.min.js"></script>
+    <!-- Toastr -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" crossorigin="anonymous"></script>
+
+    <!-- Vendors JS -->
+    <script src="~/assets2/js/vendor/modernizr-3.11.2.min.js"></script>
+    <script src="~/assets2/js/vendor/jquery-3.6.0.min.js"></script>
+    <script src="~/assets2/js/vendor/jquery-migrate-3.3.2.min.js"></script>
+    <script src="~/assets2/js/vendor/bootstrap.bundle.min.js"></script>
+
+    <!-- Plugins JS -->
+    <script src="~/assets2/js/plugins/slick.min.js"></script>
+    <script src="~/assets2/js/plugins/jquery.waypoints.min.js"></script>
+    <script src="~/assets2/js/plugins/jquery.counterup.min.js"></script>
+    <script src="~/assets2/js/plugins/jquery.parallax.js"></script>
+    <script src="~/assets2/js/plugins/jquery.ajaxchimp.min.js"></script>
+    <script src="~/assets2/js/plugins/ion.rangeSlider.min.js"></script>
+    <script src="~/assets2/js/plugins/jquery.scrollUp.min.js"></script>
+
+
+    <!-- Main Activation JS -->
+    <script src="~/assets2/js/main.js"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HLMJG4WRE1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-HLMJG4WRE1');
+    </script>
+
+
+    @await RenderSectionAsync("Scripts", required: false)
+    @foreach (var key in TempData.Keys.Where(k => k.StartsWith("ActiveNotification_")))
+    {
+        var notification = TempData[key] as string;
+        if (!string.IsNullOrEmpty(notification))
+        {
+            <div class="modal fade" id="notificationModal_@key" tabindex="-1" role="dialog" aria-labelledby="notificationModalLabel_@key" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: skyblue;">
+                            <h5 class="modal-title" id="notificationModalLabel_@key" style="text-align: center;">Important Notification</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            @Html.Raw(notification)
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+    <script>
+                    $(document).ready(function () {
+                        var modals = $('div[id^="notificationModal_"]');
+                        function showModal(index) {
+                            if (index >= modals.length) return; // End if no more modals
+                            var currentModal = $(modals[index]);
+                            currentModal.modal('show');
+
+                            currentModal.on('hidden.bs.modal', function () {
+                                showModal(index + 1); // Show next modal when current one is closed
+                            });
+                        }
+                        showModal(0); // Start with the first modal
+
+                   // Standard window.onload logic
+        // window.onload = function () {
+        //     var preloader = document.getElementById('preloader');
+        //     if (preloader) {
+        //         preloader.classList.add('loaded');
+        //         setTimeout(function () {
+        //             preloader.style.display = 'none';
+        //         }, 200); // Delay to hide after fade-out
+        //     }
+        // };
+
+        // // Fallback timeout to ensure the preloader is hidden if window.onload takes too long
+        // setTimeout(function () {
+        //     var preloader = document.getElementById('preloader');
+        //     if (preloader && !preloader.classList.contains('loaded')) {
+        //         preloader.classList.add('loaded');
+        //         setTimeout(function () {
+        //             preloader.style.display = 'none';
+        //         }, 200); // Delay to hide after fade-out
+        //     }
+        // }, 2000); // Fallback timeout, 3 seconds
+
+
+
+
+                    });
+    </script>
+
+
+</body>
+
+</html>

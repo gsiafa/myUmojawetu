@@ -6,8 +6,6 @@ namespace WebOptimus.Models.ViewModel.Admin
     {
         public Guid UserId { get; set; }
 
-        //public int? DependentId { get; set; }
-
         public string PersonRegNumber { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
 

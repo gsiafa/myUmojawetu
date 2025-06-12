@@ -2214,111 +2214,94 @@ namespace WebOptimus.Controllers
             {
                 var email = HttpContext.Session.GetString("loginEmail");
                 string myIP = _requestIpHelper.GetRequestIp();
-                var getUser = await _db.Users.Where(a => a.PersonRegNumber == personRegNumber).FirstOrDefaultAsync();
+                var getUser = await _db.Users.FirstOrDefaultAsync(a => a.PersonRegNumber == personRegNumber);
                 var currentUser = await _userManager.FindByEmailAsync(email);
+
                 if (getUser == null)
                 {
-
-                    TempData[SD.Error] = "User Not found..";
+                    TempData[SD.Error] = "User not found.";
                     return RedirectToAction(nameof(Users));
                 }
 
-
-                var userRoles = await _userManager.GetRolesAsync(getUser);
-                var currentRole = userRoles.FirstOrDefault();
-
-                var model = new AdminChangePasswordViewModel 
+                var model = new AdminChangePasswordViewModel
                 {
                     PersonRegNumber = getUser.PersonRegNumber,
                     UserId = getUser.UserId,
                     FirstName = getUser.FirstName,
                     LastName = getUser.Surname,
                     Email = getUser.Email
-
                 };
-                await RecordAuditAsync(currentUser, _requestIpHelper.GetRequestIp(), "ChangeUserPassword", " Navigated to changed user role");
 
+                await RecordAuditAsync(currentUser, myIP, "ChangeUserPassword", $"Navigated to change password for {getUser.Email}");
                 return View(model);
             }
             catch (Exception ex)
             {
                 var email = HttpContext.Session.GetString("loginEmail");
-                string myIP = _requestIpHelper.GetRequestIp();
-                var getUser = await _db.Users.Where(a => a.PersonRegNumber == personRegNumber).FirstOrDefaultAsync();
                 var currentUser = await _userManager.FindByEmailAsync(email);
-                TempData[SD.Error] = "Please check logs...";
-                await RecordAuditAsync(currentUser, _requestIpHelper.GetRequestIp(), "ChangeUserPassword", " Error Navigating to changed user password because: " + ex.Message.ToString());
+                await RecordAuditAsync(currentUser, _requestIpHelper.GetRequestIp(), "ChangeUserPassword", $"Exception occurred: {ex.Message}");
 
+                TempData[SD.Error] = "An error occurred. Please check logs.";
                 return RedirectToAction(nameof(Users));
-
             }
-
-
         }
 
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = RoleList.GeneralAdmin)]
         public async Task<IActionResult> ChangeUserPassword(AdminChangePasswordViewModel model)
         {
             try
             {
                 var email = HttpContext.Session.GetString("loginEmail");
-                string myIP = _requestIpHelper.GetRequestIp();
-                var getUserToEdit = await _db.Users.Where(a => a.PersonRegNumber == model.PersonRegNumber).FirstOrDefaultAsync();
                 var currentUser = await _userManager.FindByEmailAsync(email);
-                if (getUserToEdit == null)
-                {
+                var targetUser = await _userManager.Users.FirstOrDefaultAsync(a => a.PersonRegNumber == model.PersonRegNumber);
 
-                    TempData[SD.Error] = "User Not found..";
+                if (targetUser == null)
+                {
+                    TempData[SD.Error] = "User not found.";
                     return RedirectToAction(nameof(Users));
                 }
-                var removePasswordResult = await _userManager.RemovePasswordAsync(getUserToEdit);
-                if (!removePasswordResult.Succeeded)
+
+                // Remove existing password
+                var removeResult = await _userManager.RemovePasswordAsync(targetUser);
+                if (!removeResult.Succeeded)
                 {
-
-                    foreach (var error in removePasswordResult.Errors)
+                    foreach (var error in removeResult.Errors)
                     {
-                        await RecordAuditAsync(currentUser, _requestIpHelper.GetRequestIp(), "ChangeUserPassword", " Error changing user password for: " + model.Email + " because of " + error.Description);
-
                         ModelState.AddModelError(string.Empty, error.Description);
+                        await RecordAuditAsync(currentUser, _requestIpHelper.GetRequestIp(), "ChangeUserPassword", $"RemovePassword failed for {model.Email}: {error.Description}");
                     }
                     return View(model);
                 }
 
-                var addPasswordResult = await _userManager.AddPasswordAsync(getUserToEdit, model.NewPassword);
-                if (!addPasswordResult.Succeeded)
+                // Add new password
+                var addResult = await _userManager.AddPasswordAsync(targetUser, model.NewPassword);
+                if (!addResult.Succeeded)
                 {
-                    foreach (var error in addPasswordResult.Errors)
+                    foreach (var error in addResult.Errors)
                     {
-                        await RecordAuditAsync(currentUser, _requestIpHelper.GetRequestIp(), "ChangeUserPassword", " Error changing user password for: " + model.Email + " because of " + error.Description);
-
                         ModelState.AddModelError(string.Empty, error.Description);
+                        await RecordAuditAsync(currentUser, _requestIpHelper.GetRequestIp(), "ChangeUserPassword", $"AddPassword failed for {model.Email}: {error.Description}");
                     }
                     return View(model);
                 }
 
-                getUserToEdit.ForcePasswordChange = model.ForcePasswordChange;
-                await _userManager.UpdateAsync(getUserToEdit);
+                targetUser.ForcePasswordChange = model.ForcePasswordChange;
+                await _userManager.UpdateAsync(targetUser);
 
-                TempData["Success"] = "Password changed successfully.";
-                await RecordAuditAsync(currentUser, _requestIpHelper.GetRequestIp(), "ChangeUserPassword", " Changed user password for account: " + model.Email);
-
+                await RecordAuditAsync(currentUser, _requestIpHelper.GetRequestIp(), "ChangeUserPassword", $"Password changed successfully for {model.Email}");
+                TempData[SD.Success] = "Password changed successfully.";
                 return RedirectToAction(nameof(Users));
             }
             catch (Exception ex)
             {
                 var email = HttpContext.Session.GetString("loginEmail");
-                string myIP = _requestIpHelper.GetRequestIp();
                 var currentUser = await _userManager.FindByEmailAsync(email);
-                if (currentUser == null)
-                {
+                await RecordAuditAsync(currentUser, _requestIpHelper.GetRequestIp(), "ChangeUserPassword", $"Exception for {model.Email}: {ex.Message}");
 
-                    TempData[SD.Error] = "User Not found..";
-                    return RedirectToAction(nameof(Users));
-                }
-                await RecordAuditAsync(currentUser, _requestIpHelper.GetRequestIp(), "ChangeUserPassword", " Error updating user password for: " + model.Email + " because of " + ex.Message.ToString());
-
+                TempData[SD.Error] = "An unexpected error occurred. Please check the logs.";
                 return RedirectToAction(nameof(Users));
             }
         }

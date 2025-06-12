@@ -21,6 +21,7 @@
     using WebOptimus.Controllers;
     using WebOptimus.Data;
     using WebOptimus.Helpers;
+    using WebOptimus.Migrations;
     using WebOptimus.Models;
     using WebOptimus.Models.ViewModel;
     using WebOptimus.Models.ViewModel.UserVM;
@@ -196,10 +197,11 @@
 
                         if (currentUser.ForcePasswordChange == true)
                         {
-                            HttpContext.Session.SetString("changepass", viewModel.Email);
-                            await _signInManager.SignOutAsync();
-                            await RecordAuditAsync(null, viewModel.Email, _requestIpHelper.GetRequestIp(), "Login", "User required to change their password on first logon.", ct);
-                            return RedirectToAction("ChangePassword", "Account", new { currentUser.PersonRegNumber });
+                            var encryptedReg = protector.Protect(currentUser.PersonRegNumber);                         
+                           
+                            await RecordAuditAsync(currentUser, _requestIpHelper.GetRequestIp(), "Redirect", "Redirected to ForcePasswordChange page: "+ encryptedReg, ct);
+                            return RedirectToAction(nameof(ForcePasswordChange), "Account", new { reg = encryptedReg });
+
                         }
 
                         await RecordAuditAsync(currentUser, _requestIpHelper.GetRequestIp(), "Login", "User login successfully", ct);
@@ -1842,129 +1844,201 @@
 
 
         [HttpGet]
-        public async Task<IActionResult> ChangePassword(string personRegNumber)
+        public async Task<IActionResult> ChangePassword(string reg)
         {
             try
             {
-                string myIP = _requestIpHelper.GetRequestIp();
-                var currentUser = await _db.Users.Where(a => a.PersonRegNumber == personRegNumber).FirstOrDefaultAsync();
-                var email = HttpContext.Session.GetString("loginEmail");
+                var decryptedReg = protector.Unprotect(reg);
+                var currentUser = await _db.Users.FirstOrDefaultAsync(a => a.PersonRegNumber == decryptedReg);
 
-                var loggedInUser = await _userManager.FindByEmailAsync(email);
-                if (email == null)
+                if (currentUser == null)
                 {
-                    TempData[SD.Error] = "Session Expires - Please login.";
+                    TempData[SD.Error] = "User not found.";
                     return RedirectToAction("Login", "Account");
                 }
 
-                string emailtoencryty = "";
-                emailtoencryty = protector.Protect(currentUser.Email.ToString());
-                ViewBag.EmailAddress = emailtoencryty;
-                ViewBag.userID = emailtoencryty;
+                var model = new ChangePasswordViewModel
+                {
+                    PersonRegNumber = reg,
+                };
 
-                await RecordAuditAsync(currentUser, myIP, "Navigation", "User navigated to Change Password page on first log on");
-
-                return View();
+                await RecordAuditAsync(currentUser, _requestIpHelper.GetRequestIp(), "Navigation", "User navigated to Change Password page");
+                return View(model);
             }
             catch
             {
-
-                await RecordAuditAsync(null, _requestIpHelper.GetRequestIp(), "Navigation", "Error navigating to New Password page - unable to fetch data from db");
-
-                return RedirectToAction("Index", "Home");
-            }
-
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel newPassword, CancellationToken ct)
-        {
-            try
-            {
-                string myIP = _requestIpHelper.GetRequestIp();
-                var useremail = newPassword.EmailAddress;
-                var emailTodecrypt = Convert.ToString(protector.Unprotect(useremail));
-                string hashed_password = SecurePasswordHasherHelper.Hash(newPassword.Password);
-                var user = await _db.Users.Where(x => x.Email == emailTodecrypt).FirstOrDefaultAsync();
-                var currentLoginUserEmail = HttpContext.Session.GetString("changepass");
-                var currentUser = await _db.Users.Where(a => a.Email == currentLoginUserEmail).FirstOrDefaultAsync();
-                //newPassword.OldPassword = hashed_password;
-
-                var passwordToRemove = user.Id.ToString();
-                if (user == null)
-                {
-                    TempData[SD.Error] = "Error: Please contact Admin.";
-                    await RecordAuditAsync(user, _requestIpHelper.GetRequestIp(), "ChangePassword", "User not found in database.");
-
-                    return RedirectToAction("Index", "Home");
-                }
-                if (await _userManager.CheckPasswordAsync(user, newPassword.Password))
-                {
-                    TempData[SD.Error] = "New Password cannot be the same as your current password";
-                    string emailtoencryty = "";
-                    emailtoencryty = protector.Protect(currentUser.Email.ToString());
-                    ViewBag.EmailAddress = emailtoencryty;
-                    ViewBag.userID = emailtoencryty;
-
-                    await RecordAuditAsync(user, _requestIpHelper.GetRequestIp(), "ChangePassword", "User entered a new Password that is the same as their current password.");
-
-                    return View();
-                }
-
-                if (hashed_password != null)
-                {
-
-                    var result = await passwordValidator.ValidateAsync(_userManager, user, newPassword.Password);
-                    if (result.Succeeded)
-                    {
-                        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-                        await _userManager.ResetPasswordAsync(user, token, newPassword.Password);
-                        user.PasswordHash = passwordHasher.HashPassword(user, newPassword.Password);
-
-                        user.ForcePasswordChange = false;
-                        user.UserName = newPassword.EmailAddress;
-                        user.NormalizedUserName = newPassword.EmailAddress.ToUpper();
-                        user.UpdateOn = DateTime.UtcNow;
-                        user.LastPasswordChangedDate = DateTime.UtcNow;
-                        _db.Users.Update(user);
-                        await _db.SaveChangesAsync();
-
-
-                        await RecordAuditAsync(user, myIP, "Change Password", "User changed their password successfully.");
-                        TempData[SD.Success] = "Password changed successfully";
-
-                        HttpContext.Session.Clear();
-                        await _signInManager.SignOutAsync();
-                        return RedirectToAction(nameof(Login));
-
-
-                    }
-
-
-                }
-
-                string emailtoencryty2 = "";
-                emailtoencryty2 = protector.Protect(currentUser.Email.ToString());
-                ViewBag.EmailAddress = emailtoencryty2;
-                ViewBag.userID = emailtoencryty2;
-
-                await RecordAuditAsync(user, myIP, "Change Password", "ERROR", "User tried changing their password but gave password that did not meet the password requirements.");
-
-                return View();
-
-
-
-            }
-            catch (Exception ex)
-            {
-                TempData[SD.Error] = "Error: Please contact Admin";
-                await RecordAuditAsync(null, _requestIpHelper.GetRequestIp(), "Change Password", "User tried changing their password on first logon but had the following error: " + ex.Message.ToString(), ct);
-
+                TempData[SD.Error] = "Invalid password change link.";
                 return RedirectToAction("Login", "Account");
             }
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model, CancellationToken ct)
+        {
+            try
+            {
+                var decryptedReg = protector.Unprotect(model.PersonRegNumber);
+                var user = await _db.Users.FirstOrDefaultAsync(u => u.PersonRegNumber == decryptedReg);
+
+                if (user == null)
+                {
+                    TempData[SD.Error] = "User not found.";
+                    return RedirectToAction("Login", "Account");
+                }
+
+                if (await _userManager.CheckPasswordAsync(user, model.Password))
+                {
+                    TempData[SD.Error] = "New password cannot be the same as your current password.";
+                    return View(model);
+                }
+
+                var validation = await passwordValidator.ValidateAsync(_userManager, user, model.Password);
+                if (!validation.Succeeded)
+                {
+                    foreach (var error in validation.Errors)
+                        ModelState.AddModelError("", error.Description);
+
+                    return View(model);
+                }
+
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var result = await _userManager.ResetPasswordAsync(user, token, model.Password);
+
+                if (result.Succeeded)
+                {
+                    user.ForcePasswordChange = false;
+                    user.UserName = user.Email;
+                    user.NormalizedUserName = user.Email.ToUpper();                        
+                    user.LastPasswordChangedDate = DateTime.UtcNow;
+                    user.UpdateOn = DateTime.UtcNow;
+                    _db.Users.Update(user);
+                    await _db.SaveChangesAsync();
+
+                    await RecordAuditAsync(user, _requestIpHelper.GetRequestIp(), "ChangePassword", "User changed password successfully.");
+                    TempData[SD.Success] = "Password changed successfully.";
+
+                    HttpContext.Session.Clear();
+                    await _signInManager.SignOutAsync();
+                    return RedirectToAction("Login");
+                }
+
+                foreach (var error in result.Errors)
+                    ModelState.AddModelError("", error.Description);
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                TempData[SD.Error] = "Unexpected error occurred.";
+                await RecordAuditAsync(null, _requestIpHelper.GetRequestIp(), "ChangePassword", "Error: " + ex.Message, ct);
+                return RedirectToAction("Login", "Account");
+            }
+        }
+
+
+
+        public async Task<IActionResult> ForcePasswordChange(string reg, CancellationToken ct)
+        {
+            await RecordAuditAsync(null, _requestIpHelper.GetRequestIp(), "Redirect", "Visited Change Password page with reg: ",reg, ct);
+
+            if (string.IsNullOrWhiteSpace(reg))
+            {
+                await RecordAuditAsync(null, _requestIpHelper.GetRequestIp(), "Redirect", "Invalid link or expired session. ", ct);
+
+                TempData[SD.Error] = "Invalid link or expired session.";
+                return RedirectToAction("Login", "Account");
+            }
+
+            try
+            {
+                var decryptedReg = protector.Unprotect(reg);
+                var currentUser = await _db.Users.FirstOrDefaultAsync(u => u.PersonRegNumber == decryptedReg);
+
+                if (currentUser == null)
+                {
+                    await RecordAuditAsync(null, _requestIpHelper.GetRequestIp(), "Redirect", "User not found", ct);
+                    TempData[SD.Error] = "User not found.";
+                    return RedirectToAction("Login", "Account");
+                }
+
+                await RecordAuditAsync(currentUser, _requestIpHelper.GetRequestIp(), "Redirect", "User navigated to Change Password page with reg: " + decryptedReg, ct);
+
+                var model = new ForcePasswordChangeViewModel();
+                model.PersonRegNumber = reg;
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                await RecordAuditAsync(null, _requestIpHelper.GetRequestIp(), "Redirect", "ERROR: " + ex.Message, ct);
+                TempData[SD.Error] = "Something went wrong.";
+                return RedirectToAction("Login", "Account");
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForcePasswordChange(ForcePasswordChangeViewModel model, CancellationToken ct)
+        {
+            try
+            {
+                var decryptedReg = protector.Unprotect(model.PersonRegNumber);
+                var user = await _db.Users.FirstOrDefaultAsync(u => u.PersonRegNumber == decryptedReg);
+
+                if (user == null)
+                {
+                    TempData[SD.Error] = "User not found.";
+                    return RedirectToAction("Login", "Account");
+                }
+
+                if (await _userManager.CheckPasswordAsync(user, model.Password))
+                {
+                    TempData[SD.Error] = "New password cannot be the same as your current password.";
+                    return View(model);
+                }
+
+                var validation = await passwordValidator.ValidateAsync(_userManager, user, model.Password);
+                if (!validation.Succeeded)
+                {
+                    foreach (var error in validation.Errors)
+                        ModelState.AddModelError("", error.Description);
+
+                    return View(model);
+                }
+
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var result = await _userManager.ResetPasswordAsync(user, token, model.Password);
+
+                if (result.Succeeded)
+                {
+                    user.ForcePasswordChange = false;
+                    user.UserName = user.Email;
+                    user.NormalizedUserName = user.Email.ToUpper();
+                    user.LastPasswordChangedDate = DateTime.UtcNow;
+                    user.UpdateOn = DateTime.UtcNow;
+                    _db.Users.Update(user);
+                    await _db.SaveChangesAsync();
+
+                    await RecordAuditAsync(user, _requestIpHelper.GetRequestIp(), "ChangePassword", "User changed password successfully.");
+                    TempData[SD.Success] = "Password changed successfully.";
+
+                    HttpContext.Session.Clear();
+                    await _signInManager.SignOutAsync();
+                    return RedirectToAction("Login");
+                }
+
+                foreach (var error in result.Errors)
+                    ModelState.AddModelError("", error.Description);
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                TempData[SD.Error] = "Unexpected error occurred.";
+                await RecordAuditAsync(null, _requestIpHelper.GetRequestIp(), "ChangePassword", "Error: " + ex.Message, ct);
+                return RedirectToAction("Login", "Account");
+            }
+        }
 
 
         [HttpGet]
@@ -2269,7 +2343,7 @@
         [HttpGet]
         [Authorize]
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(CancellationToken ct)
         {
             try
             {
@@ -2289,7 +2363,7 @@
                     TempData[SD.Error] = "User not found.";
                     return RedirectToAction("Login", "Account");
                 }
-
+               
                 // Ensure user ViewModel is initialized
                 var user = _mapper.Map<AccountViewModel>(loggedInUser) ?? new AccountViewModel();
 

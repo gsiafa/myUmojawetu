@@ -12,3 +12,10 @@
         @TempData[SD.Success]
     </div>
 }
+
+@if (TempData[SD.Warning] != null)
+{
+    <div class="alert alert-warning animated-message">
+        @TempData[SD.Warning]
+    </div>
+}
