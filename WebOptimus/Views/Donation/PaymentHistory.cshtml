@@ -9,13 +9,13 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <p style="margin-top: 6px;">
+                <p class="mt-4">
                     These are all your payment records. Please review them carefully, and contact admin if you notice any discrepancies or issues.
                 </p>
             </div>
             <br />
 
-            <!-- Total Contributions Card -->
+            <!-- Total Contributions and Missed Payments Cards -->
             <div class="col-lg-6 col-md-6 mb-4">
                 <div class="small-box bg-success text-center text-white">
                     <div class="inner">
@@ -27,7 +27,6 @@
                     </div>
                 </div>
             </div>
-            <!-- Total Missed Payments Card -->
             <div class="col-lg-6 col-md-6 mb-4">
                 <div class="small-box bg-danger text-center text-white">
                     <div class="inner">
@@ -39,6 +38,7 @@
                     </div>
                 </div>
             </div>
+
             <!-- Payment History Section -->
             <div class="col-md-12">
                 <div class="card">
@@ -47,10 +47,11 @@
                     </div>
 
                     <partial name="_notify" />
+
                     <!-- Death-Related Payment History -->
                     <div class="col-md-12">
                         <div class="card">
-                            <div class="card-header p-2">
+                            <div class="card-header p-2 bg-dark text-white">
                                 <h3>Death-Related Payment History</h3>
                             </div>
                             <div class="card-body">
@@ -68,14 +69,11 @@
                                             @foreach (var payment in Model)
                                             {
                                                 <tr>
-                                                    <td data-order="@payment.DateCreated.ToString("yyyy-MM-dd")">
-                                                        @payment.DateCreated.ToString("dd/MM/yyyy")
-                                                    </td>
-
+                                                    <td>@payment.DateCreated.ToString("dd/MM/yyyy")</td>
                                                     <td>@payment.CauseCampaignpRef</td>
                                                     <td>
-                                                        <a asp-action="PaymentDetails" asp-controller="Donation" asp-route-paymentId="@payment.OurRef" class="btn btn-info btn-sm">
-                                                            View More
+                                                        <a asp-action="PaymentDetails" asp-controller="Donation" asp-route-paymentId="@payment.OurRef" class="btn btn-info btn-sm" data-toggle="tooltip" data-placement="top" title="View More">
+                                                            Details
                                                         </a>
                                                     </td>
                                                 </tr>
@@ -90,10 +88,11 @@
                             </div>
                         </div>
                     </div>
+
                     <!-- Non-Death-Related Payment History -->
                     <div class="col-md-12 mt-5">
                         <div class="card">
-                            <div class="card-header p-2 bg-info">
+                            <div class="card-header p-2 bg-info text-white">
                                 <h3>Non-Death-Related Contribution History</h3>
                             </div>
                             <div class="card-body">
@@ -114,8 +113,8 @@
                                                     <td>@donation.DateCreated.ToString("dd/MM/yyyy")</td>
                                                     <td>@donation.CauseCampaignpRef</td>
                                                     <td>
-                                                        <a asp-action="PaymentDetails" asp-controller="Other" asp-route-paymentId="@donation.OurRef" class="btn btn-info btn-sm">
-                                                            View More
+                                                        <a asp-action="PaymentDetails" asp-controller="Other" asp-route-paymentId="@donation.OurRef" class="btn btn-info btn-sm" data-toggle="tooltip" data-placement="top" title="View More">
+                                                            Details
                                                         </a>
                                                     </td>
                                                 </tr>
@@ -130,72 +129,71 @@
                             </div>
                         </div>
                     </div>
-             
-            </div>
-            </div>
-            </div>
-            <!-- Missed Payments Section -->
-            <div class="col-md-12 mt-5">
-                <div class="card">
-                    <div class="card-header p-2 bg-danger">
-                        <h3>Missed Payments</h3>
-                    </div>
 
-                    <div class="card-body">
-                        @if (ViewBag.MissedPayments != null && ((List<PaymentHistoryViewModel>)ViewBag.MissedPayments).Count > 0)
-                        {
-                            <div class="card-body" style="width: 100%; overflow-x: auto;">
-                                <table class="table m-0 myTable text-center" style="width: 100%;">
-                                    <thead>
-                                        <tr class="text-center">
-                                            <th>Payee Name</th>
-                                            <th>Year of Birth</th>
-                                            <th>Reg Number</th>
-                                            <th>Deceased Ref</th>
-                                            <th>Amount</th>
-                                            <th>Due On</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var missedPayment in (List<PaymentHistoryViewModel>)ViewBag.MissedPayments)
-                                        {
-                                            <tr class="text-center">
-                                                <td>@missedPayment.DependentName</td>
-                                                <td>@missedPayment.YearOfBirth</td>
-                                                <td>@missedPayment.RegNumber</td>
-                                                <td>@missedPayment.CauseCampaignpRef</td>
-                                                <td>@missedPayment.Amount.ToString("C")</td>
-                                                <td>@missedPayment.EndDate</td>
-                                                <td>
-                                                <a class="btn btn-primary" asp-action="MissedPayment" asp-controller="Other" asp-route-Id="@missedPayment.CauseCampaignpRef">Pay Now</a>
-                                                </td>
+                    <!-- Missed Payments Section -->
+                    <div class="col-md-12 mt-5">
+                        <div class="card">
+                            <div class="card-header p-2 bg-danger text-white">
+                                <h3>Missed Payments</h3>
+                            </div>
+
+                            <div class="card-body">
+                                @if (ViewBag.MissedPayments != null && ((List<PaymentHistoryViewModel>)ViewBag.MissedPayments).Count > 0)
+                                {
+                                    <table class="table m-0 myTable text-center" style="width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th>Payee Name</th>
+                                                <th>Year of Birth</th>
+                                                <th>Reg Number</th>
+                                                <th>Deceased Ref</th>
+                                                <th>Amount</th>
+                                                <th>Due On</th>
+                                                <th>Action</th>
                                             </tr>
-                                        }
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var missedPayment in (List<PaymentHistoryViewModel>)ViewBag.MissedPayments)
+                                            {
+                                                <tr>
+                                                    <td>@missedPayment.DependentName</td>
+                                                    <td>@missedPayment.YearOfBirth</td>
+                                                    <td>@missedPayment.RegNumber</td>
+                                                    <td>@missedPayment.CauseCampaignpRef</td>
+                                                    <td>@missedPayment.Amount.ToString("C")</td>
+                                                    <td>@missedPayment.EndDate?.ToString("dd/MM/yyyy")</td>
+                                                    <td>
+                                                        <a class="btn btn-primary" asp-action="MissedPayment" asp-controller="Other" asp-route-Id="@missedPayment.CauseCampaignpRef" data-toggle="tooltip" data-placement="top" title="Pay Now">
+                                                            Pay Now
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-success text-center">
+                                        No missed payments!
+                                    </div>
+                                }
                             </div>
-                        }
-                        else
-                        {
-                            <div class="alert alert-success text-center">
-                                No missed payments!
-                            </div>
-                        }
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
+    </div>
 </section>
+
 @section scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <script src="https://cdn.datatables.net/plug-ins/1.13.4/sorting/datetime-moment.js"></script>
 
-
-
     <script>
-                  $(document).ready(function () {
+        $(document).ready(function () {
             $.fn.dataTable.moment('DD/MM/YYYY'); // Define date format for sorting
             $('.myTable').DataTable({
                 "order": [[0, "desc"]], // Sort by Payment Date (newest first)
@@ -204,8 +202,9 @@
                 "autoWidth": false,
                 "responsive": true
             });
+
+            // Enable tooltips
+            $('[data-toggle="tooltip"]').tooltip();
         });
-
-
     </script>
 }

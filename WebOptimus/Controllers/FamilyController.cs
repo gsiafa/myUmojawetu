@@ -443,13 +443,31 @@ namespace WebOptimus.Controllers
                         var initialStatus = DeathStatus.Approved;
 
                         var roles = await _userManager.GetRolesAsync(currentUser);
-                        if (roles.Contains(RoleList.LocalAdmin))
+                        bool isGeneralAdmin = roles.Contains(RoleList.GeneralAdmin);
+                        bool isRegionalAdmin = roles.Contains(RoleList.RegionalAdmin);
+                        bool isLocalAdmin = roles.Contains(RoleList.LocalAdmin);
+
+                        if (isLocalAdmin)
                         {
                             initialStatus = DeathStatus.PendingRegionalApproval;
                         }
-                        else if (roles.Contains(RoleList.RegionalAdmin))
+                        else if (isRegionalAdmin)
                         {
                             initialStatus = DeathStatus.PendingGeneralApproval;
+                        }
+                        else if (isGeneralAdmin)
+                        {
+                            initialStatus = DeathStatus.Approved;
+                        }
+                        // Check if the death has already been reported
+                        var alreadyReported = await _db.ReportedDeath
+                            .AnyAsync(r => r.PersonRegNumber == model.PersonRegNumber, ct);
+
+                        if (alreadyReported)
+                        {
+                            TempData[SD.Error] = "This death has already been reported.";
+                            await PopulateDependentsAsync(model, ct);
+                            return View(model);
                         }
 
                         var reportedDeath = new ReportedDeath
@@ -496,11 +514,93 @@ namespace WebOptimus.Controllers
                         // Save changes directly
                         _db.Dependants.Update(dependent);
                         await _db.SaveChangesAsync(ct);
+
+                        if (isGeneralAdmin)
+                        {
+                            // Suspend user if account holder
+                            var userAccount = await _db.Users.FirstOrDefaultAsync(u => u.PersonRegNumber == dependent.PersonRegNumber, ct);
+                            if (userAccount != null)
+                            {
+                                userAccount.IsDeceased = true;
+                                userAccount.LockoutEnabled = true;
+                                userAccount.LockoutEnd = DateTime.UtcNow.AddYears(1000);
+                                _db.Users.Update(userAccount);
+                                await _db.SaveChangesAsync(ct);
+                            }
+
+                            // Copy to ConfirmedDeath
+                            var confirmedDeath = new ConfirmedDeath
+                            {
+                                UserId = dependent.UserId,
+                                DeathId = reportedDeath.Id,
+                                PersonName = dependent.PersonName,
+                                PersonYearOfBirth = dependent.PersonYearOfBirth,
+                                PersonRegNumber = dependent.PersonRegNumber,
+                                IsConfirmedDead = true,
+                                Title = dependent.Title,
+                                Gender = dependent.Gender,
+                                Telephone = dependent.Telephone,
+                                Email = dependent.Email,
+                                DateCreated = dependent.DateCreated,
+                                RegionId = dependent.RegionId,
+                                CityId = dependent.CityId,
+                                CreatedBy = reportedDeath.CreatedBy,
+                                UpdateOn = DateTime.UtcNow,
+                            };
+
+                            _db.ConfirmedDeath.Add(confirmedDeath);
+                            await _db.SaveChangesAsync(ct);
+
+                            _db.Dependants.Remove(dependent);
+                            await _db.SaveChangesAsync(ct);
+
+                            if (userAccount != null)
+                            {
+                                var deletedUser = new DeletedUsers
+                                {
+                                    UserId = userAccount.UserId,
+                                    DependentId = userAccount.DependentId,
+                                    FirstName = userAccount.FirstName,
+                                    Surname = userAccount.Surname,
+                                    Email = userAccount.Email,
+                                    Title = userAccount.Title,
+                                    ApplicationStatus = userAccount.ApplicationStatus,
+                                    SuccessorId = userAccount.SuccessorId,
+                                    Note = userAccount.Note,
+                                    NoteDate = userAccount.NoteDate,
+                                    ApprovalDeclinerEmail = userAccount.ApprovalDeclinerEmail,
+                                    ApprovalDeclinerName = userAccount.ApprovalDeclinerName,
+                                    IsConsent = userAccount.IsConsent,
+                                    DateDeleted = DateTime.UtcNow,
+                                    DateCreated = userAccount.DateCreated,
+                                    SponsorsMemberName = userAccount.SponsorsMemberName,
+                                    SponsorsMemberNumber = userAccount.SponsorsMemberNumber,
+                                    SponsorLocalAdminName = userAccount.SponsorLocalAdminName,
+                                    SponsorLocalAdminNumber = userAccount.SponsorLocalAdminNumber,
+                                    PersonYearOfBirth = userAccount.PersonYearOfBirth,
+                                    PersonRegNumber = userAccount.PersonRegNumber,
+                                    RegionId = userAccount.RegionId,
+                                    CityId = userAccount.CityId,
+                                    OutwardPostcode = userAccount.OutwardPostcode,
+                                    IsDeleted = true,
+                                    IsDeceased = true,
+                                    Reason = "User Confirmed Dead"
+                                };
+
+                                _db.DeletedUser.Add(deletedUser);
+                                await _db.SaveChangesAsync(ct);
+                                _db.Users.Remove(userAccount);
+                                await _db.SaveChangesAsync(ct);
+                            }
+
+                            await RecordAuditAsync(currentUser, _requestIpHelper.GetRequestIp(), "Auto-Approval", "General Admin reported and approved death directly: " + dependent.PersonName + " #" + dependent.Id, ct);
+                        }
+
                         //await NotifyRegionalAdmins(reportedDeath, currentUser, ct);
                         await RecordAuditAsync(currentUser, _requestIpHelper.GetRequestIp(), "New Death", "Reported new death successfully: Deceased Name: " + reportedDeath.DeceasedName + " ID: " + reportedDeath.Id, ct);
                     }
 
-                    TempData["Success"] = "Death Reported Successfully.";
+                    TempData[SD.Success] = "Death Reported Successfully.";
                     return RedirectToAction("ReportedDeaths", "Family");
                 }
 
@@ -632,182 +732,7 @@ namespace WebOptimus.Controllers
         }
 
    
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //[Authorize(Roles = RoleList.GeneralAdmin + "," + RoleList.LocalAdmin + "," + RoleList.RegionalAdmin)]
-        //public async Task<IActionResult> AddDeath(ReportedDeathViewModel model, CancellationToken ct)
-        //{
-        //    try
-        //    {
-        //        var email = HttpContext.Session.GetString("loginEmail");
-        //        if (email == null)
-        //        {
-        //            return RedirectToAction("Index", "Home");
-        //        }
-
-        //        var currentUser = await _userManager.FindByEmailAsync(email);
-
-        //        // Remove model state errors for properties that are not required
-        //        ModelState.Remove(nameof(model.Deps));
-        //        ModelState.Remove(nameof(model.Cities));
-        //        ModelState.Remove(nameof(model.Regions));
-        //        ModelState.Remove(nameof(model.Dependents));
-
-        //        if (ModelState.IsValid)
-        //        {
-        //            // Handle file upload with validation
-        //            string relativePhotoPath = null;
-        //            if (model.DeceasedPhoto != null && model.DeceasedPhoto.Length > 0)
-        //            {
-        //                // Define allowed MIME types and file extensions
-        //                var allowedMimeTypes = new[] { "image/jpeg", "image/png", "image/jpg" };
-        //                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
-
-        //                // Check if the file is an image
-        //                var fileExtension = Path.GetExtension(model.DeceasedPhoto.FileName).ToLowerInvariant();
-        //                if (!allowedExtensions.Contains(fileExtension) ||
-        //                    !allowedMimeTypes.Contains(model.DeceasedPhoto.ContentType.ToLowerInvariant()))
-        //                {
-        //                    ModelState.AddModelError("DeceasedPhoto", "Please upload a valid image file (JPG, JPEG, PNG).");
-        //                    await PopulateDependentsAsync(model, ct);
-        //                    return View(model);
-        //                }
-
-        //                // Save the file if it passes validation
-        //                var uploads = Path.Combine(_hostEnvironment.WebRootPath, "DeceasedPhotos");
-        //                if (!Directory.Exists(uploads))
-        //                {
-        //                    Directory.CreateDirectory(uploads);
-        //                }
-
-        //                // Generate a unique file name
-        //                var uniqueFileName = Guid.NewGuid().ToString() + fileExtension;
-        //                var fullPhotoPath = Path.Combine(uploads, uniqueFileName);
-
-        //                using (var stream = new FileStream(fullPhotoPath, FileMode.Create))
-        //                {
-        //                    await model.DeceasedPhoto.CopyToAsync(stream);
-        //                }
-
-        //                // Store only the relative path in the database
-        //                relativePhotoPath = Path.Combine("DeceasedPhotos", uniqueFileName);
-        //            }
-
-        //            // Mark the dependent as deceased
-        //            var dependent = await _db.Dependants.FirstOrDefaultAsync(d => d.Id == model.DependentId, ct);
-        //            if (dependent != null)
-        //            {
-        //                var deceasedNextOfKin = await _db.NextOfKins.FirstOrDefaultAsync(a => a.DependentId == dependent.Id);
-
-        //                // Determine the initial status based on the user's role
-        //                var initialStatus = DeathStatus.Approved; // Default for GeneralAdmin
-
-        //                var roles = await _userManager.GetRolesAsync(currentUser);
-        //                if (roles.Contains(RoleList.LocalAdmin))
-        //                {
-        //                    initialStatus = DeathStatus.PendingRegionalApproval;
-        //                }
-        //                else if (roles.Contains(RoleList.RegionalAdmin))
-        //                {
-        //                    initialStatus = DeathStatus.PendingGeneralApproval;
-        //                }
-
-        //                // Map the view model to the domain model and save to the database
-        //                var reportedDeath = new ReportedDeath
-        //                {
-        //                    UserId = dependent.UserId,
-        //                    DependentId = model.DependentId,
-        //                    DeceasedName = dependent.PersonName,
-        //                    DeceasedRegNumber = dependent.PersonRegNumber,
-        //                    DeceasedYearOfBirth = dependent.PersonYearOfBirth,
-        //                    DateOfDeath = model.DateOfDeath,
-        //                    DeathLocation = model.DeathLocation,
-        //                    IsApprovedByGeneralAdmin = false,
-        //                    IsApprovedByRegionalAdmin = false,
-        //                    IsRejectedByGeneralAdmin = false,
-        //                    IsRejectedByRegionalAdmin = false,
-        //                    ReportedBy = model.ReportedBy,
-        //                    DateJoined = model.DateJoined,
-        //                    RelationShipToDeceased = model.RelationShipToDeceased,
-        //                    ReporterContactNumber = model.ReporterContactNumber,
-        //                    ReportedOn = model.ReportedOn,
-        //                    DateCreated = DateTime.UtcNow,
-        //                    CreatedBy = currentUser.Email,
-        //                    UpdatedOn = DateTime.UtcNow,
-        //                    DeceasedNextOfKinName = deceasedNextOfKin?.NextOfKinName ?? "",
-        //                    DeceasedNextOfKinEmail = deceasedNextOfKin?.NextOfKinEmail ?? "",
-        //                    DeceasedNextOfKinPhoneNumber = deceasedNextOfKin?.NextOfKinTel ?? "",
-        //                    DeceasedNextOfKinRelationship = deceasedNextOfKin?.Relationship ?? "",
-        //                    OtherRelevantInformation = model.OtherRelevantInformation ?? "",
-        //                    CityId = model.CityId,
-        //                    RegionId = model.RegionId,
-        //                    DeceasedPhotoPath = relativePhotoPath,
-        //                    Status = initialStatus // Set the initial status based on role
-        //                };
-
-        //                _db.ReportedDeath.Add(reportedDeath);
-        //                await _db.SaveChangesAsync(ct);
-
-        //                var getAllDeps = await _db.Dependants.Where(a => a.UserId == model.UserId).ToListAsync();
-
-        //                foreach (var i in getAllDeps)
-        //                {
-        //                    if (i.Id == model.DependentId)
-        //                    {
-        //                        i.IsReportedDead = true;                                
-        //                        i.UpdateOn = DateTime.UtcNow;
-        //                        _db.Dependants.Update(i);
-        //                        await _db.SaveChangesAsync(ct);
-
-
-        //                        var getUser = await _db.Users.Where(a => a.DependentId == i.Id).FirstOrDefaultAsync();
-        //                        if(getUser != null)
-        //                        {
-        //                            //mark account holder as Deceased 
-        //                            getUser.IsDeceased = true;
-
-        //                            _db.Users.Update(getUser);
-        //                            await _db.SaveChangesAsync(ct);
-        //                        }
-
-        //                    }
-        //                    else
-        //                    {
-        //                        _db.Dependants.Update(i);
-        //                        await _db.SaveChangesAsync(ct);
-        //                    }
-        //                }
-
-
-        //                await RecordAuditAsync(currentUser, _requestIpHelper.GetRequestIp(), "New Death", "Adding new death successfully Deceased Name: " + reportedDeath.DeceasedName + " ID: "+ reportedDeath.Id, ct);
-
-        //            }
-
-        //            TempData["Success"] = "Death Reported Successfully.";
-        //            return RedirectToAction("ReportedDeaths", "Family");
-        //        }
-
-        //        // Populate dropdowns in case of an error
-        //        await PopulateDependentsAsync(model, ct);
-        //        return View(model);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        var email2 = HttpContext.Session.GetString("loginEmail");
-        //        if (email2 == null)
-        //        {
-        //            return RedirectToAction("Index", "Home");
-        //        }
-
-        //        var currentUser2 = await _userManager.FindByEmailAsync(email2);
-
-        //        await RecordAuditAsync(currentUser2, _requestIpHelper.GetRequestIp(), "New Death", "Error adding New Death because: "+ ex.Message.ToString(), ct);
-
-        //        return View(model);
-        //    }
-        //}
-
-
+      
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> DependentPayments(CancellationToken ct)
@@ -1074,102 +999,7 @@ namespace WebOptimus.Controllers
             
         }
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        // [Authorize(Roles = RoleList.GeneralAdmin + "," + RoleList.LocalAdmin + "," + RoleList.RegionalAdmin)]
-        //public async Task<IActionResult> AddDeath(ReportedDeathViewModel model, CancellationToken ct)
-        //{
-        //    var email = HttpContext.Session.GetString("loginEmail");
-        //    if (email == null)
-        //    {
-        //        return RedirectToAction("Index", "Home");
-        //    }
-
-        //    var currentUser = await _userManager.FindByEmailAsync(email);
-        //    ModelState.Remove(nameof(model.Dependents));
-
-        //    ModelState.Remove(nameof(model.Dependents));
-        //    if (ModelState.IsValid)
-        //    {
-
-
-        //        // Mark the dependent as deceased
-        //        var dependent = await _db.Dependants.FirstOrDefaultAsync(d => d.Id == model.DependentId, ct);
-        //        if (dependent != null)
-        //        {
-        //            var deceasedNextOfKin = await _db.NextOfKins.FirstOrDefaultAsync(a=>a.DependentId ==  dependent.Id);
-        //            // Map the view model to the domain model and save to the database
-        //            var reportedDeath = new ReportedDeath
-        //            {
-        //                UserId = dependent.UserId,
-        //                DependentId = model.DependentId,
-        //                DeceasedName = dependent.PersonName,
-        //                DeceasedRegNumber = dependent.PersonRegNumber,
-        //                DeceasedYearOfBirth = dependent.PersonYearOfBirth,
-        //                DateOfDeath = model.DateOfDeath,
-        //                DeathLocation = model.DeathLocation,
-        //                CauseOfDeath = model.CauseOfDeath ?? "",
-        //                ReportedBy = model.ReportedBy,
-        //                DateJoined = model.DateJoined,
-        //                RelationShipToDeceased = model.RelationShipToDeceased,
-        //                ReporterContactNumber = model.ReporterContactNumber,
-        //                ReportedOn = model.ReportedOn,
-        //                DateCreated = DateTime.UtcNow,
-        //                CreatedBy = currentUser.Email,
-        //                UpdatedOn = DateTime.UtcNow,
-        //                DeceasedNextOfKinName = deceasedNextOfKin?.NextOfKinName ?? "",
-        //                DeceasedNextOfKinEmail = deceasedNextOfKin?.NextOfKinEmail ?? "",
-        //                DeceasedNextOfKinPhoneNumber = deceasedNextOfKin?.NextOfKinTel ?? "",
-        //                DeceasedNextOfKinRelationship = deceasedNextOfKin?.Relationship ?? ""
-        //            };
-
-        //            _db.ReportedDeath.Add(reportedDeath);
-        //            await _db.SaveChangesAsync(ct);
-
-        //            var getAllDeps = await _db.Dependants.Where(a => a.UserId == model.UserId).ToListAsync();
-
-        //            foreach (var i in getAllDeps)
-        //            {
-
-        //                if (i.Id == model.DependentId)
-        //                {
-        //                    i.IsDead = true;
-        //                    i.NumberOfDependants--;
-        //                    i.UpdateOn = DateTime.UtcNow;
-        //                    _db.Dependants.Update(i);
-        //                    await _db.SaveChangesAsync();
-        //                }
-        //                else
-        //                {
-        //                    i.NumberOfDependants--;
-
-        //                    _db.Dependants.Update(i);
-        //                    await _db.SaveChangesAsync();
-        //                }
-
-        //            }
-
-
-        //        }
-        //        TempData[SD.Success] = "Death Reported Successfully.";
-        //        return RedirectToAction("ReportedDeaths", "Family");
-        //    }
-
-
-        //    var dependents = await _db.Dependants.OrderBy(a=>a.PersonName)
-        //        .Where(d => d.IsDead == false)
-        //        .Select(d => new SelectListItem
-        //        {
-        //            Value = d.Id.ToString(),
-        //            Text = d.PersonName 
-        //        })
-        //        .ToListAsync(ct);
-
-        //    model.Dependents = dependents;
-
-        //    return View(model);
-        //}
-
+      
         private async Task PopulateDropdowns(ReportedDeathViewModel model)
         {
             model.Deps = new SelectList(await _db.Dependants.OrderBy(d => d.PersonName).ToListAsync(), "Id", "PersonName");
@@ -1344,65 +1174,83 @@ namespace WebOptimus.Controllers
 
             IQueryable<ReportedDeath> query = _db.ReportedDeath;
 
-            // Apply role-based filtering for "Approved" deaths
-            if (filter == "Approved")
+            if (currentUserRole == RoleList.GeneralAdmin)
             {
-                if (currentUserRole == RoleList.LocalAdmin)
-                {
-                    query = query.Where(rd => rd.CityId == currentUser.CityId && rd.Status == DeathStatus.Approved);
-                }
-                else if (currentUserRole == RoleList.RegionalAdmin)
-                {
-                    query = query.Where(rd => rd.RegionId == currentUser.RegionId && rd.Status == DeathStatus.Approved);
-                }
-                else if (currentUserRole == RoleList.GeneralAdmin)
+                if (filter == "Approved")
                 {
                     query = query.Where(rd => rd.Status == DeathStatus.Approved);
                 }
-            }
-            else
-            {
-                // Default role-based filtering for pending deaths
-                if (currentUserRole == RoleList.LocalAdmin)
-                {
-                    query = query.Where(rd => rd.CityId == currentUser.CityId &&
-                        (rd.Status == DeathStatus.PendingRegionalApproval || rd.Status == DeathStatus.PendingGeneralApproval));
-                }
-                else if (currentUserRole == RoleList.RegionalAdmin)
-                {
-                    query = query.Where(rd => rd.RegionId == currentUser.RegionId &&
-                        (rd.Status == DeathStatus.PendingRegionalApproval || rd.Status == DeathStatus.PendingGeneralApproval));
-                }
-                else if (currentUserRole == RoleList.GeneralAdmin)
+                else if (filter == "Pending")
                 {
                     query = query.Where(rd => rd.Status == DeathStatus.PendingRegionalApproval || rd.Status == DeathStatus.PendingGeneralApproval);
                 }
+                else
+                {
+               
+                    query = query.Where(rd =>
+                        rd.Status == DeathStatus.Approved ||
+                        rd.Status == DeathStatus.PendingRegionalApproval ||
+                        rd.Status == DeathStatus.PendingGeneralApproval ||
+                        rd.Status == DeathStatus.Rejected );
+                }
             }
 
-            // Execute query and select data
-            var reportedDeaths = await query
-                .Join(_db.City, rd => rd.CityId, c => c.Id, (rd, c) => new { rd, CityName = c.Name })
-                .Join(_db.Region, temp => temp.rd.RegionId, r => r.Id, (temp, r) => new { temp.rd, temp.CityName, RegionName = r.Name })
-                .Select(x => new ReportedDeathViewModel
+            else
+            {
+                // Local and Regional Admin filtering
+                if (filter == "Approved")
                 {
-                    Id = x.rd.Id,
-                    UserId = x.rd.UserId,
-                    DependentId = x.rd.DependentId,
-                    DependentName = x.rd.DeceasedName,
-                    DateOfDeath = x.rd.DateOfDeath,
-                    DeathLocation = x.rd.DeathLocation,
-                    PlaceOfBurial = x.rd.PlaceOfBurial,
-                    RelationShipToDeceased = x.rd.RelationShipToDeceased,
-                    ReporterContactNumber = x.rd.ReporterContactNumber,
-                    ReportedBy = x.rd.ReportedBy,                    
-                    ReportedOn = x.rd.ReportedOn,
-                    CityName = x.CityName,
-                    RegionName = x.RegionName,
-                    Status = x.rd.Status
-                })
-                .ToListAsync();
+                    if (currentUserRole == RoleList.LocalAdmin)
+                    {
+                        query = query.Where(rd => rd.CityId == currentUser.CityId && rd.Status == DeathStatus.Approved);
+                    }
+                    else if (currentUserRole == RoleList.RegionalAdmin)
+                    {
+                        query = query.Where(rd => rd.RegionId == currentUser.RegionId && rd.Status == DeathStatus.Approved);
+                    }
+                }
+                else
+                {
+                    if (currentUserRole == RoleList.LocalAdmin)
+                    {
+                        query = query.Where(rd => rd.CityId == currentUser.CityId &&
+                            (rd.Status == DeathStatus.PendingRegionalApproval || rd.Status == DeathStatus.PendingGeneralApproval));
+                    }
+                    else if (currentUserRole == RoleList.RegionalAdmin)
+                    {
+                        query = query.Where(rd => rd.RegionId == currentUser.RegionId &&
+                            (rd.Status == DeathStatus.PendingRegionalApproval || rd.Status == DeathStatus.PendingGeneralApproval));
+                    }
+                }
+            }
 
-            // Pagination
+            var reportedDeaths = await query
+      .Join(_db.City, rd => rd.CityId, c => c.Id, (rd, c) => new { rd, CityName = c.Name })
+      .Join(_db.Region, temp => temp.rd.RegionId, r => r.Id, (temp, r) => new { temp.rd, temp.CityName, RegionName = r.Name })
+      .GroupJoin(_db.Cause, temp => temp.rd.Id, cause => cause.DeathId, (temp, causes) => new { temp.rd, temp.CityName, temp.RegionName, Cause = causes.FirstOrDefault() })
+          .Select(x => new ReportedDeathViewModel
+          {
+              Id = x.rd.Id,
+              UserId = x.rd.UserId,
+              DependentId = x.rd.DependentId,
+              DependentName = x.rd.DeceasedName,
+              DateOfDeath = x.rd.DateOfDeath,
+              DeathLocation = x.rd.DeathLocation,
+              PlaceOfBurial = x.rd.PlaceOfBurial,
+              RelationShipToDeceased = x.rd.RelationShipToDeceased,
+              ReporterContactNumber = x.rd.ReporterContactNumber,
+              ReportedBy = x.rd.ReportedBy,
+              ReportedOn = x.rd.ReportedOn,
+              CityName = x.CityName,
+              RegionName = x.RegionName,
+              Status = x.Cause != null
+                  ? (x.Cause.IsClosed ? "Donation Ended"
+                      : (x.Cause.IsActive ? "Ongoing Donation" : x.rd.Status))
+                  : x.rd.Status
+          })
+      .ToListAsync();
+
+
             var paginatedReportedDeaths = reportedDeaths
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
@@ -1563,10 +1411,10 @@ namespace WebOptimus.Controllers
                 RegisterNumber = getDeath.DeceasedRegNumber,
                 OtherRelevantInformation = getDeath.OtherRelevantInformation,
                 RegionalAdminApprovalNote = getDeath.RegionalAdminNote,
-                ApprovedByGeneralAdmin = getDeath.ApprovedByGeneralAdmin,
+                ApprovedByGeneralAdmin = isGeneralAdmin ? currentUser.Email : null,
                 ApprovedByRegionalAdmin = getDeath.ApprovedByRegionalAdmin,
                 RegionalAdminApprovalDate = getDeath.RegionalAdminApprovalDate,
-                GeneralAdminApprovalDate = getDeath.GeneralAdminApprovalDate,
+                GeneralAdminApprovalDate = isGeneralAdmin ? DateTime.UtcNow : null,             
                 GeneralAdminApprovalNote = getDeath.GeneralAdminNote,
                 IsApprovedByGeneralAdmin = getDeath.IsApprovedByGeneralAdmin,
                 IsApprovedByRegionalAdmin = getDeath.IsApprovedByRegionalAdmin,

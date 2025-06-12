@@ -23,11 +23,6 @@ WebOptimus/obj/Release/
 
 # Ignore npm, yarn, and frontend build files
 node_modules/
-wwwroot/dist/
-wwwroot/lib/
-wwwroot/Admin/css/
-wwwroot/Admin/dist/js/
-wwwroot/Admin/plugins/
 # Ignore files in obj/ and bin/ directories
 WebOptimus/obj/
 WebOptimus/bin/
@@ -46,10 +41,6 @@ WebOptimus/obj/Debug/net8.0/WebOptimus.AssemblyInfoInputs.cache
 # Ignore lock files
 *.lock
 
-# Ignore compiled JavaScript and CSS map files
-*.js.map
-*.js
-*.css.map
 
 # Ignore other build artifacts
 *.LICENSE.txt

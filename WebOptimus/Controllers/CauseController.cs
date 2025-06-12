@@ -1347,8 +1347,8 @@ namespace WebOptimus.Controllers
             if (!dependents.Any()) return; //  Exit if no recipients found
 
             //  Load email template
-            //const string templatePath = @"EmailTemplate/CauseCreated.html";
-            const string templatePath = @"EmailTemplate/test.html"; // Path to email template
+            const string templatePath = @"EmailTemplate/CauseCreated.html";
+            //const string templatePath = @"EmailTemplate/test.html"; 
             string emailTemplate = await System.IO.File.ReadAllTextAsync(templatePath, ct); // Read template once
 
             string startDate = cause.StartDate?.ToString("dd/MM/yyyy") ?? "N/A";

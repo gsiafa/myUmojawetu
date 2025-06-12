@@ -12,7 +12,7 @@ namespace WebOptimus.Models.ViewModel
         public Guid UserId { get; set; }
 
 
-        [Required(ErrorMessage = "Email is required."), Display(Name = "Surname")]
+        [Required(ErrorMessage = "Email is required."), Display(Name = "Email")]
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; } = string.Empty;
 

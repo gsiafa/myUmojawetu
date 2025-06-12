@@ -2205,7 +2205,6 @@ namespace WebOptimus.Controllers
 
             _db.ChangeLogs.Add(changeLog);
         }
-
         [HttpGet]
         [Authorize(Roles = RoleList.GeneralAdmin)]
         public async Task<IActionResult> ChangeUserPassword(string personRegNumber)
@@ -2246,7 +2245,6 @@ namespace WebOptimus.Controllers
             }
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = RoleList.GeneralAdmin)]
@@ -2262,6 +2260,13 @@ namespace WebOptimus.Controllers
                 {
                     TempData[SD.Error] = "User not found.";
                     return RedirectToAction(nameof(Users));
+                }
+
+                // Validate password match
+                if (model.NewPassword != model.ConfirmPassword)
+                {
+                    ModelState.AddModelError(string.Empty, "New password and confirmation password do not match.");
+                    return View(model);
                 }
 
                 // Remove existing password

@@ -29,7 +29,8 @@
 
 @if (Model != null && Model.Any())
 {
-    <table class="table table-bordered text-center" id="myTable" style="width: 100%">
+             <div class="card-body" style="width: 100%; overflow-x: auto;">
+                    <table class="table m-0 myTable" style="width: 100%;">
         <thead>
             <tr>
                 <th>Deceased Name</th>
@@ -60,6 +61,7 @@
             }
         </tbody>
     </table>
+    </div>
 }
 else
 {
@@ -74,5 +76,15 @@ else
 </style>
 
 @section scripts {
-    <script src="~/admin/js/table.js" asp-append-version="true"></script>
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+
+    <!-- jQuery (if not already included) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="~/admin/js/table.js" asp-append-version="true"> </script>
+
+
 }

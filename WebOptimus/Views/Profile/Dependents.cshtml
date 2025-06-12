@@ -39,63 +39,46 @@
                     <partial name="_notify" />
 
                     <div class="card-body">
-                        <div class="card-body" style="width: 100%; overflow-x: auto;">
-                            <table class="table m-0 myTable" style="width: 100%;">
-                                <thead>
-                                    <tr class="text-center">
-                                        <th>Title</th>
-                                        <th>Gender</th>
-                                        <th>Family Member Name</th>
-                                        <th>Year of Birth</th>
-                                        <th>Tel</th>
-                                        <th>Email</th>
-                                        <th>Reg Number</th>
-                                        @if (ViewBag.AdminUser != RoleList.Dependent)
-                                        {
-                                            <th>Actions</th>
-                                        }
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var i in Model.dependants)
-                                    {
-                                        <tr class="text-center">
-                                            <td>@Html.DisplayFor(modelItem => i.TitleName)</td>
-                                            <td>@Html.DisplayFor(modelItem => i.GenderName)</td>
-                                            <td>@Html.DisplayFor(modelItem => i.PersonName)</td>
-                                            <td>@Html.DisplayFor(modelItem => i.PersonYearOfBirth)</td>
-                                            <td>@Html.DisplayFor(modelItem => i.Telephone)</td>
-                                            <td>@Html.DisplayFor(modelItem => i.Email)</td>
-                                            <td>@Html.DisplayFor(modelItem => i.PersonRegNumber)</td>
+                        <div class="row">
+                            @foreach (var i in Model.dependants.OrderBy(d => d.PersonYearOfBirth))
+                            {
+                                <div class="col-md-4 col-sm-12 mb-4">
+                                    <div class="card shadow-lg border-light rounded">
+                                        <div class="card-header text-center bg-primary text-white">
+                                            <h5 class="mb-0">@i.TitleName @i.PersonName</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <p><strong>Gender:</strong> @i.GenderName</p>
+                                            <p><strong>Year of Birth:</strong> @i.PersonYearOfBirth</p>
+                                            <p><strong>Phone:</strong> @i.Telephone</p>
+                                            <p><strong>Email:</strong> @i.Email</p>
+                                            <p><strong>Reg Number:</strong> @i.PersonRegNumber</p>
 
                                             @if (ViewBag.AdminUser != RoleList.Dependent)
                                             {
-                                                <td class="text-center">
-                                                    <div class="btn-group" role="group" style="display: flex; gap: 3px;">
-                                                        <button type="button" class="btn btn-warning" title="Edit Details" onclick="showEditModal('@i.Id', '@i.PersonName', '@i.PersonYearOfBirth', '@i.Telephone', '@i.Email', '@i.Title', '@i.Gender')">
-                                                            <i class="fas fa-edit"></i>
+                                                <div class="btn-group d-flex flex-wrap justify-content-between" role="group">
+                                                    <button type="button" class="btn btn-warning w-100 mb-2 mb-md-0" title="Edit Details" onclick="showEditModal('@i.Id', '@i.PersonName', '@i.PersonYearOfBirth', '@i.Telephone', '@i.Email', '@i.Title', '@i.Gender')">
+                                                        <i class="fas fa-edit" aria-label="Edit Details"></i> Edit
+                                                    </button>
+
+                                                    @if (int.TryParse(i.PersonYearOfBirth, out int yearOfBirth) &&
+                                                   DateTime.Now.Year - yearOfBirth >= 18 && // Check if over 18
+                                                   ViewBag.personRegNumber != i.PersonRegNumber && // Check if not the logged-in user
+                                                   !i.HasAccount) // Check if no account exists
+                                                    {
+                                                        <button type="button" class="btn btn-primary w-100" title="Open Account" onclick="showOpenAccountModal('@i.Id', '@i.PersonName', '@i.PersonYearOfBirth', '@i.Telephone', '@i.Email', '@i.PersonRegNumber')">
+                                                            <i class="fas fa-user-plus" aria-label="Open Account"></i> Open Account
                                                         </button>
-
-                                                        @if (int.TryParse(i.PersonYearOfBirth, out int yearOfBirth) &&
-                  DateTime.Now.Year - yearOfBirth >= 18 && // Check if over 18
-                  ViewBag.personRegNumber != i.PersonRegNumber && // Check if not the logged-in user
-                  !i.HasAccount) // Check if no account exists
-                                                        {
-                                                            <button type="button" class="btn btn-primary" title="Open Account" onclick="showOpenAccountModal('@i.Id', '@i.PersonName', '@i.PersonYearOfBirth', '@i.Telephone', '@i.Email', '@i.PersonRegNumber')">
-                                                                <i class="fas fa-user-plus"></i>
-                                                            </button>
-                                                        }
-                                                    </div>
-                                                </td>
-
+                                                    }
+                                                </div>
                                             }
-
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>

@@ -52,9 +52,8 @@
                 </div>
             </div>
             <!-- /.card-header -->
-            <div class="card-body p-0">            
-
-                <div class="table-responsive">
+          
+                <div class="card-body" style="width: 100%; overflow-x: auto;">
                     <table class="table m-0 myTable" style="width: 100%;">
                         <thead>
                             <tr class="text-center">
@@ -129,7 +128,7 @@
                     </table>
                 </div>
                 <!-- /.table-responsive -->
-            </div>
+         
             <!-- /.card-body -->
             <!-- /.card-footer -->
         </div>
@@ -143,17 +142,16 @@ else
 }
 
 @section scripts {
-    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
-    @* <script src="~/admin/js/table.js" asp-append-version="true"> </script> *@
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
 
-    <script>
-        $(document).ready(function () {
-            $('.myTable').DataTable({
-                "order": [[5, "desc"]],  // Sort by DateCreated (6th column) in descending order
-                "pageLength": 10,
-                "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
-                "responsive": true
-            });
-        });
-    </script>
+    <!-- jQuery (if not already included) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="~/admin/js/table.js" asp-append-version="true"> </script>
+
+
 }
+

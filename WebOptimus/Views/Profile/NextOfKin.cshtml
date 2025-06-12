@@ -39,49 +39,39 @@
                     </div>
 
                     <partial name="_notify" />
-                    <div class="card-body">
-                        <div class="card-body" style="width: 100%; overflow-x: auto;">
-                            <table class="table m-0 myTable" style="width: 100%;">
-                                <thead>
-                                    <tr class="text-center">
-                                        <th>Next Of Kin Name</th>
-                                        <th>Next Of Kin to Family Member</th>
-                                        <th>Relationship</th>
-                                        <th>Next of Kin Mobile</th>
-                                        <th>Next of Kin Email</th>
-                                        <th>Next of Kin Address</th>
+                    <div class="card-body" style="width: 100%; overflow-x: auto;">
+                        <div class="row">
+                            @foreach (var i in Model.NextOfKins)
+                            {
+                                <div class="col-md-4 mb-4">
+                                    <div class="card shadow-lg border-light rounded">
+                                        <div class="card-body">
+                                            <h5 class="card-title text-primary font-weight-bold">@i.NextOfKinName</h5>
+                                            <p class="card-text"><strong>Relationship:</strong> @i.Relationship</p>
+                                            <p class="card-text">
+                                                <strong>Next of Kin to Family Member:</strong>
+                                                <span class="highlight-text">@i.DepName</span>
+                                            </p>
+
+                                            <p class="card-text"><strong>Mobile:</strong> @i.NextOfKinTel</p>
+                                            <p class="card-text"><strong>Email:</strong> @i.NextOfKinEmail</p>
+                                            <p class="card-text"><strong>Address:</strong> @i.NextOfKinAddress</p>
 
                                             @if (ViewBag.AdminUser != RoleList.Dependent)
                                             {
-                                        <th>Actions</th>
-                                            }
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var i in Model.NextOfKins)
-                                    {
-                                        <tr class="text-center">
-                                            <td>@Html.DisplayFor(modelItem => i.NextOfKinName)</td>
-                                            <td>@Html.DisplayFor(modelItem => i.DepName)</td>
-                                            <td>@Html.DisplayFor(modelItem => i.Relationship)</td>
-                                            <td>@Html.DisplayFor(modelItem => i.NextOfKinTel)</td>
-                                            <td>@Html.DisplayFor(modelItem => i.NextOfKinEmail)</td>
-                                            <td>@Html.DisplayFor(modelItem => i.NextOfKinAddress)</td>
+                                                <div class="d-flex justify-content-between mt-3">
+                                                    <a href="javascript:void(0);" class="text-primary btn-edit"
+                                                       data-id="@i.Id"
+                                                       data-name="@i.NextOfKinName"
+                                                       data-relationship="@i.Relationship"
+                                                       data-tel="@i.NextOfKinTel"
+                                                       data-email="@i.NextOfKinEmail"
+                                                       data-address="@i.NextOfKinAddress"
+                                                       data-dependent-id="@i.PersonRegNumber"
+                                                       title="Edit" style="font-size: 1.5rem;">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
 
-                                            @if (ViewBag.AdminUser != RoleList.Dependent)
-                                            {
-                                            <td>
-                                                <a href="javascript:void(0);" class="text-primary btn-edit"
-                                                   data-id="@i.Id"
-                                                   data-name="@i.NextOfKinName"
-                                                   data-relationship="@i.Relationship"
-                                                   data-tel="@i.NextOfKinTel"
-                                                   data-email="@i.NextOfKinEmail"
-                                                   data-address="@i.NextOfKinAddress"
-                                                   data-dependent-id="@i.PersonRegNumber"
-                                                   title="Edit" style="font-size: 1.5rem; margin-right: 10px;">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
                                                     <a href="javascript:void(0);" class="text-danger btn-delete"
                                                        data-id="@i.Id"
                                                        data-name="@i.NextOfKinName"
@@ -89,17 +79,15 @@
                                                        title="Delete" style="font-size: 1.5rem;">
                                                         <i class="fas fa-trash-alt"></i>
                                                     </a>
-
-
-
-                                            </td>
+                                                </div>
                                             }
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -242,6 +230,17 @@
 </div>
 <script src="~/admin/js/table.js" asp-append-version="true"></script>
 
+
+<style>
+    .highlight-text {
+        background-color: #ffc107; /* Yellow background for emphasis */
+        padding: 0.2rem 0.4rem; /* Padding for spacing */
+        border-radius: 0.25rem; /* Rounded corners */
+        font-weight: bold; /* Bold text for emphasis */
+        color: #212529; /* Dark text color */
+    }
+
+</style>
 @section Scripts
 {
     <script>

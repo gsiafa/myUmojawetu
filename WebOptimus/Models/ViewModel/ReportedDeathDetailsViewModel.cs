@@ -46,10 +46,11 @@ namespace WebOptimus.Models.ViewModel
         public IFormFile? DeceasedPhoto { get; set; } // For file upload
 
         public string RegionalAdminApprovalNote { get; set; } = string.Empty;
-        public DateTime RegionalAdminApprovalDate { get; set; }
 
         public string GeneralAdminApprovalNote { get; set; } = string.Empty;
-        public DateTime GeneralAdminApprovalDate { get; set; }
+        public DateTime? GeneralAdminApprovalDate { get; set; }
+        public DateTime? RegionalAdminApprovalDate { get; set; }
+
 
         public bool? IsRegionalAdmin { get; set; }
         public bool? IsGeneralAdmin { get; set; }

@@ -1938,13 +1938,14 @@
 
 
 
+        [HttpGet]
         public async Task<IActionResult> ForcePasswordChange(string reg, CancellationToken ct)
         {
-            await RecordAuditAsync(null, _requestIpHelper.GetRequestIp(), "Redirect", "Visited Change Password page with reg: ",reg, ct);
+            await RecordAuditAsync(null, _requestIpHelper.GetRequestIp(), "Redirect", "Visited Change Password page with reg: " + reg, ct);
 
             if (string.IsNullOrWhiteSpace(reg))
             {
-                await RecordAuditAsync(null, _requestIpHelper.GetRequestIp(), "Redirect", "Invalid link or expired session. ", ct);
+                await RecordAuditAsync(null, _requestIpHelper.GetRequestIp(), "Redirect", "Invalid link or expired session.", ct);
 
                 TempData[SD.Error] = "Invalid link or expired session.";
                 return RedirectToAction("Login", "Account");
@@ -1964,8 +1965,11 @@
 
                 await RecordAuditAsync(currentUser, _requestIpHelper.GetRequestIp(), "Redirect", "User navigated to Change Password page with reg: " + decryptedReg, ct);
 
-                var model = new ForcePasswordChangeViewModel();
-                model.PersonRegNumber = reg;
+                var model = new ForcePasswordChangeViewModel
+                {
+                    PersonRegNumber = reg
+                };
+
                 return View(model);
             }
             catch (Exception ex)
@@ -1997,6 +2001,7 @@
                     return View(model);
                 }
 
+                // Validate the new password using password policy rules
                 var validation = await passwordValidator.ValidateAsync(_userManager, user, model.Password);
                 if (!validation.Succeeded)
                 {
@@ -2006,27 +2011,32 @@
                     return View(model);
                 }
 
+                // Reset password logic
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var result = await _userManager.ResetPasswordAsync(user, token, model.Password);
 
                 if (result.Succeeded)
                 {
                     user.ForcePasswordChange = false;
-                    user.UserName = user.Email;
+                    user.UserName = user.Email; // Sync username
                     user.NormalizedUserName = user.Email.ToUpper();
                     user.LastPasswordChangedDate = DateTime.UtcNow;
                     user.UpdateOn = DateTime.UtcNow;
+
                     _db.Users.Update(user);
                     await _db.SaveChangesAsync();
 
                     await RecordAuditAsync(user, _requestIpHelper.GetRequestIp(), "ChangePassword", "User changed password successfully.");
                     TempData[SD.Success] = "Password changed successfully.";
 
+                    // Clear session and sign out user
                     HttpContext.Session.Clear();
                     await _signInManager.SignOutAsync();
+
                     return RedirectToAction("Login");
                 }
 
+                // Handle any errors during password reset
                 foreach (var error in result.Errors)
                     ModelState.AddModelError("", error.Description);
 
@@ -2061,17 +2071,15 @@
                     var code = await _userManager.GeneratePasswordResetTokenAsync(user);
                     const string pathToFile = @"EmailTemplate/ForgetPassword.html";
                     const string subject = "Reset Your Password";
-                    var personRegNumber = user.PersonRegNumber;
 
                     code = HttpUtility.UrlEncode(code);
                     var expirationTime = DateTime.UtcNow.AddHours(24); // Set expiration time to 24 hours
                     var callbackUrl = Url.Action("ResetPassword",
-                            "Account", new
-                            {
-                                personRegNumber = user.PersonRegNumber,
-                                code
-                            },
-                            protocol: Request.Scheme);
+                             "Account", new
+                             {
+                                 code
+                             },
+                             protocol: Request.Scheme);
 
                     string htmlBody = "";
 
@@ -2079,8 +2087,8 @@
                     {
                         htmlBody = await reader.ReadToEndAsync(ct);
                         htmlBody = htmlBody.Replace("{{userName}}", user.FirstName + " " + user.Surname)
-                        .Replace("{{currentYear}}", DateTime.UtcNow.Year.ToString())
-                        .Replace("{{Reset Password}}", "<a href=\"" + callbackUrl + "\">" + "Reset Password" + "</a>");
+                                           .Replace("{{currentYear}}", DateTime.UtcNow.Year.ToString())
+                                           .Replace("{{Reset Password}}", "<a href=\"" + callbackUrl + "\">" + "Reset Password" + "</a>");
                     }
 
                     var message = new PostmarkMessage
@@ -2096,7 +2104,8 @@
                     // Store token with expiration time
                     var passwordReset = new PasswordReset
                     {
-                        personRegNumber = user.PersonRegNumber,
+                        UserId = user.UserId,
+                        personRegNumber = user.PersonRegNumber, 
                         Token = code,
                         ExpirationTime = expirationTime,
                         Used = false,
@@ -2127,7 +2136,7 @@
         }
 
         [HttpGet]
-        public async Task<IActionResult> ResetPassword(string personRegNumber, string code)
+        public async Task<IActionResult> ResetPassword(string code, CancellationToken ct)
         {
             try
             {
@@ -2140,7 +2149,34 @@
                     return RedirectToAction(nameof(Login));
                 }
 
-                var getUser = await _db.Users.Where(a => a.PersonRegNumber == personRegNumber).FirstOrDefaultAsync();
+                // Find password reset record using the code
+                var passwordReset = await _db.PasswordResets.FirstOrDefaultAsync(pr => pr.Token == code, ct);
+
+                if (passwordReset == null)
+                {
+                    TempData[SD.Error] = "Invalid or expired password reset link. Please contact Admin.";
+                    await RecordAuditAsync(null, myIP, "Reset Password", "Error: Invalid or expired reset link.");
+                    return RedirectToAction(nameof(Login));
+                }
+
+                // Ensure the reset token has not expired
+                if (passwordReset.ExpirationTime < DateTime.UtcNow)
+                {
+                    TempData[SD.Error] = "The password reset link has expired.";
+                    await RecordAuditAsync(null, myIP, "Reset Password", "Error: The password reset link has expired.");
+                    return RedirectToAction(nameof(Login));
+                }
+
+                // Ensure the reset token has not been used already
+                if (passwordReset.Used)
+                {
+                    TempData[SD.Error] = "The password reset link has already been used.";
+                    await RecordAuditAsync(null, myIP, "Reset Password", "Error: The password reset link has already been used.");
+                    return RedirectToAction(nameof(Login));
+                }
+
+                // Find the user associated with this reset token (use email or PersonRegNumber)
+                var getUser = await _db.Users.Where(a => a.PersonRegNumber == passwordReset.personRegNumber).FirstOrDefaultAsync();
                 if (getUser == null)
                 {
                     TempData[SD.Error] = "Error resetting your account. Please contact Admin.";
@@ -2148,34 +2184,12 @@
                     return RedirectToAction(nameof(Login));
                 }
 
-                var passwordReset = await _db.PasswordResets
-                    .Where(pr => pr.personRegNumber == getUser.PersonRegNumber && pr.Token == code)
-                    .FirstOrDefaultAsync();
+                // Prepare the model for the reset password view
+                var model = new ResetPasswordViewModel { code = code, personRegNumber = getUser.PersonRegNumber.ToString() };
 
-                if (passwordReset == null)
-                {
-                    TempData[SD.Error] = "The password reset link is invalid.";
-                    await RecordAuditAsync(getUser, myIP, "Reset Password", "Error: The password reset link is invalid.");
-                    return RedirectToAction(nameof(Login));
-                }
-
-                if (passwordReset.ExpirationTime < DateTime.UtcNow)
-                {
-                    TempData[SD.Error] = "The password reset link has expired.";
-                    await RecordAuditAsync(getUser, myIP, "Reset Password", "Error: The password reset link has expired.");
-                    return RedirectToAction(nameof(Login));
-                }
-
-                if (passwordReset.Used)
-                {
-                    TempData[SD.Error] = "The password reset link has already been used.";
-                    await RecordAuditAsync(getUser, myIP, "Reset Password", "Error: The password reset link has already been used.");
-                    return RedirectToAction(nameof(Login));
-                }
-
-                var model = new ResetPasswordViewModel { code = code, personRegNumber = personRegNumber.ToString() };
-
+                // Log the successful navigation to the Reset Password page
                 await RecordAuditAsync(getUser, myIP, "Reset Password", "User navigated to Reset Password page.");
+
                 return View(model);
             }
             catch (Exception ex)
@@ -2197,7 +2211,6 @@
             var logs = await _db.PageNavigationLogs.OrderByDescending(log => log.Timestamp).ToListAsync();
             return View(logs);
         }
-         
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
@@ -2206,41 +2219,40 @@
             {
                 string myIP = _requestIpHelper.GetRequestIp();
 
+                // Validate if personRegNumber or code are missing
                 if (string.IsNullOrEmpty(model.personRegNumber) || string.IsNullOrEmpty(model.code))
                 {
-                    TempData[SD.Error] = "Password Reset Link expired. Please contact Local Admin.";
-                    await RecordAuditAsync(null, myIP, "ResetPassword", "Error resetting user account, Link has expired or invalid.");
+                    TempData[SD.Error] = "Password reset link expired or invalid. Please contact Local Admin.";
+                    await RecordAuditAsync(null, myIP, "ResetPassword", "Error: Reset password link is invalid or expired.");
                     return RedirectToAction(nameof(Login));
                 }
 
-                //Guid userId;
-                //if (!Guid.TryParse(model.userId, out userId))
-                //{
-                //    TempData[SD.Error] = "Invalid User ID. Please contact Admin.";
-                //    await RecordAuditAsync(null, myIP, "ResetPassword", "Error: Invalid User ID format.");
-                //    return RedirectToAction(nameof(Login));
-                //}
-
-                var getUser = await _db.Users.Where(a => a.PersonRegNumber == model.personRegNumber).FirstOrDefaultAsync();
+                // Find user based on personRegNumber
+                var getUser = await _db.Users.FirstOrDefaultAsync(a => a.PersonRegNumber == model.personRegNumber);
                 if (getUser == null)
                 {
-                    TempData[SD.Error] = "Error resetting your account. Please contact Admin.";
-                    await RecordAuditAsync(null, myIP, "ResetPassword", "Error resetting user password, userId has been deleted from database.");
+                    TempData[SD.Error] = "Error resetting your account. User not found.";
+                    await RecordAuditAsync(null, myIP, "ResetPassword", "Error: User not found in the database.");
                     return RedirectToAction(nameof(Login));
                 }
 
+                // Find the password reset token record
                 var passwordReset = await _db.PasswordResets
                     .Where(pr => pr.personRegNumber == getUser.PersonRegNumber && pr.Token == model.code)
                     .FirstOrDefaultAsync();
 
+                // Check if the token is valid, not expired, and not already used
                 if (passwordReset == null || passwordReset.ExpirationTime < DateTime.UtcNow || passwordReset.Used)
                 {
                     TempData[SD.Error] = "The password reset link is invalid or expired.";
-                    await RecordAuditAsync(getUser, myIP, "ResetPassword", "Error: The password reset link is invalid or expired.");
+                    await RecordAuditAsync(getUser, myIP, "ResetPassword", "Error: Invalid or expired reset link.");
                     return RedirectToAction(nameof(Login));
                 }
 
+                // Decode the reset code
                 var codeHtmlDecoded = HttpUtility.UrlDecode(model.code);
+
+                // Perform the password reset
                 var result = await _userManager.ResetPasswordAsync(getUser, codeHtmlDecoded, model.Password);
 
                 if (result.Succeeded)
@@ -2252,20 +2264,22 @@
                     _db.PasswordResets.Update(passwordReset);
                     await _db.SaveChangesAsync();
 
-                    await RecordAuditAsync(getUser, myIP, "ResetPassword", "User changed their password successfully.");
-                    TempData[SD.Success] = "Password changed successfully. Please login.";
+                    await RecordAuditAsync(getUser, myIP, "ResetPassword", "User successfully reset their password.");
+                    TempData[SD.Success] = "Password reset successful. Please log in.";
                     return RedirectToAction(nameof(Login));
                 }
                 else
                 {
-                    await RecordAuditAsync(getUser, myIP, "ResetPassword", "ERROR: Could not reset user password.");
+                    // Log error if password reset fails
+                    await RecordAuditAsync(getUser, myIP, "ResetPassword", "ERROR: Password reset failed.");
                     TempData[SD.Error] = "Error resetting your password. Please try again.";
                     return RedirectToAction(nameof(Login));
                 }
             }
             catch (Exception ex)
             {
-                await RecordAuditAsync(null, _requestIpHelper.GetRequestIp(), "ResetPassword", "Error: when trying to reset password: " + ex.Message.ToString());
+                // Log unexpected errors
+                await RecordAuditAsync(null, _requestIpHelper.GetRequestIp(), "ResetPassword", "Error: Exception occurred during password reset: " + ex.Message);
                 TempData[SD.Error] = "An error occurred while resetting your password. Please try again later.";
                 return RedirectToAction(nameof(Login));
             }
@@ -2574,38 +2588,54 @@
                     return Json(new { success = false, message = "Error updating your password: Please contact Admin." });
                 }
 
+                // Check if the old password matches
                 if (!await _userManager.CheckPasswordAsync(user, newPassword.OldPassword))
                 {
                     await RecordAuditAsync(user, myIP, "ChangePassword", "Incorrect current password.");
                     return Json(new { success = false, message = "Current password does not match." });
                 }
 
+                // Prevent using the same password as the current password
                 if (newPassword.OldPassword == newPassword.Password)
                 {
                     await RecordAuditAsync(user, myIP, "ChangePassword", "New password same as current password.");
-                    return Json(new { success = false, message = "New password cannot be the same as the current password." });
+                    return Json(new { success = false, message = "The password you provided appears to be similar to one used recently. Please choose a new one." });
+
                 }
 
+                // Validate the new password
                 var result = await passwordValidator.ValidateAsync(_userManager, user, newPassword.Password);
                 if (!result.Succeeded)
                 {
                     return Json(new { success = false, message = "New password does not meet requirements." });
                 }
 
+                // Generate password reset token
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var resetResult = await _userManager.ResetPasswordAsync(user, token, newPassword.Password);
+
                 if (resetResult.Succeeded)
                 {
+                    // Update user details
                     user.PasswordHash = passwordHasher.HashPassword(user, newPassword.Password);
                     user.ForcePasswordChange = false;
                     user.UpdateOn = DateTime.UtcNow;
-                    user.UserName = newPassword.Email;
-                    user.NormalizedUserName = newPassword.Email.ToUpper();
+                    user.UserName = user.Email; 
+                    user.NormalizedUserName = user.Email.ToUpper();
                     user.LastPasswordChangedDate = DateTime.UtcNow;
+
+                    // Update the user in the database
                     _db.Users.Update(user);
                     await _db.SaveChangesAsync(ct);
 
+                    // Record successful password change and clear session
                     await RecordAuditAsync(user, myIP, "ChangePassword", "Password changed successfully.");
+                    TempData[SD.Success] = "Password changed successfully.";
+
+                    // Sign the user out and clear session
+                    HttpContext.Session.Clear();
+                    await _signInManager.SignOutAsync();
+
                     return Json(new { success = true, message = "Password changed successfully!" });
                 }
 
@@ -2613,6 +2643,7 @@
             }
             catch (Exception ex)
             {
+                // Log any unexpected errors
                 await RecordAuditAsync(null, _requestIpHelper.GetRequestIp(), "ChangePassword", $"Error: {ex.Message}", ct);
                 return Json(new { success = false, message = "Unexpected error occurred." });
             }

@@ -148,22 +148,21 @@ namespace WebOptimus.Controllers
 
                 var currentUser = await _userManager.FindByEmailAsync(currentUserEmail);
 
-                //  Cache Death-Related Causes
+                // Cache Death-Related Causes
                 var allCauses = await _memoryCache.GetOrCreateAsync("AllCauses", async entry =>
                 {
                     entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1);
                     return await _db.Cause.AsNoTracking().ToListAsync(ct);
                 });
 
-
-                //  Cache Non-Death Donations
+                // Cache Non-Death Donations
                 var allDonations = await _memoryCache.GetOrCreateAsync("AllDonations", async entry =>
                 {
                     entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1);
                     return await _db.DonationForNonDeathRelated.AsNoTracking().ToListAsync(ct);
                 });
 
-                //  Cache Payments for Death-Related Causes
+                // Cache Payments for Death-Related Causes
                 var causePayments = await _memoryCache.GetOrCreateAsync("AllCausePayments", async entry =>
                 {
                     entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1);
@@ -173,7 +172,7 @@ namespace WebOptimus.Controllers
                         .ToListAsync(ct);
                 });
 
-                //  Cache Payments for Non-Death Donations
+                // Cache Payments for Non-Death Donations
                 var otherPayments = await _memoryCache.GetOrCreateAsync("AllOtherPayments", async entry =>
                 {
                     entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1);
@@ -183,82 +182,69 @@ namespace WebOptimus.Controllers
                         .ToListAsync(ct);
                 });
 
-                //  Fetch Dependants (for both death-related and non-death-related donations)
+                // Fetch Dependants
                 var dependants = await _db.Dependants
-     .Where(d => causePayments.Select(p => p.personRegNumber).Contains(d.PersonRegNumber) ||
-                 otherPayments.Select(p => p.PersonRegNumber).Contains(d.PersonRegNumber))
-     .GroupBy(d => d.PersonRegNumber) // Group by PersonRegNumber to handle duplicates
-     .ToDictionaryAsync(g => g.Key, g => g.First().PersonName); // Take the first name
+                    .Where(d => causePayments.Select(p => p.personRegNumber).Contains(d.PersonRegNumber) ||
+                                otherPayments.Select(p => p.PersonRegNumber).Contains(d.PersonRegNumber))
+                    .GroupBy(d => d.PersonRegNumber)
+                    .ToDictionaryAsync(g => g.Key, g => g.First().PersonName);
 
+                // Compute Death-Related Donations (Grouped by CauseCampaignpRef)
+                var causePaymentDetails = _db.PaymentSessions
+                    .Where(ps => ps.IsPaid)
+                    .GroupBy(ps => ps.CauseCampaignpRef)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Sum(ps => ps.TotalAmount - ps.TransactionFees)
+                    );
 
-                //  Compute Death-Related Donations (Grouped by CauseCampaignpRef)
-                //var causePaymentDetails = causePayments
-                //    .GroupBy(p => p.CauseCampaignpRef)
-                //    .ToDictionary(
-                //        g => g.Key,
-                //        g => g.Sum(p => p.Amount)
-                //    );
-                var causePaymentDetails = _db.PaymentSessions // Use PaymentSessions to match PaymentDashboard
-          .Where(ps => ps.IsPaid) // Only count fully paid sessions
-          .GroupBy(ps => ps.CauseCampaignpRef)
-          .ToDictionary(
-              g => g.Key,
-              g => g.Sum(ps => ps.TotalAmount - ps.TransactionFees) // Subtract transaction fees
-          );
-
-
-                //  Compute Non-Death Donations (Grouped by CauseCampaignpRef)
+                // Compute Non-Death Donations (Grouped by CauseCampaignpRef)
                 var donationPaymentDetails = await _db.PaymentSessions
-     .Where(ps => ps.IsPaid)
-     .GroupBy(ps => ps.CauseCampaignpRef)
-     .ToDictionaryAsync(
-         g => g.Key,
-        g => g.Sum(ps => ps.TotalAmount - ps.TransactionFees)
-     );
+                    .Where(ps => ps.IsPaid)
+                    .GroupBy(ps => ps.CauseCampaignpRef)
+                    .ToDictionaryAsync(
+                        g => g.Key,
+                        g => g.Sum(ps => ps.TotalAmount - ps.TransactionFees)
+                    );
 
-
-                //  Replace CreatedBy with the Dependant Name for Death-Related Donations
+                // Replace CreatedBy with the Dependant Name for Death-Related Donations
                 foreach (var payment in causePayments)
                 {
                     if (dependants.ContainsKey(payment.personRegNumber))
                     {
-                        payment.CreatedBy = dependants[payment.personRegNumber]; // Replace CreatedBy with Name
+                        payment.CreatedBy = dependants[payment.personRegNumber];
                     }
                 }
 
-                //  Replace CreatedBy with the Dependant Name for Non-Death-Related Donations
+                // Replace CreatedBy with the Dependant Name for Non-Death-Related Donations
                 foreach (var payment in otherPayments)
                 {
                     if (dependants.ContainsKey(payment.PersonRegNumber))
                     {
-                        payment.CreatedBy = dependants[payment.PersonRegNumber]; // Replace CreatedBy with Name
+                        payment.CreatedBy = dependants[payment.PersonRegNumber];
                     }
                 }
 
-                //  Build ViewModel
+                // Build ViewModel
                 var donorVM = new DonorVM
                 {
                     Causes = new List<Cause>(),
                     Donations = new List<DonationForNonDeathRelated>(),
                     User = currentUser,
                     Donors = causePayments
-                    .GroupBy(p => new { p.personRegNumber, p.CauseCampaignpRef })
-                    .Select(g => g.First())
-                    .OrderByDescending(p => p.DateCreated)
-                    .ToList(),
-
+                        .GroupBy(p => new { p.personRegNumber, p.CauseCampaignpRef })
+                        .Select(g => g.First())
+                        .OrderByDescending(p => p.DateCreated)
+                        .ToList(),
 
                     OtherDonationPayments = otherPayments
-                    .GroupBy(p => new { p.PersonRegNumber, p.CauseCampaignpRef })
-                    .Select(g => g.First())
-                    .OrderByDescending(p => p.DateCreated)
-                    .ToList()
-
-
-
+                        .GroupBy(p => new { p.PersonRegNumber, p.CauseCampaignpRef })
+                        .Select(g => g.First())
+                        .OrderByDescending(p => p.DateCreated)
+                        .ToList()
                 };
 
-                //  Process Death-Related Causes
+                // Process Death-Related Causes
                 foreach (var cause in allCauses)
                 {
                     var totalAmountRaised = causePaymentDetails.ContainsKey(cause.CauseCampaignpRef)
@@ -266,25 +252,26 @@ namespace WebOptimus.Controllers
                         : 0m;
 
                     var totalGoodwill = causePayments
-      .Where(p => p.CauseCampaignpRef == cause.CauseCampaignpRef)
-      .Sum(p => p.GoodwillAmount);
+                        .Where(p => p.CauseCampaignpRef == cause.CauseCampaignpRef)
+                        .Sum(p => p.GoodwillAmount);
 
                     donorVM.Causes.Add(new Cause
                     {
                         Id = cause.Id,
                         CauseCampaignpRef = cause.CauseCampaignpRef,
-                       Summary = cause.Summary,
+                        Summary = cause.Summary,
                         IsActive = cause.IsActive,
                         TargetAmount = cause.TargetAmount,
-                        Goodwill = totalGoodwill,                       
+                        Goodwill = totalGoodwill,
                         Description = cause.Description,
                         DateCreated = cause.DateCreated,
                         IsDisplayable = cause.IsDisplayable,
-                        AmountRaised = totalAmountRaised 
+                        AmountRaised = totalAmountRaised,
+                        EndDate = cause.EndDate  // Populate EndDate here
                     });
                 }
 
-                //  Process Non-Death Donations
+                // Process Non-Death Donations
                 foreach (var donation in allDonations)
                 {
                     var totalAmountRaised = donationPaymentDetails.ContainsKey(donation.CauseCampaignpRef)
@@ -303,11 +290,11 @@ namespace WebOptimus.Controllers
                         ClosedDate = donation.ClosedDate ?? null,
                         Description = donation.Description,
                         DateCreated = donation.DateCreated,
-                        IsDisplayable = donation.IsDisplayable
+                        IsDisplayable = donation.IsDisplayable                       
                     });
                 }
 
-                //  Separate active and ended causes (Death-Related)
+                // Separate active and ended causes (Death-Related)
                 ViewBag.ActiveCauses = donorVM.Causes
                     .Where(c => c.IsActive)
                     .OrderByDescending(c => c.DateCreated)
@@ -317,18 +304,8 @@ namespace WebOptimus.Controllers
                     .Where(c => !c.IsActive && c.IsDisplayable)
                     .OrderByDescending(c => c.DateCreated)
                     .ToList();
-                var endedCauseLateFees = _db.PaymentSessions
-    .Where(ps => ps.IsPaid == true) 
-    .GroupBy(ps => ps.CauseCampaignpRef)
-    .ToDictionary(
-        g => g.Key,
-        g => g.Sum(ps => ps.TotalAmount - (ps.TransactionFees +
-                                           causePayments.Where(p => p.CauseCampaignpRef == g.Key).Sum(p => p.Amount + p.GoodwillAmount)))
-    );
 
-                // Store Late Payment Fees for ended causes in ViewBag
-                ViewBag.EndedCauseLateFees = endedCauseLateFees;
-                //  Separate active and ended non-death donations
+                // Separate active and ended non-death donations
                 ViewBag.ActiveDonations = donorVM.Donations
                     .Where(d => d.IsActive)
                     .OrderByDescending(d => d.DateCreated)
