@@ -280,49 +280,44 @@ namespace WebOptimus.Controllers
 
                 // Fetch the current user's group members
                 var dependentRegNumbers = dependents.Select(d => d.PersonRegNumber).ToList();
-                var userDependent = await _db.Dependants.FirstOrDefaultAsync(d => d.PersonRegNumber == currentUser.PersonRegNumber && d.IsActive == true);
+                var userDependent = await _db.Dependants
+     .FirstOrDefaultAsync(d => d.PersonRegNumber == currentUser.PersonRegNumber && d.IsActive == true);
+
                 if (userDependent != null)
                 {
+                    // Get all confirmed groups this user is part of
+                    var userGroups = await _db.GroupMembers
+                        .Where(gm => gm.PersonRegNumber == userDependent.PersonRegNumber && gm.Status == "Confirmed")
+                        .Select(gm => gm.GroupId)
+                        .ToListAsync();
 
-                    var group = await _db.GroupMembers
-                        .FirstOrDefaultAsync(gm => gm.PersonRegNumber == userDependent.PersonRegNumber && gm.Status == "Confirmed");
-
-                    if (group != null)
+                    if (userGroups.Any())
                     {
-                        var groupMembers = await _db.GroupMembers
-                    .Where(gm => gm.Status == "Confirmed" && gm.GroupId == group.GroupId)
-                    .Join(_db.Dependants, gm => gm.PersonRegNumber, d => d.PersonRegNumber, (gm, d) => new
-                    {
-                        gm.GroupId,
-                        d.Id,
-                        d.PersonName,
-                        d.PersonRegNumber,
-                        d.PersonYearOfBirth
-                    })
-                    .Where(gm => !dependentRegNumbers.Contains(gm.PersonRegNumber))  // Exclude dependents
-                    .ToListAsync();
+                        // Get all confirmed group members from those groups
+                        var allGroupMembers = await _db.GroupMembers
+                            .Where(gm => userGroups.Contains(gm.GroupId) && gm.Status == "Confirmed")
+                            .Select(gm => gm.PersonRegNumber)
+                            .Distinct()
+                            .ToListAsync();
 
-                        foreach (var gm in groupMembers)
+                        // Optionally exclude the user's own dependents
+                        var excludeList = dependents.Select(d => d.PersonRegNumber).ToList();
+
+                        var members = await _db.Dependants
+                            .Where(d => allGroupMembers.Contains(d.PersonRegNumber) && !excludeList.Contains(d.PersonRegNumber))
+                            .ToListAsync();
+
+                        foreach (var gm in members)
                         {
                             var checkAge = CalculateAge(gm.PersonYearOfBirth.ToString());
                             decimal price = checkAge >= underAgeLimit ? fullMemberAmount : underAgeAmount;
 
-                            // Fetch exemption status for the group member
-                            var groupMemberPayment = await _db.CustomPayment
-                                .FirstOrDefaultAsync(cp => cp.PersonRegNumber == gm.PersonRegNumber && cp.CauseCampaignpRef == Id);
-
                             bool isExempt = await _db.CustomPayment
-      .AnyAsync(cp => cp.PersonRegNumber == gm.PersonRegNumber && cp.CauseCampaignpRef == Id);
+                                .AnyAsync(cp => cp.PersonRegNumber == gm.PersonRegNumber && cp.CauseCampaignpRef == Id);
 
-                            decimal reducedPrice = groupMemberPayment?.ReduceFees ?? price;
-                            if (isExempt)
-                            {
-                                exemptCount++;
-                                exemptTotal += price;  //  Subtract exempt person's price from total
-                            }
                             vm.GroupMembers.Add(new DependentChecklistItem
                             {
-                                GroupId = gm.GroupId,
+                                GroupId = userGroups.First(), // Or gm.GroupId if needed
                                 PersonRegNumber = gm.PersonRegNumber,
                                 Name = gm.PersonName,
                                 IsSelected = false,
@@ -333,6 +328,7 @@ namespace WebOptimus.Controllers
                         }
                     }
                 }
+
 
                 vm.User = await _db.Users.FirstOrDefaultAsync(u => u.PersonRegNumber == currentUser.PersonRegNumber && u.IsActive);
 
