@@ -36,7 +36,7 @@ namespace WebOptimus.Models
 
         public string? ApprovalOrDeclinerNote { get; set; } = string.Empty;
 
-      
+        public bool IsMandatory { get; set; } = false;
         [NotMapped] // Exclude from database mapping
         public decimal AmountRaised { get; set; } = 0m;
     }
