@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebOptimus.Data;
 
@@ -11,9 +12,11 @@ using WebOptimus.Data;
 namespace WebOptimus.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250612173324_addedStoreProcedure")]
+    partial class addedStoreProcedure
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1422,25 +1425,25 @@ namespace WebOptimus.Migrations
                         new
                         {
                             Id = 1,
-                            DateCreated = new DateTime(2025, 6, 13, 7, 40, 56, 770, DateTimeKind.Utc).AddTicks(265),
+                            DateCreated = new DateTime(2025, 6, 12, 17, 33, 21, 629, DateTimeKind.Utc).AddTicks(9419),
                             TypeName = "Account"
                         },
                         new
                         {
                             Id = 2,
-                            DateCreated = new DateTime(2025, 6, 13, 7, 40, 56, 770, DateTimeKind.Utc).AddTicks(267),
+                            DateCreated = new DateTime(2025, 6, 12, 17, 33, 21, 629, DateTimeKind.Utc).AddTicks(9456),
                             TypeName = "Complaints"
                         },
                         new
                         {
                             Id = 3,
-                            DateCreated = new DateTime(2025, 6, 13, 7, 40, 56, 770, DateTimeKind.Utc).AddTicks(268),
+                            DateCreated = new DateTime(2025, 6, 12, 17, 33, 21, 629, DateTimeKind.Utc).AddTicks(9457),
                             TypeName = "Payments"
                         },
                         new
                         {
                             Id = 4,
-                            DateCreated = new DateTime(2025, 6, 13, 7, 40, 56, 770, DateTimeKind.Utc).AddTicks(269),
+                            DateCreated = new DateTime(2025, 6, 12, 17, 33, 21, 629, DateTimeKind.Utc).AddTicks(9458),
                             TypeName = "General"
                         });
                 });
@@ -2078,20 +2081,11 @@ namespace WebOptimus.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DayOfMonth")
-                        .HasColumnType("int");
-
                     b.Property<string>("EmailSubject")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Frequency")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsRunNow")
                         .HasColumnType("bit");
 
                     b.Property<DateTime?>("LastRunDate")

@@ -83,6 +83,8 @@ namespace WebOptimus.Data
 
         public DbSet<NoteChangeLogs> NoteChangeLogs => Set<NoteChangeLogs>();
         public DbSet<CustomPayment> CustomPayment => Set<CustomPayment>();
+
+        public DbSet<ScheduledStoredProcedure> ScheduledStoredProcedure => Set<ScheduledStoredProcedure>();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

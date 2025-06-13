@@ -595,8 +595,17 @@ namespace WebOptimus.Controllers
 
                             await RecordAuditAsync(currentUser, _requestIpHelper.GetRequestIp(), "Auto-Approval", "General Admin reported and approved death directly: " + dependent.PersonName + " #" + dependent.Id, ct);
                         }
+                        var isTest = await _db.Settings
+                            .Where(s => s.Name == "Is Test Environment")
+                            .Select(s => s.IsActive)
+                            .FirstOrDefaultAsync(ct);
+                        if (!isTest)
+                        {
 
-                        //await NotifyRegionalAdmins(reportedDeath, currentUser, ct);
+                            await NotifyRegionalAdmins(reportedDeath, currentUser, ct);
+                        }
+
+
                         await RecordAuditAsync(currentUser, _requestIpHelper.GetRequestIp(), "New Death", "Reported new death successfully: Deceased Name: " + reportedDeath.DeceasedName + " ID: " + reportedDeath.Id, ct);
                     }
 
@@ -1052,7 +1061,16 @@ namespace WebOptimus.Controllers
                 _db.ReportedDeath.Update(reportedDeath);
                 await _db.SaveChangesAsync(ct);
                 //send email to umojawetu.
-                //await NotifyGeneralAdmins(reportedDeath, currentUser, ct);
+                var isTest = await _db.Settings
+                          .Where(s => s.Name == "Is Test Environment")
+                          .Select(s => s.IsActive)
+                          .FirstOrDefaultAsync(ct);
+                if (!isTest)
+                {
+                    await NotifyGeneralAdmins(reportedDeath, currentUser, ct);
+                }
+
+               
                 TempData["Success"] = "Submission approved successfully.";
                 return RedirectToAction("ReportedDeaths", "Family");
             }

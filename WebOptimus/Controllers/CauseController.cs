@@ -488,9 +488,14 @@ namespace WebOptimus.Controllers
 
                 await RecordAuditAsync(currentUser, _requestIpHelper.GetRequestIp(), "AddCause",
                     $"User created a new campaign: {model.Summary}", ct);
-
-                //send email
-                await NotifyMembers(cause, ct);
+             var isTest = await _db.Settings
+            .Where(s => s.Name == "Is Test Environment")
+            .Select(s => s.IsActive)
+            .FirstOrDefaultAsync(ct);
+                if (!isTest)
+                {
+                    await NotifyMembers(cause, ct);
+                }
                 TempData[SD.Success] = "Cause created successfully.";
                 return RedirectToAction("ApprovedDeaths", "Cause");
             }

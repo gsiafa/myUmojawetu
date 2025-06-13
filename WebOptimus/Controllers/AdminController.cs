@@ -18,6 +18,8 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.Data.SqlClient;
 using DependentChangeLog = WebOptimus.Models.DependentChangeLog;
+using Microsoft.EntityFrameworkCore.Metadata;
+using WebOptimus.Services.StoreProcedure;
 namespace WebOptimus.Controllers
 {
     public class AdminController : BaseController
@@ -34,12 +36,14 @@ namespace WebOptimus.Controllers
         private readonly HttpClient httpClient;
         private readonly IPostmarkClient _postmark;
         private readonly IAuditService _auditService;
+        private readonly IStoredProcedureEmailService _procEmailService;
         public AdminController(IMapper mapper, UserManager<User> userManager,
            SignInManager<User> signInManager, RoleManager<IdentityRole> roleManager, IUserStore<User> userStore,
             RequestIpHelper ipHelper,
           HttpClient httpClient,
              IPostmarkClient postmark,
                 IAuditService auditService,
+                IStoredProcedureEmailService procEmailService,
            IPasswordHasher<User> passwordHash,
            IUserValidator<User> userValid,
            IPasswordValidator<User> passwordVal,
@@ -57,6 +61,7 @@ namespace WebOptimus.Controllers
             this.httpClient = httpClient;
             _postmark = postmark;
             _auditService = auditService;
+            _procEmailService = procEmailService;
         }
 
         [HttpGet]
@@ -4518,7 +4523,20 @@ public async Task<IActionResult> GetNotes(string personRegNumber, CancellationTo
             return RedirectToAction(nameof(CustomPayments));
         }
 
-       
+        //Immediate run store procedure
+        [HttpPost]
+        public async Task<IActionResult> RunNow(int id)
+        {
+            var proc = await _db.ScheduledStoredProcedure.FindAsync(id);
+            if (proc == null) return NotFound();
+
+            await _procEmailService.RunProcedureAndSendEmailAsync(proc.ProcedureName, proc.EmailSubject, proc.ToEmail);
+            proc.LastRunDate = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+
+            return Ok("Procedure run immediately.");
+        }
+
     }
 
 

@@ -56,22 +56,25 @@
 
                                             @if (ViewBag.AdminUser != RoleList.Dependent)
                                             {
-                                                <div class="btn-group d-flex flex-wrap justify-content-between" role="group">
-                                                    <button type="button" class="btn btn-warning w-100 mb-2 mb-md-0" title="Edit Details" onclick="showEditModal('@i.Id', '@i.PersonName', '@i.PersonYearOfBirth', '@i.Telephone', '@i.Email', '@i.Title', '@i.Gender')">
+                                                <div class="d-flex flex-wrap justify-content-between">
+                                                    <button type="button" class="btn btn-warning w-100 mb-2 me-md-2" title="Edit Details"
+                                                            onclick="showEditModal('@i.Id', '@i.PersonName', '@i.PersonYearOfBirth', '@i.Telephone', '@i.Email', '@i.Title', '@i.Gender')">
                                                         <i class="fas fa-edit" aria-label="Edit Details"></i> Edit
                                                     </button>
 
                                                     @if (int.TryParse(i.PersonYearOfBirth, out int yearOfBirth) &&
-                                                   DateTime.Now.Year - yearOfBirth >= 18 && // Check if over 18
-                                                   ViewBag.personRegNumber != i.PersonRegNumber && // Check if not the logged-in user
-                                                   !i.HasAccount) // Check if no account exists
+                                                   DateTime.Now.Year - yearOfBirth >= 18 &&
+                                                   ViewBag.personRegNumber != i.PersonRegNumber &&
+                                                   !i.HasAccount)
                                                     {
-                                                        <button type="button" class="btn btn-primary w-100" title="Open Account" onclick="showOpenAccountModal('@i.Id', '@i.PersonName', '@i.PersonYearOfBirth', '@i.Telephone', '@i.Email', '@i.PersonRegNumber')">
+                                                        <button type="button" class="btn btn-primary w-100 mb-2" title="Open Account"
+                                                                onclick="showOpenAccountModal('@i.Id', '@i.PersonName', '@i.PersonYearOfBirth', '@i.Telephone', '@i.Email', '@i.PersonRegNumber')">
                                                             <i class="fas fa-user-plus" aria-label="Open Account"></i> Open Account
                                                         </button>
                                                     }
                                                 </div>
                                             }
+
                                         </div>
                                     </div>
                                 </div>

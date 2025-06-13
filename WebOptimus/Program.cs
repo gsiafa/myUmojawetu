@@ -18,6 +18,7 @@ using WebOptimus.Models;
 using WebOptimus.Models.Stripe;
 using WebOptimus.Models.ViewModel;
 using WebOptimus.Services;
+using WebOptimus.Services.StoreProcedure;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -90,6 +91,8 @@ if (string.IsNullOrWhiteSpace(postmarkApiKey))
 
 //  Register Configuration to DI (Dependency Injection)
 builder.Services.AddSingleton<IConfiguration>(configuration);
+builder.Services.AddScoped<PostmarkEmailHelper>();
+builder.Services.AddHostedService<DailyProcedureRunner>();
 
 builder.Services.AddDataProtection()
     .PersistKeysToDbContext<ApplicationDbContext>();
@@ -104,6 +107,7 @@ builder.Services.AddSingleton<IHostedService, DonationClosureService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddHostedService<CauseManagementService>();
 builder.Services.AddScoped<IFileUploadService, FileUploadService>();
+builder.Services.AddScoped<IStoredProcedureEmailService, StoredProcedureEmailService>();
 
 if (builder.Environment.IsDevelopment())
 {

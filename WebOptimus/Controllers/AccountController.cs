@@ -2264,6 +2264,11 @@
                     _db.PasswordResets.Update(passwordReset);
                     await _db.SaveChangesAsync();
 
+                    getUser.NormalizedUserName = getUser.Email.ToUpper();
+                    getUser.UserName = getUser.Email;
+                    _db.Users.Update(getUser);
+                    await _db.SaveChangesAsync();
+
                     await RecordAuditAsync(getUser, myIP, "ResetPassword", "User successfully reset their password.");
                     TempData[SD.Success] = "Password reset successful. Please log in.";
                     return RedirectToAction(nameof(Login));
