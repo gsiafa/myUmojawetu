@@ -64,7 +64,7 @@
             <div class="col-md-8">
                 <div class="card shadow-sm p-4 bg-white rounded">
                     <h4 class="text-center text-primary mb-4">Outstanding Payments</h4>
-                    <table class="table table-bordered text-center">
+                    <table class="table m-0 myTable" style="width: 100%;">
                         <thead class="thead-dark">
                             <tr>
                                 <th>Cause Reference</th>
@@ -138,6 +138,9 @@
 </section>
 
 @section scripts {
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="~/admin/js/table.js" asp-append-version="true"> </script>
+
     <script>
         $(document).ready(function () {
             $('.table').DataTable();

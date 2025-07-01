@@ -875,36 +875,41 @@ namespace WebOptimus.Controllers
 
                 foreach (var cause in closedCauses)
                 {
-                    if (cause.IsClosedDate <= currentUser.DateCreated)
+                    foreach (var dependent in dependents)
                     {
-                        continue; // Skip causes closed before the user joined
-                    }
+                        var contributionDate = cause.StartDate ?? cause.DateCreated;
 
-                    // Filter dependents who were eligible but haven't paid
-                    var unpaidDependents = dependents
-                        .Where(d =>
-                            !payments.Any(p => p.personRegNumber == d.PersonRegNumber && p.CauseCampaignpRef == cause.CauseCampaignpRef) &&
-                            CalculateAgeAtYear(d.PersonYearOfBirth.ToString(), cause.DateCreated) >= 25 &&
-                            d.DateCreated <= cause.IsClosedDate
-                        )
-                        .ToList();
+                        // Skip if this dependent joined after the cause
+                        if (dependent.DateCreated > contributionDate)
+                            continue;
 
-                    foreach (var dependent in unpaidDependents)
-                    {
-                        var missedAmount = cause.FullMemberAmount;
-                        totalMissedPayments += missedAmount;
+                        // Check age eligibility
+                        bool isOldEnough = CalculateAgeAtYear(dependent.PersonYearOfBirth, contributionDate) >= cause.UnderAge;
 
+                        // Skip if not old enough
+                        if (!isOldEnough)
+                            continue;
+
+                        // Skip if already paid
+                        bool alreadyPaid = payments.Any(p => p.personRegNumber == dependent.PersonRegNumber && p.CauseCampaignpRef == cause.CauseCampaignpRef);
+                        if (alreadyPaid)
+                            continue;
+
+                        // Add to missed payments
                         missedPayments.Add(new PaymentHistoryViewModel
                         {
                             DependentName = dependent.PersonName,
                             YearOfBirth = dependent.PersonYearOfBirth,
                             RegNumber = dependent.PersonRegNumber,
                             CauseCampaignpRef = cause.CauseCampaignpRef,
-                            Amount = missedAmount,
+                            Amount = cause.FullMemberAmount,
                             EndDate = cause.EndDate
                         });
+
+                        totalMissedPayments += cause.FullMemberAmount;
                     }
                 }
+
 
                 // Calculate total contributions for death-related payments
                 var userPayments = payments.Where(p => p.personRegNumber == currentUser.PersonRegNumber).ToList();
@@ -970,8 +975,7 @@ namespace WebOptimus.Controllers
             }
         }
 
-
-  
+       
 
         private int CalculateAgeAtYear(string personYearOfBirth, DateTime startDate)
         {

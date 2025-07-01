@@ -190,14 +190,18 @@ namespace WebOptimus.Controllers
                     return RedirectToAction(nameof(MakePayment));
                 }
 
-                string userEmail = dependent?.Email ?? "onlinepayment@umojawetu.com";
+                string userEmail = dependent?.Email ?? "onlinepayment@umojawetu.com";             
 
-                // Get all unpaid causes (user has NOT paid)
                 var unpaidCauses = await _db.Cause
-                    .Where(c =>
-                        c.DateCreated >= dependent.DateCreated &&
-                        !_db.Payment.Any(p => p.personRegNumber == dependent.PersonRegNumber && p.CauseCampaignpRef == c.CauseCampaignpRef))
-                    .ToListAsync(ct);
+                .Where(c =>
+                    (
+                        c.IsActive == true ||
+                        (!c.IsActive && c.EndDate.HasValue && c.EndDate.Value < DateTime.UtcNow)
+                    )
+                    && c.DateCreated >= dependent.DateCreated
+                    && !_db.Payment.Any(p => p.personRegNumber == dependent.PersonRegNumber && p.CauseCampaignpRef == c.CauseCampaignpRef))
+                .ToListAsync(ct);
+
 
                 if (!unpaidCauses.Any())
                 {
@@ -219,26 +223,32 @@ namespace WebOptimus.Controllers
 
                 foreach (var cause in unpaidCauses)
                 {
-                    bool wasEligible = CalculateAgeAtYear(dependent.PersonYearOfBirth.ToString(), cause.DateCreated) >= 25;
-                    bool wasMemberBeforeClose = cause.EndDate.HasValue && dependent.DateCreated <= cause.EndDate.Value;
-                    bool isMissedPayment = cause.IsClosed == true; // Only apply missed payment if cause is closed
+                    var contributionDate = cause.StartDate ?? cause.DateCreated;
 
-                    if (wasEligible && wasMemberBeforeClose)
+                    bool wasEligible = CalculateAgeAtYear(dependent.PersonYearOfBirth.ToString(), contributionDate) >= cause.UnderAge;
+                    bool wasMemberAtStart = dependent.DateCreated <= contributionDate;
+
+                    bool isMissedPayment = cause.IsClosed == true && cause.EndDate.HasValue && cause.EndDate.Value < DateTime.UtcNow;
+                 
+                    if (wasEligible && wasMemberAtStart)
                     {
-                        decimal originalLateFee = cause.MissPaymentAmount; // Get the original missed payment fee
-                        decimal reducedLateFee = originalLateFee; // Default to original fee
+                        decimal originalLateFee = 0;
+                        decimal reducedLateFee = 0;
 
-                        // Check if a reduced fee exists in CustomPayment
-                        // If the cause is active, do not apply missed payment fees
-                        if (cause.IsActive)
+                        if (isMissedPayment)
                         {
-                            originalLateFee = 0;
-                            reducedLateFee = 0;
+                            originalLateFee = cause.MissPaymentAmount;
+
+                            if (customPayments.TryGetValue(cause.CauseCampaignpRef, out var customPayment))
+                            {
+                                reducedLateFee = customPayment.ReduceFees;
+                            }
+                            else
+                            {
+                                reducedLateFee = originalLateFee;
+                            }
                         }
-                        else if (customPayments.TryGetValue(cause.CauseCampaignpRef, out var customPayment))
-                        {
-                            reducedLateFee = customPayment.ReduceFees; 
-                        }
+
 
                         missedPayments.Add(new PaymentHistoryViewModel
                         {
